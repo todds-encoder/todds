@@ -1,0 +1,42 @@
+# All clang-tidy checks are enabled by default.
+# Checks producing undesirable results or false positives are to be disabled explicitly documenting the reason.
+#
+# clang-diagnostic-unknown-warning-option: Triggered by GCC-only warnings.
+# clang-diagnostic-unused-command-line-argument: Ignore unused command line arguments.
+# cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers: Required for test cases.
+# cppcoreguidelines-pro-bounds-constant-array-index: Do not force bounds checking.
+# fuchsia-default-arguments-calls: Allow calling functions with default arguments.
+# fuchsia-overloaded-operator: Allow overloading operators.
+# google-runtime-references: Allow non-const reference parameters.
+# llvmlibc-*: Disable all llvm libc specific checks.
+# modernize-use-trailing-return-type: Allow declarations without trailing return types.
+# readability-redundant-member-init: Conflicts with -Weffc++
+
+Checks: '*,
+-clang-diagnostic-unknown-warning-option,
+-clang-diagnostic-unused-command-line-argument,
+-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,
+-cppcoreguidelines-pro-bounds-constant-array-index,
+-fuchsia-default-arguments-calls,
+-fuchsia-overloaded-operator,
+-google-runtime-references,
+-llvmlibc-*,
+-modernize-use-trailing-return-type,
+-readability-redundant-member-init,
+'
+
+AnalyzeTemporaryDtors: true
+FormatStyle: file
+# Headers are in a sub-folder named png2dds.
+HeaderFilterRegex: 'png2dds/.*'
+
+CheckOptions:
+  - { key: readability-identifier-naming.ClassCase,              value: lower_case }
+  - { key: readability-identifier-naming.EnumCase,               value: lower_case }
+  - { key: readability-identifier-naming.EnumConstantCase,       value: lower_case }
+  - { key: readability-identifier-naming.FunctionCase,           value: lower_case }
+  - { key: readability-identifier-naming.NamespaceCase,          value: lower_case }
+  - { key: readability-identifier-naming.ParameterCase,          value: lower_case }
+  - { key: readability-identifier-naming.TypeAliasCase,          value: lower_case }
+  - { key: readability-identifier-naming.UnionCase,              value: lower_case }
+  - { key: readability-identifier-naming.VariableCase,           value: lower_case }
