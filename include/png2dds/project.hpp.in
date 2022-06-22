@@ -1,0 +1,27 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not
+ * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+#ifndef PNG2DDS_BUILD_HPP_IN_HPP
+#define PNG2DDS_BUILD_HPP_IN_HPP
+
+#include <string_view>
+
+namespace png2dds::project {
+
+[[nodiscard]] constexpr std::string_view name() noexcept {
+	return {"@CMAKE_PROJECT_NAME@"};
+}
+
+[[nodiscard]] constexpr std::string_view description() noexcept {
+	return {"@CMAKE_PROJECT_DESCRIPTION@"};
+}
+
+[[nodiscard]] constexpr std::string_view version() noexcept {
+	return {"@CMAKE_PROJECT_VERSION@"};
+}
+
+} // namespace png2dds::project
+
+#endif // PNG2DDS_BUILD_HPP_IN_HPP

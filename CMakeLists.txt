@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.22)
 
 project(png2dds
 	VERSION 0.1.0
-	DESCRIPTION "Convert from PNG to DDS."
+	DESCRIPTION "Convert PNG files to DDS."
 	HOMEPAGE_URL "https://gitlab.com/joseasoler/png2dds"
 	)
 
@@ -23,11 +23,17 @@ include(cmake/warnings.cmake)
 
 find_package(argparse CONFIG REQUIRED)
 
+configure_file(include/png2dds/project.hpp.in include/png2dds/project.hpp @ONLY)
+
 add_executable(png2dds
+	${CMAKE_CURRENT_BINARY_DIR}/include/png2dds/project.hpp
 	include/png2dds/arguments.hpp
 	src/arguments.cpp
 	src/main.cpp)
 
-target_include_directories(png2dds PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include)
+target_include_directories(png2dds PRIVATE
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>/include
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
+	)
 
 target_link_libraries(png2dds PRIVATE argparse::argparse)
