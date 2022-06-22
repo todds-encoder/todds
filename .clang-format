@@ -45,6 +45,8 @@ ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: true
 IncludeBlocks: Regroup
 IncludeCategories:
+  - Regex: '^<argparse.*'
+    Priority: 20
   - Regex: '^<catch2.*'
     Priority: 200
   - Regex: '^<png2dds.*'
