@@ -10,6 +10,7 @@
 #include <catch2/catch.hpp>
 
 using png2dds::memory::chunk;
+using png2dds::memory::reserve;
 
 TEST_CASE("png2dds::memory::chunk type traits", "[memory][chunk]") {
 	STATIC_REQUIRE(std::is_nothrow_move_constructible_v<chunk>);
@@ -43,4 +44,13 @@ TEST_CASE("png2dds::memory::chunk usage", "[memory][chunk]") {
 		REQUIRE(chunk_1.span().data() == span_2.data());
 		REQUIRE(chunk_2.span().size() == span_1.size());
 	}
+}
+
+TEST_CASE("png2dds::memory::reserve usage", "[memory][reserve]") {
+	// ToDo memory management strategy.
+	reserve memory_reserve;
+	constexpr std::size_t size = 100U;
+	auto current_chunk = memory_reserve.get(size);
+	REQUIRE(current_chunk.span().size() >= size);
+	memory_reserve.release(std::move(current_chunk));
 }

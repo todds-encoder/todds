@@ -7,4 +7,8 @@
 namespace png2dds::memory {
 std::span<std::uint8_t> chunk::span() const noexcept { return {_memory.get(), _size}; }
 
+chunk reserve::get(std::size_t size) { return chunk{size}; }
+
+void reserve::release(chunk&& /* released_chunk */) {}
+
 } // namespace png2dds::memory

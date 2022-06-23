@@ -27,9 +27,17 @@ public:
 	[[nodiscard]] std::span<std::uint8_t> span() const noexcept;
 	auto operator<=>(const chunk& rhs) const noexcept = default;
 	bool operator==(const chunk&) const noexcept = delete;
+
 private:
 	std::size_t _size;
 	std::unique_ptr<std::uint8_t[]> _memory;
+};
+
+// ToDo memory management strategy.
+class reserve final {
+public:
+	chunk get(std::size_t size);
+	void release(chunk&& released_chunk);
 };
 
 } // namespace png2dds::memory
