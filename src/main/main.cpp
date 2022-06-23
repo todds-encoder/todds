@@ -3,12 +3,11 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+#include "png2dds/arguments.hpp"
 #include "png2dds/project.hpp"
 
 #include <argparse/argparse.hpp>
 #include <fmt/format.h>
-
-#include "include/png2dds/arguments.hpp"
 
 int main(int argc, char** argv) {
 	int execution_status = EXIT_FAILURE;
