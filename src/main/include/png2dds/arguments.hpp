@@ -13,11 +13,9 @@ class ArgumentParser;
 namespace png2dds {
 /**
  * Wraps the definition of png2dds command-line arguments.
- * @param argc Number of command-line arguments.
- * @param argv Array with all command-line arguments.
  * @return Argument parser instance.
  */
-argparse::ArgumentParser arguments(int argc, char* argv[]);
+argparse::ArgumentParser arguments();
 } // namespace png2dds
 
 #endif // PNG2DDS_ARGUMENTS_HPP

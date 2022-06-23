@@ -3,7 +3,7 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include <png2dds/project.hpp>
+#include "png2dds/project.hpp"
 
 #include <argparse/argparse.hpp>
 
@@ -11,7 +11,7 @@
 
 namespace png2dds {
 
-argparse::ArgumentParser arguments(int argc, char* argv[]) {
+argparse::ArgumentParser arguments() {
 	argparse::ArgumentParser program(std::string{project::name()}, std::string{project::version()});
 
 	program.add_description(std::string{project::description()});
