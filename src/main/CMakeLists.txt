@@ -10,5 +10,6 @@ target_link_libraries(png2dds PRIVATE
 	png2dds_project
 	png2dds_arguments
 	argparse::argparse
+	Boost::nowide
 	fmt::fmt
 	)
