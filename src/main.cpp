@@ -4,10 +4,10 @@
  */
 
 #include <png2dds/arguments.hpp>
+#include <png2dds/project.hpp>
 
 #include <argparse/argparse.hpp>
-
-#include <iostream>
+#include <fmt/format.h>
 
 int main(int argc, char** argv) {
 	int execution_status = EXIT_FAILURE;
@@ -17,10 +17,12 @@ int main(int argc, char** argv) {
 		arguments.parse_args(argc, argv);
 		execution_status = EXIT_SUCCESS;
 	} catch (const std::runtime_error& ex) {
-		std::cerr << ex.what() << '\n' << arguments << '\n';
+		fmt::print(stderr, "{:s}\n{:s}", ex.what(), arguments.help().str());
 	} catch (const std::exception& ex) {
-		std::cerr << "png2dds has been terminated because of an exception: " << ex.what() << ".\n";
-	} catch (...) { std::cerr << "png2dds has been terminated because of an unknown exception.\n"; }
+		fmt::print(stderr, "{:s} has been terminated because of an exception: {:s}\n", png2dds::project::name(), ex.what());
+	} catch (...) {
+		fmt::print(stderr, "{:s} has been terminated because of an unknown exception.\n", png2dds::project::name());
+	}
 
 	return execution_status;
 }
