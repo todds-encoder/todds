@@ -7,8 +7,6 @@
 
 #include <argparse/argparse.hpp>
 
-#include <string>
-
 namespace png2dds {
 
 argparse::ArgumentParser arguments() {
@@ -16,8 +14,11 @@ argparse::ArgumentParser arguments() {
 
 	program.add_description(std::string{project::description()});
 
-	program.add_argument("input").help("input file");
-	program.add_argument("output").help("output file");
+	program.add_argument("--only").help("Only convert PNGs that contain a folder with the specified folder in its path. "
+																			"This comparison is case insensitive.");
+
+	program.add_argument("path").help(
+		"Convert PNG files in this path. DDS files will be created next to their PNG counterpart.");
 
 	return program;
 }

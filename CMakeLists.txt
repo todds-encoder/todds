@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.22)
 
 project(png2dds
 	VERSION 0.1.0
-	DESCRIPTION "Convert PNG files to DDS."
+	DESCRIPTION "Batch conversion of PNG files to DDS."
 	HOMEPAGE_URL "https://gitlab.com/joseasoler/png2dds"
 	)
 
