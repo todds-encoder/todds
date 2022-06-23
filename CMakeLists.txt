@@ -18,6 +18,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Export compile commands information.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+include(cmake/platform.cmake)
 include(cmake/clang_tidy.cmake)
 include(cmake/warnings.cmake)
 
