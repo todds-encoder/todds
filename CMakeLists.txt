@@ -23,7 +23,7 @@ include(cmake/clang_tidy.cmake)
 include(cmake/warnings.cmake)
 
 find_package(argparse CONFIG REQUIRED)
-find_package(Boost REQUIRED COMPONENTS nowide)
+find_package(Boost 1.73 REQUIRED COMPONENTS nowide)
 find_package(fmt CONFIG REQUIRED)
 
 add_subdirectory(src)
