@@ -12,11 +12,13 @@
 #include <fmt/format.h>
 
 #include <string_view>
+#include <thread>
 
 namespace png2dds::args {
 
 constexpr std::string_view path_arg = "path";
 constexpr std::string_view only_arg = "--only";
+constexpr std::string_view threads_arg = "--threads";
 
 data get(int argc, char** argv) {
 	boost::nowide::args _(argc, argv);
@@ -31,11 +33,17 @@ data get(int argc, char** argv) {
 	program.add_argument(only_arg).help("Only convert PNGs that contain a folder with the specified folder in its path. "
 																			"This comparison is case insensitive.");
 
+	program.add_argument(threads_arg)
+		.default_value(static_cast<int>(std::thread::hardware_concurrency()))
+		.scan<'i', int>()
+		.help("Number of threads to use. If not used png2dds will use the maximum number of threads.");
+
 	data result;
 	try {
 		program.parse_args(argc, argv);
 		result.path = program.get(path_arg);
 		result.only = program.present(only_arg).value_or("");
+		result.threads = program.get<int>(threads_arg);
 	} catch (const std::runtime_error& ex) {
 		result.error = fmt::format("{:s}\n{:s}", ex.what(), program.help().str());
 	} catch (const std::logic_error& ex) {

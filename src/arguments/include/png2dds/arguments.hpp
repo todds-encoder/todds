@@ -15,6 +15,7 @@ struct data {
 	std::string error;
 	std::string path;
 	std::string only;
+	int threads;
 };
 
 /**
