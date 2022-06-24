@@ -11,6 +11,8 @@
 #include <boost/nowide/iostream.hpp>
 #include <fmt/format.h>
 
+using boost::nowide::cerr;
+
 int main(int argc, char** argv) {
 	boost::nowide::args _(argc, argv);
 	int execution_status = EXIT_FAILURE;
@@ -20,11 +22,11 @@ int main(int argc, char** argv) {
 		arguments.parse_args(argc, argv);
 		execution_status = EXIT_SUCCESS;
 	} catch (const std::runtime_error& ex) {
-		boost::nowide::cerr << fmt::format("{:s}\n{:s}", ex.what(), arguments.help().str());
+		cerr << fmt::format("{:s}\n{:s}", ex.what(), arguments.help().str());
 	} catch (const std::exception& ex) {
-		boost::nowide::cerr << fmt::format("{:s} has been terminated because of an exception: {:s}\n", png2dds::project::name(), ex.what());
+		cerr << fmt::format("{:s} has been terminated because of an exception: {:s}\n", png2dds::project::name(), ex.what());
 	} catch (...) {
-		boost::nowide::cerr << fmt::format("{:s} has been terminated because of an unknown exception.\n", png2dds::project::name());
+		cerr << fmt::format("{:s} has been terminated because of an unknown exception.\n", png2dds::project::name());
 	}
 
 	return execution_status;
