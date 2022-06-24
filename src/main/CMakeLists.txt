@@ -9,7 +9,6 @@ target_compile_options(png2dds PRIVATE ${PNG2DDS_CPP_WARNING_FLAGS})
 target_link_libraries(png2dds PRIVATE
 	png2dds_project
 	png2dds_arguments
-	argparse::argparse
 	Boost::nowide
 	fmt::fmt
 	)

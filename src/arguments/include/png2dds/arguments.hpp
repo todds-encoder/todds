@@ -6,16 +6,24 @@
 #ifndef PNG2DDS_ARGUMENTS_HPP
 #define PNG2DDS_ARGUMENTS_HPP
 
-namespace argparse {
-class ArgumentParser;
-} // namespace argparse
+#include <string_view>
+#include <string>
 
-namespace png2dds {
+namespace png2dds::args {
+
+struct data {
+	std::string error;
+	std::string path;
+	std::string only;
+};
+
 /**
- * Wraps the definition of png2dds command-line arguments.
- * @return Argument parser instance.
+ * Obtain argument data from command-line data
+ * @param argc Number of arguments.
+ * @param argv Array of arguments
+ * @return Structure containing parsed arguments.
  */
-argparse::ArgumentParser arguments();
-} // namespace png2dds
+data get(int argc, char** argv);
+} // namespace png2dds::args
 
 #endif // PNG2DDS_ARGUMENTS_HPP
