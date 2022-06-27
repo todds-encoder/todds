@@ -7,8 +7,8 @@
 
 #include "png2dds/project.hpp"
 
-#include <argparse/argparse.hpp>
 #include <boost/nowide/args.hpp>
+#include <cxxopts.hpp>
 #include <fmt/format.h>
 
 #include <string_view>
@@ -16,41 +16,32 @@
 
 namespace png2dds::args {
 
-constexpr std::string_view path_arg = "path";
-constexpr std::string_view only_arg = "--only";
-constexpr std::string_view threads_arg = "--threads";
-
 data get(int argc, char** argv) {
 	boost::nowide::args _(argc, argv);
 
-	argparse::ArgumentParser program(std::string{project::name()}, std::string{project::version()});
+	data arguments;
 
-	program.add_description(std::string{project::description()});
-
-	program.add_argument(path_arg).help(
-		"Convert PNG files in this path. DDS files will be created next to their PNG counterpart.");
-
-	program.add_argument(only_arg).help("Only convert PNGs that contain a folder with the specified folder in its path. "
-																			"This comparison is case insensitive.");
-
-	program.add_argument(threads_arg)
-		.default_value(static_cast<int>(std::thread::hardware_concurrency()))
-		.scan<'i', int>()
-		.help("Number of threads to use. If not used png2dds will use the maximum number of threads.");
-
-	data result;
 	try {
-		program.parse_args(argc, argv);
-		result.path = program.get(path_arg);
-		result.only = program.present(only_arg).value_or("");
-		result.threads = program.get<int>(threads_arg);
-	} catch (const std::runtime_error& ex) {
-		result.error = fmt::format("{:s}\n{:s}", ex.what(), program.help().str());
-	} catch (const std::logic_error& ex) {
-		result.error = fmt::format("Argument error: {:s}\n{:s}", ex.what(), program.help().str());
-	}
+		cxxopts::Options options(std::string{project::name()}, std::string{project::description()});
 
-	return result;
+		const std::string& help_arg = "help";
+		const std::string& help_help = "Show usage information";
+
+		const std::string& threads_arg = "threads";
+		const std::string& threads_help = "Maximum number of threads that png2dds will use.";
+
+		const std::string& path_arg = "path";
+		const std::string& path_help = "Convert all PNG files inside of this folder.";
+
+		options.add_options()(threads_arg, threads_help, cxxopts::value<int>())(
+			path_arg, path_help, cxxopts::value<std::string>())(help_arg, help_help);
+
+		auto result = options.parse(argc, argv);
+
+		arguments.error = options.help();
+	} catch (const cxxopts::OptionException& ex) { arguments.error = ex.what(); }
+
+	return arguments;
 }
 
 } // namespace png2dds::args

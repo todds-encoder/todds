@@ -45,9 +45,9 @@ ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: true
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex: '^<argparse.*'
-    Priority: 20
   - Regex: '^<boost.*'
+    Priority: 20
+  - Regex: '^<cxxopts.*'
     Priority: 20
   - Regex: '^<fmt.*'
     Priority: 20
