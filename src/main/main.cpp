@@ -10,15 +10,18 @@
 #include <fmt/format.h>
 
 using boost::nowide::cerr;
+using boost::nowide::cout;
 
 int main(int argc, char** argv) {
 	int execution_status = EXIT_FAILURE;
 
 	try {
 		auto data = png2dds::args::get(argc, argv);
-		if (!data.error.empty()) {
-			cerr << data.error;
-		} else {
+		if (!data.text.empty()) {
+			auto& stream = data.error ? cerr : cout;
+			stream << data.text;
+		}
+		if (!data.error) {
 			execution_status = EXIT_SUCCESS;
 		}
 	} catch (const std::exception& ex) {
