@@ -16,6 +16,7 @@ struct data {
 	std::string path{};
 	std::string list{};
 	unsigned int threads{};
+	unsigned int depth{};
 };
 
 /**
