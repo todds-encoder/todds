@@ -24,12 +24,6 @@ data get(int argc, char** argv) {
 	try {
 		cxxopts::Options options(std::string{project::name()}, std::string{project::description()});
 
-		const std::string& help_arg = "help";
-		const std::string& help_help = "Show usage information";
-
-		const std::string& threads_arg = "threads";
-		const std::string& threads_help = "Number of threads that png2dds will use";
-
 		const std::string& path_arg = "path";
 		const std::string& path_help = "Convert to DDS all PNG files inside of this folder";
 
@@ -38,11 +32,20 @@ data get(int argc, char** argv) {
 			"Points to a text file with a list of PNG files and/or directories. Entries must be on separate lines. All "
 			"individual PNG files and those inside specified directories will be converted to DDS.";
 
+		const std::string& threads_arg = "threads";
+		const std::string& threads_help = "Number of threads that png2dds will use";
+
 		const std::string& depth_arg = "depth";
 		const std::string& depth_help = "Maximum subdirectory depth to look for PNG files";
 
 		const std::string& overwrite_arg = "overwrite";
 		const std::string& overwrite_help = "Convert PNG files to DDS even if they already have a DDS file";
+
+		const std::string& help_arg = "help";
+		const std::string& help_help = "Show usage information";
+
+		const std::string& version_arg = "version";
+		const std::string& version_help = "Show program version";
 
 		const unsigned int max_threads = std::thread::hardware_concurrency();
 		// clang-format off
@@ -52,13 +55,16 @@ data get(int argc, char** argv) {
 			(threads_arg, threads_help, cxxopts::value<unsigned int>()->default_value(std::to_string(max_threads)))
 			(depth_arg, depth_help, cxxopts::value<unsigned int>())
 			(overwrite_arg, overwrite_help)
-			(help_arg, help_help);
+			(help_arg, help_help)
+			(version_arg, version_help);
 		// clang-format on
 
 		auto result = options.parse(argc, argv);
 
 		if (result.count(help_arg) > 0U) {
 			arguments.text = options.help();
+		} else if (result.count(version_arg) > 0U) {
+			arguments.text = fmt::format("{:s} {:s}", project::name(), project::version());
 		} else {
 			arguments.path = result[path_arg].as<std::string>();
 			arguments.list = result[list_arg].as<std::string>();
