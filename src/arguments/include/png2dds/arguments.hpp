@@ -12,10 +12,10 @@
 namespace png2dds::args {
 
 struct data {
-	std::string error;
-	std::string path;
-	std::string only;
-	int threads;
+	std::string error{};
+	std::string path{};
+	std::string only{};
+	int threads{};
 };
 
 /**
