@@ -34,10 +34,16 @@ data get(int argc, char** argv) {
 		const std::string& path_arg = "path";
 		const std::string& path_help = "Convert to DDS all PNG files inside of this folder";
 
+		const std::string& list_arg = "list";
+		const std::string& list_help =
+			"Points to a text file with a list of PNG files and/or directories. Entries must be on separate lines. All "
+			"individual PNG files and those inside specified directories will be converted to DDS.";
+
 		const unsigned int max_threads = std::thread::hardware_concurrency();
 		// clang-format off
 		options.add_options()
-			(path_arg, path_help, cxxopts::value<std::string>())
+			(path_arg, path_help, cxxopts::value<std::string>()->default_value(""))
+			(list_arg, list_help, cxxopts::value<std::string>()->default_value(""))
 			(threads_arg, threads_help, cxxopts::value<unsigned int>()->default_value(std::to_string(max_threads)))
 			(help_arg, help_help);
 		// clang-format on
@@ -47,11 +53,16 @@ data get(int argc, char** argv) {
 		if (result.count(help_arg) > 0U) {
 			arguments.text = options.help();
 		} else {
+			arguments.path = result[path_arg].as<std::string>();
+			arguments.list = result[list_arg].as<std::string>();
 			arguments.threads = std::min(result[threads_arg].as<unsigned int>(), max_threads);
 
 			if (arguments.threads == 0U) {
 				arguments.error = true;
 				arguments.text = fmt::format("{:s} must be greater than zero.", threads_arg);
+			} else if (arguments.path.empty() && arguments.list.empty()) {
+				arguments.error = true;
+				arguments.text = fmt::format("Must provide {:s} and/or {:s}.", path_arg, list_arg);
 			}
 		}
 

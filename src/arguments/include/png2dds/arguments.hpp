@@ -14,7 +14,7 @@ struct data {
 	bool error{};
 	std::string text{};
 	std::string path{};
-	std::string only{};
+	std::string list{};
 	unsigned int threads{};
 };
 
