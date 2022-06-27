@@ -11,7 +11,6 @@
 #include <cxxopts.hpp>
 #include <fmt/format.h>
 
-#include <algorithm>
 #include <string_view>
 #include <thread>
 
@@ -42,6 +41,9 @@ data get(int argc, char** argv) {
 		const std::string& depth_arg = "depth";
 		const std::string& depth_help = "Maximum subdirectory depth to look for PNG files";
 
+		const std::string& overwrite_arg = "overwrite";
+		const std::string& overwrite_help = "Convert PNG files to DDS even if they already have a DDS file";
+
 		const unsigned int max_threads = std::thread::hardware_concurrency();
 		// clang-format off
 		options.add_options()
@@ -49,6 +51,7 @@ data get(int argc, char** argv) {
 			(list_arg, list_help, cxxopts::value<std::string>()->default_value(""))
 			(threads_arg, threads_help, cxxopts::value<unsigned int>()->default_value(std::to_string(max_threads)))
 			(depth_arg, depth_help, cxxopts::value<unsigned int>())
+			(overwrite_arg, overwrite_help)
 			(help_arg, help_help);
 		// clang-format on
 
@@ -62,6 +65,7 @@ data get(int argc, char** argv) {
 			arguments.threads = std::min(result[threads_arg].as<unsigned int>(), max_threads);
 			arguments.depth =
 				result.count(depth_arg) > 0 ? result[depth_arg].as<unsigned int>() : std::numeric_limits<unsigned int>::max();
+			arguments.overwrite = result.count(overwrite_arg) > 0;
 
 			if (arguments.path.empty() && arguments.list.empty()) {
 				arguments.error = true;

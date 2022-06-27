@@ -17,6 +17,7 @@ struct data {
 	std::string list{};
 	unsigned int threads{};
 	unsigned int depth{};
+	bool overwrite{};
 };
 
 /**
