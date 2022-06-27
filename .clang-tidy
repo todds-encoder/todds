@@ -1,6 +1,7 @@
 # All clang-tidy checks are enabled by default.
 # Checks producing undesirable results or false positives are to be disabled explicitly documenting the reason.
 #
+# altera-struct-pack-align: Allow structs that are not efficiently padded.
 # clang-diagnostic-unknown-warning-option: Triggered by GCC-only warnings.
 # clang-diagnostic-unused-command-line-argument: Ignore unused command line arguments.
 # cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers: Required for test cases.
@@ -13,6 +14,7 @@
 # readability-redundant-member-init: Conflicts with -Weffc++
 
 Checks: '*,
+-altera-struct-pack-align,
 -clang-diagnostic-unknown-warning-option,
 -clang-diagnostic-unused-command-line-argument,
 -cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,

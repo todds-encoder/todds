@@ -6,16 +6,15 @@
 #ifndef PNG2DDS_MEMORY_HPP
 #define PNG2DDS_MEMORY_HPP
 
-#include <memory>
+#include <cstdint>
 #include <span>
+#include <vector>
 
 namespace png2dds::memory {
 
 class chunk final {
 public:
-	explicit chunk(std::size_t size)
-		: _size{size}
-		, _memory{std::make_unique<std::uint8_t[]>(_size)} {}
+	explicit chunk(std::size_t size);
 
 	// Chunk is a move-only type.
 	chunk(const chunk&) = delete;
@@ -29,15 +28,7 @@ public:
 	bool operator==(const chunk&) const noexcept = delete;
 
 private:
-	std::size_t _size;
-	std::unique_ptr<std::uint8_t[]> _memory;
-};
-
-// ToDo memory management strategy.
-class reserve final {
-public:
-	chunk get(std::size_t size);
-	void release(chunk&& released_chunk);
+	std::vector<std::uint8_t> _memory;
 };
 
 } // namespace png2dds::memory

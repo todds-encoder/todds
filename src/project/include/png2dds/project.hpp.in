@@ -3,8 +3,8 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#ifndef PNG2DDS_BUILD_HPP_IN_HPP
-#define PNG2DDS_BUILD_HPP_IN_HPP
+#ifndef PNG2DDS_BUILD_HPP
+#define PNG2DDS_BUILD_HPP
 
 #include <string_view>
 
@@ -24,4 +24,4 @@ namespace png2dds::project {
 
 } // namespace png2dds::project
 
-#endif // PNG2DDS_BUILD_HPP_IN_HPP
+#endif // PNG2DDS_BUILD_HPP

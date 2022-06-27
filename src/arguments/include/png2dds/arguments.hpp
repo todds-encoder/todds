@@ -6,7 +6,6 @@
 #ifndef PNG2DDS_ARGUMENTS_HPP
 #define PNG2DDS_ARGUMENTS_HPP
 
-#include <string_view>
 #include <string>
 
 namespace png2dds::args {
