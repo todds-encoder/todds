@@ -11,7 +11,7 @@ option(PNG2DDS_CPP_WARNINGS_AS_ERRORS "Treat PNG2DDS_CPP_WARNING_FLAGS as errors
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	option(PNG2DDS_CPP_CLANG_ALL_WARNINGS
-		"Include all Clang warnings (except C++98 compatibility ones). This may trigger unexpected positives when using newer Clang versions." OFF)
+		"Include most Clang warnings. This may trigger unexpected positives when using newer Clang versions." OFF)
 endif ()
 
 message(STATUS "Defining PNG2DDS_CPP_WARNING_FLAGS")
@@ -20,9 +20,10 @@ set(PNG2DDS_CPP_WARNING_FLAGS)
 
 if (PNG2DDS_CPP_CLANG_ALL_WARNINGS AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	list(APPEND PNG2DDS_CPP_WARNING_FLAGS
-		-Weverything               # Enable every Clang warning except for the following exceptions.
-		-Wno-c++98-compat          # This project is not compatible with C++98.
-		-Wno-c++98-compat-pedantic # This project is not compatible with C++98.
+		-Weverything                          # Enable every Clang warning except for the following exceptions.
+		-Wno-c++98-compat                     # This project is not compatible with C++98.
+		-Wno-c++98-compat-pedantic            # This project is not compatible with C++98.
+		-Wno-padded                           # Allow the compiler to add any padding it needs.
 		)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	# Warnings present in all supported versions of GCC and Clang.
