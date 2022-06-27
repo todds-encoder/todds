@@ -23,7 +23,7 @@ public:
 	chunk& operator=(chunk&&) noexcept = default;
 	~chunk() = default;
 
-	[[nodiscard]] std::span<std::uint8_t> span() const noexcept;
+	[[nodiscard]] std::span<std::uint8_t> span() noexcept;
 	auto operator<=>(const chunk& rhs) const noexcept = default;
 	bool operator==(const chunk&) const noexcept = delete;
 

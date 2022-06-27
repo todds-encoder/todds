@@ -10,7 +10,6 @@
 #include <catch2/catch.hpp>
 
 using png2dds::memory::chunk;
-using png2dds::memory::reserve;
 
 TEST_CASE("png2dds::memory::chunk type traits", "[memory][chunk]") {
 	STATIC_REQUIRE(std::is_nothrow_move_constructible_v<chunk>);
@@ -21,13 +20,13 @@ TEST_CASE("png2dds::memory::chunk type traits", "[memory][chunk]") {
 TEST_CASE("png2dds::memory::chunk usage", "[memory][chunk]") {
 	SECTION("Zero sized chunk") {
 		constexpr std::size_t size_zero = 0U;
-		const chunk chunk_zero{size_zero};
+		chunk chunk_zero{size_zero};
 		REQUIRE(chunk_zero.span().size() == size_zero);
 	}
 
 	SECTION("Non-zero sized chunk") {
 		constexpr std::size_t size_non_zero = 100U;
-		const chunk chunk_non_zero{size_non_zero};
+		chunk chunk_non_zero{size_non_zero};
 		const auto span = chunk_non_zero.span();
 		REQUIRE(span.size() == size_non_zero);
 		REQUIRE(span.data() != nullptr);

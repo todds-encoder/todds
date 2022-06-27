@@ -1,7 +1,7 @@
 # All clang-tidy checks are enabled by default.
 # Checks producing undesirable results or false positives are to be disabled explicitly documenting the reason.
 #
-# altera-struct-pack-align: Allow structs that are not efficiently padded.
+# altera-*: Disable FPGA checks.
 # clang-diagnostic-unknown-warning-option: Triggered by GCC-only warnings.
 # clang-diagnostic-unused-command-line-argument: Ignore unused command line arguments.
 # cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers: Required for test cases.
@@ -11,10 +11,11 @@
 # google-runtime-references: Allow non-const reference parameters.
 # llvmlibc-*: Disable all llvm libc specific checks.
 # modernize-use-trailing-return-type: Allow declarations without trailing return types.
+# readability-function-cognitive-complexity: Triggered by catch2 tests.
 # readability-redundant-member-init: Conflicts with -Weffc++
 
 Checks: '*,
--altera-struct-pack-align,
+-altera-*,
 -clang-diagnostic-unknown-warning-option,
 -clang-diagnostic-unused-command-line-argument,
 -cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,
@@ -24,6 +25,7 @@ Checks: '*,
 -google-runtime-references,
 -llvmlibc-*,
 -modernize-use-trailing-return-type,
+-readability-function-cognitive-complexity,
 -readability-redundant-member-init,
 '
 

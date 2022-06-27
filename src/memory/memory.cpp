@@ -5,8 +5,9 @@
 #include <png2dds/memory.hpp>
 
 namespace png2dds::memory {
-chunk::chunk(std::size_t size) : _memory(size) {}
+chunk::chunk(std::size_t size)
+	: _memory(size) {}
 
-std::span<std::uint8_t> chunk::span() const noexcept { return {_memory.data(), _memory.size()}; }
+std::span<std::uint8_t> chunk::span() noexcept { return {_memory.data(), _memory.size()}; }
 
 } // namespace png2dds::memory

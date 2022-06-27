@@ -10,17 +10,11 @@
 
 namespace png2dds::project {
 
-[[nodiscard]] constexpr std::string_view name() noexcept {
-	return {"@CMAKE_PROJECT_NAME@"};
-}
+[[nodiscard]] constexpr std::string_view name() noexcept { return {"@CMAKE_PROJECT_NAME@"}; }
 
-[[nodiscard]] constexpr std::string_view description() noexcept {
-	return {"@CMAKE_PROJECT_DESCRIPTION@"};
-}
+[[nodiscard]] constexpr std::string_view description() noexcept { return {"@CMAKE_PROJECT_DESCRIPTION@"}; }
 
-[[nodiscard]] constexpr std::string_view version() noexcept {
-	return {"@CMAKE_PROJECT_VERSION@"};
-}
+[[nodiscard]] constexpr std::string_view version() noexcept { return {"@CMAKE_PROJECT_VERSION@"}; }
 
 } // namespace png2dds::project
 
