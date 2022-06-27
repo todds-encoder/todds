@@ -32,12 +32,15 @@ data get(int argc, char** argv) {
 		const std::string& threads_help = "Number of threads that png2dds will use";
 
 		const std::string& path_arg = "path";
-		const std::string& path_help = "Convert all PNG files inside of this folder";
+		const std::string& path_help = "Convert to DDS all PNG files inside of this folder";
 
 		const unsigned int max_threads = std::thread::hardware_concurrency();
-		options.add_options()(
-			threads_arg, threads_help, cxxopts::value<unsigned int>()->default_value(std::to_string(max_threads)))(
-			path_arg, path_help, cxxopts::value<std::string>())(help_arg, help_help);
+		// clang-format off
+		options.add_options()
+			(path_arg, path_help, cxxopts::value<std::string>())
+			(threads_arg, threads_help, cxxopts::value<unsigned int>()->default_value(std::to_string(max_threads)))
+			(help_arg, help_help);
+		// clang-format on
 
 		auto result = options.parse(argc, argv);
 
