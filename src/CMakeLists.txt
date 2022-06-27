@@ -4,7 +4,6 @@
 
 # Platform modules
 add_subdirectory(project)
-add_subdirectory(exception)
 add_subdirectory(memory)
 # Core modules
 add_subdirectory(arguments)

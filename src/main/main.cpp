@@ -4,7 +4,6 @@
  */
 
 #include "png2dds/arguments.hpp"
-#include "png2dds/exception.hpp"
 #include "png2dds/project.hpp"
 
 #include <boost/nowide/iostream.hpp>
@@ -22,9 +21,6 @@ int main(int argc, char** argv) {
 		} else {
 			execution_status = EXIT_SUCCESS;
 		}
-	} catch (const png2dds::runtime_error& ex) {
-		// Exceptions coming from png2dds are assumed to have properly formatted text.
-		cerr << ex.what();
 	} catch (const std::exception& ex) {
 		cerr << fmt::format(
 			"{:s} has been terminated because of an exception: {:s}\n", png2dds::project::name(), ex.what());
