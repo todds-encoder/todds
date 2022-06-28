@@ -29,7 +29,7 @@ bool has_png_extension(const fs::file_status& status, const fs::path& path) {
 				 (extension[3U] == 'g' || extension[3U] == 'G');
 }
 
-void process_directory(const fs::path& path, std::vector<std::string>& png) {
+void process_directory(const fs::path& path, std::vector<std::string>& png, unsigned int depth) {
 	const fs::directory_entry dir{path};
 	if (!fs::exists(dir) || !fs::is_directory(dir)) { return; }
 
@@ -38,6 +38,7 @@ void process_directory(const fs::path& path, std::vector<std::string>& png) {
 
 	for (; itr != end; ++itr) {
 		if (has_png_extension(itr->status(), itr->path())) { png.emplace_back(itr->path().string()); }
+		if (static_cast<unsigned int>(itr.depth()) >= depth) { itr.disable_recursion_pending(); }
 	}
 }
 } // anonymous namespace
@@ -52,7 +53,7 @@ task::task(png2dds::args::data arguments)
 }
 
 void task::start() {
-	process_directory(_arguments.path, _png);
+	process_directory(_arguments.path, _png, _arguments.depth);
 
 	if (fs::exists(_arguments.list) || fs::is_regular_file(_arguments.list)) {
 		boost::nowide::fstream stream{_arguments.list};
@@ -63,7 +64,7 @@ void task::start() {
 			if (has_png_extension(status, path)) {
 				_png.emplace_back(path.string());
 			} else {
-				process_directory(path, _png);
+				process_directory(path, _png, _arguments.depth);
 			}
 		}
 	}
