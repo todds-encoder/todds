@@ -22,7 +22,12 @@ include(cmake/platform.cmake)
 include(cmake/clang_tidy.cmake)
 include(cmake/warnings.cmake)
 
-find_package(Boost 1.73 REQUIRED COMPONENTS nowide)
+find_package(Boost 1.73 REQUIRED COMPONENTS
+	# Support UTF-8 on Windows.
+	nowide
+	# Use UTF-8 when converting char*/string to filesystem::path and viceversa.
+	filesystem
+	)
 find_package(cxxopts REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 

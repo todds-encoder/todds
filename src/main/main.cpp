@@ -5,6 +5,7 @@
 
 #include "png2dds/arguments.hpp"
 #include "png2dds/project.hpp"
+#include "png2dds/task.hpp"
 
 #include <boost/nowide/iostream.hpp>
 #include <fmt/format.h>
@@ -22,6 +23,7 @@ int main(int argc, char** argv) {
 			stream << data.text;
 		}
 		if (!data.error) {
+			png2dds::task(data).start();
 			execution_status = EXIT_SUCCESS;
 		}
 	} catch (const std::exception& ex) {
