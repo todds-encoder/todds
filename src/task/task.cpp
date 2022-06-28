@@ -6,11 +6,16 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/nowide/filesystem.hpp>
+#include <boost/nowide/fstream.hpp>
 #include <boost/nowide/iostream.hpp>
+
+#include <cctype>
+#include <string>
 
 namespace fs = boost::filesystem;
 
 namespace {
+
 bool has_png_extension(const fs::file_status& status, const fs::path& path) {
 	if (!fs::is_regular_file(status)) { return false; }
 	const std::string extension = path.extension().string();
@@ -22,8 +27,7 @@ bool has_png_extension(const fs::file_status& status, const fs::path& path) {
 				 (extension[3U] == 'g' || extension[3U] == 'G');
 }
 
-void process_directory(std::string_view directory, std::vector<std::string>& png) {
-	const fs::path path{directory.data()};
+void process_directory(const fs::path& path, std::vector<std::string>& png) {
 	const fs::directory_entry dir{path};
 	if (!fs::exists(dir) || !fs::is_directory(dir)) { return; }
 
@@ -45,6 +49,25 @@ task::task(png2dds::args::data arguments)
 	boost::nowide::nowide_filesystem();
 }
 
-void task::start() { process_directory(_arguments.path, _png); }
+void task::start() {
+	process_directory(_arguments.path, _png);
+
+	if (fs::exists(_arguments.list) || fs::is_regular_file(_arguments.list)) {
+		boost::nowide::fstream stream{_arguments.list};
+		std::string buffer;
+		while (std::getline(stream, buffer)) {
+			const fs::path path{buffer};
+			const fs::file_status status = fs::status(path);
+			if (has_png_extension(status, path)) {
+				_png.emplace_back(path.string());
+			} else {
+				process_directory(path, _png);
+			}
+		}
+	}
+
+	// ToDo remove
+	for (const auto& png : _png) { boost::nowide::cerr << png << '\n'; }
+}
 
 } // namespace png2dds
