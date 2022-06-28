@@ -7,8 +7,10 @@
 #include <boost/filesystem.hpp>
 #include <boost/nowide/filesystem.hpp>
 #include <boost/nowide/fstream.hpp>
+// ToDo remove
 #include <boost/nowide/iostream.hpp>
 
+#include <algorithm>
 #include <cctype>
 #include <string>
 
@@ -66,8 +68,12 @@ void task::start() {
 		}
 	}
 
+	// Move duplicates to the end and ignore them.
+	std::sort(_png.begin(), _png.end());
+	auto size = static_cast<std::size_t>(std::distance(_png.begin(), std::unique(_png.begin(), _png.end())));
+
 	// ToDo remove
-	for (const auto& png : _png) { boost::nowide::cerr << png << '\n'; }
+	for (std::size_t index = 0U; index < size; ++index) { boost::nowide::cerr << _png[index] << '\n'; }
 }
 
 } // namespace png2dds
