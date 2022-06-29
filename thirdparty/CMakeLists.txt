@@ -3,3 +3,4 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 add_subdirectory(miniz)
+add_subdirectory(libspng)
