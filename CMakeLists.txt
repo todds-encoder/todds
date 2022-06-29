@@ -19,8 +19,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(cmake/platform.cmake)
-include(cmake/clang_tidy.cmake)
-include(cmake/warnings.cmake)
 
 find_package(Boost 1.73 REQUIRED COMPONENTS
 	# Support UTF-8 on Windows.
@@ -30,6 +28,11 @@ find_package(Boost 1.73 REQUIRED COMPONENTS
 	)
 find_package(cxxopts REQUIRED)
 find_package(fmt CONFIG REQUIRED)
+
+add_subdirectory(thirdparty)
+
+include(cmake/clang_tidy.cmake)
+include(cmake/warnings.cmake)
 
 add_subdirectory(src)
 add_subdirectory(test)

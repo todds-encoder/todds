@@ -12,6 +12,8 @@ png2dds encourages community involvement and contributions. Check the [CONTRIBUT
 
 png2dds is licensed under the Mozilla Public License, v. 2.0. See the [LICENSE](LICENSE) file for details. Check the [MPL 2.0 FAQ](https://www.mozilla.org/en-US/MPL/2.0/FAQ/) to learn more.
 
+Files in each one of the thirdparty subfolders are under different licences which are also included.
+
 ## Acknowledgements
 
 Read the [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md) file for details.
