@@ -4,6 +4,7 @@
 
 # Platform modules
 add_subdirectory(project)
+add_subdirectory(image)
 # Core modules
 add_subdirectory(arguments)
 add_subdirectory(task)
