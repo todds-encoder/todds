@@ -80,7 +80,7 @@ void task::start() {
 	for (std::size_t index = 0U; index < size; ++index) {
 		// Load PNG file into a buffer.
 		const std::string& png = _png[index];
-		std::ifstream ifs{png, std::ios::in | std::ios::binary};
+		boost::nowide::ifstream ifs{png, std::ios::in | std::ios::binary};
 		const std::vector<std::uint8_t> buffer{std::istreambuf_iterator<char>{ifs}, {}};
 		try {
 			// PNG decoding.
