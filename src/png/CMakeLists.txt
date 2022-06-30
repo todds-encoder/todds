@@ -13,7 +13,9 @@ target_include_directories(png2dds_png PUBLIC
 
 target_compile_options(png2dds_png PRIVATE ${PNG2DDS_CPP_WARNING_FLAGS})
 
-target_link_libraries(png2dds_png PRIVATE
+target_link_libraries(png2dds_png PUBLIC
+	png2dds_image
+	PRIVATE
 	fmt::fmt
 	libspng
 	)

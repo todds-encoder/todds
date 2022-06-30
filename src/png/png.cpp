@@ -46,7 +46,7 @@ private:
 
 namespace png2dds {
 
-std::vector<std::uint8_t> decode(const std::string& png, const std::vector<std::uint8_t>& buffer) {
+image decode(const std::string& png, const std::vector<std::uint8_t>& buffer) {
 	spng_context context{png};
 
 	if (const int ret = spng_set_png_buffer(context.get(), buffer.data(), buffer.size()); ret != 0) {
@@ -58,14 +58,9 @@ std::vector<std::uint8_t> decode(const std::string& png, const std::vector<std::
 		throw std::runtime_error{fmt::format("Could not read header data of {:s}: {:s}", png, spng_strerror(ret))};
 	}
 
+	image result(header.width, header.height);
 	constexpr spng_format format = SPNG_FMT_RGBA8;
-	std::size_t image_size{};
-	if (const int ret = spng_decoded_image_size(context.get(), format, &image_size); ret != 0) {
-		throw std::runtime_error{fmt::format("Could not calculate decoded size of {:s}: {:s}", png, spng_strerror(ret))};
-	}
-
-	std::vector<std::uint8_t> result(image_size);
-	if (const int ret = spng_decode_image(context.get(), result.data(), image_size, format, 0); ret != 0) {
+	if (const int ret = spng_decode_image(context.get(), result.buffer(), result.size(), format, 0); ret != 0) {
 		throw std::runtime_error{fmt::format("Error during decoding of {:s}: {:s}", png, spng_strerror(ret))};
 	}
 

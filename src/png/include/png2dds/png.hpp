@@ -6,12 +6,14 @@
 #ifndef PNG2DDS_PNG_HPP
 #define PNG2DDS_PNG_HPP
 
+#include "png2dds/image.hpp"
+
 #include <cstdint>
 #include <string>
 #include <vector>
 
 namespace png2dds {
-std::vector<std::uint8_t> decode(const std::string& png, const std::vector<std::uint8_t>& buffer);
+image decode(const std::string& png, const std::vector<std::uint8_t>& buffer);
 } // namespace png2dds
 
 #endif // PNG2DDS_PNG_HPP
