@@ -7,5 +7,6 @@ add_subdirectory(project)
 # Core modules
 add_subdirectory(arguments)
 add_subdirectory(task)
+add_subdirectory(png)
 # Application module
 add_subdirectory(main)

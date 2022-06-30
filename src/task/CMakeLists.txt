@@ -15,6 +15,7 @@ target_compile_options(png2dds_task PRIVATE ${PNG2DDS_CPP_WARNING_FLAGS})
 
 target_link_libraries(png2dds_task PRIVATE
   png2dds_arguments
+  png2dds_png
   Boost::nowide
   Boost::filesystem
   )
