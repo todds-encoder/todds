@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
 			stream << data.text;
 		}
 		if (!data.error) {
-			png2dds::task(data).start();
+			png2dds::task(std::move(data)).start();
 			execution_status = EXIT_SUCCESS;
 		}
 	} catch (const std::exception& ex) {

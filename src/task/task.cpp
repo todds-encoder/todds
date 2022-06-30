@@ -29,7 +29,7 @@ bool has_png_extension(const fs::file_status& status, const fs::path& path) {
 				 (extension[3U] == 'g' || extension[3U] == 'G');
 }
 
-void process_directory(const fs::path& path, std::vector<std::string>& png, unsigned int depth) {
+void process_directory(const fs::path& path, std::vector<std::string>& png, const unsigned int depth) {
 	const fs::directory_entry dir{path};
 	if (!fs::exists(dir) || !fs::is_directory(dir)) { return; }
 
