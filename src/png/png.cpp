@@ -5,11 +5,10 @@
 
 #include "png2dds/png.hpp"
 
+#include "spng.h"
 #include <fmt/format.h>
 
 #include <stdexcept>
-
-#include "spng.h"
 
 namespace {
 
