@@ -11,7 +11,7 @@ target_include_directories(png2dds_png PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
 	)
 
-target_compile_options(png2dds_arguments PRIVATE ${PNG2DDS_CPP_WARNING_FLAGS})
+target_compile_options(png2dds_png PRIVATE ${PNG2DDS_CPP_WARNING_FLAGS})
 
 target_link_libraries(png2dds_png PRIVATE
 	fmt::fmt
