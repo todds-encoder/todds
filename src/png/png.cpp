@@ -59,7 +59,19 @@ image decode(const std::string& png, const std::vector<std::uint8_t>& buffer) {
 	}
 
 	image result(header.width, header.height);
+
 	constexpr spng_format format = SPNG_FMT_RGBA8;
+	// Coherence check. The size calculated by png2dds and libspng must match.
+	std::size_t image_size{};
+	if (const int ret = spng_decoded_image_size(context.get(), format, &image_size); ret != 0) {
+		throw std::runtime_error{fmt::format("Could not calculate decoded size of {:s}: {:s}", png, spng_strerror(ret))};
+	}
+
+	if (image_size != result.size()) {
+		throw std::runtime_error{
+			fmt::format("Could not decode {:s}. Expected size: {:d}, calculated size: {:d}", png, result.size(), image_size)};
+	}
+
 	if (const int ret = spng_decode_image(context.get(), result.buffer(), result.size(), format, 0); ret != 0) {
 		throw std::runtime_error{fmt::format("Error during decoding of {:s}: {:s}", png, spng_strerror(ret))};
 	}
