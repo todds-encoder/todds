@@ -13,6 +13,12 @@
 #include <vector>
 
 namespace png2dds {
+/**
+ * Decodes a PNG file stored in a memory buffer.
+ * @param png Path to the PNG file, used for reporting errors.
+ * @param buffer Memory buffer holding a PNG file read from the filesystem.
+ * @return Decoded PNG image.
+ */
 image decode(const std::string& png, const std::vector<std::uint8_t>& buffer);
 } // namespace png2dds
 

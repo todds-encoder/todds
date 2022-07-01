@@ -71,8 +71,21 @@ image decode(const std::string& png, const std::vector<std::uint8_t>& buffer) {
 			fmt::format("Could not decode {:s}. Expected size: {:d}, calculated size: {:d}", png, result.size(), image_size)};
 	}
 
-	if (const int ret = spng_decode_image(context.get(), result.buffer(), result.size(), format, 0); ret != 0) {
-		throw std::runtime_error{fmt::format("Error during decoding of {:s}: {:s}", png, spng_strerror(ret))};
+	if (const int ret = spng_decode_image(context.get(), nullptr, 0, format, SPNG_DECODE_PROGRESSIVE); ret != 0) {
+		throw std::runtime_error{fmt::format("Could not initialize decoding of {:s}: {:s}", png, spng_strerror(ret))};
+	}
+
+	int ret{};
+	spng_row_info row_info{};
+	const auto image_width = image_size / header.height;
+	do {
+		ret = spng_get_row_info(context.get(), &row_info);
+		if (ret != 0) { break; }
+		ret = spng_decode_row(context.get(), result.buffer() + row_info.row_num * image_width, image_width);
+	} while (ret == 0);
+
+	if (ret != SPNG_EOI) {
+		throw std::runtime_error{fmt::format("Progressive decode error in {:s}: {:s}", png, spng_strerror(ret))};
 	}
 
 	return result;
