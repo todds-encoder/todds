@@ -34,11 +34,11 @@ int main(int argc, char** argv) {
 		/* Creating an encoder context requires a flag */
 		spng_ctx* ctx = spng_ctx_new(SPNG_CTX_ENCODER);
 
-		std::FILE* file = boost::nowide::fopen(argv[2], "wbo");
+		std::FILE* file = boost::nowide::fopen(argv[2], "wbe");
 		spng_set_png_file(ctx, file);
 		spng_ihdr ihdr{};
-		ihdr.width = static_cast<std::uint32_t>(img.width());
-		ihdr.height = static_cast<std::uint32_t>(img.height());
+		ihdr.width = static_cast<std::uint32_t>(img.padded_width());
+		ihdr.height = static_cast<std::uint32_t>(img.padded_height());
 		ihdr.color_type = SPNG_COLOR_TYPE_TRUECOLOR_ALPHA;
 		ihdr.bit_depth = 8;
 

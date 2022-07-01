@@ -60,15 +60,16 @@ image decode(const std::string& png, const std::vector<std::uint8_t>& buffer) {
 	image result(header.width, header.height);
 
 	constexpr spng_format format = SPNG_FMT_RGBA8;
-	// Coherence check. The size calculated by png2dds and libspng must match.
-	std::size_t image_size{};
-	if (const int ret = spng_decoded_image_size(context.get(), format, &image_size); ret != 0) {
+	// The png2dds buffer may be larger than the image size calculated by libspng because the buffer must ensure that
+	// the pixels of the width and the row are divisible by 4.
+	std::size_t file_size{};
+	if (const int ret = spng_decoded_image_size(context.get(), format, &file_size); ret != 0) {
 		throw std::runtime_error{fmt::format("Could not calculate decoded size of {:s}: {:s}", png, spng_strerror(ret))};
 	}
 
-	if (image_size != result.size()) {
-		throw std::runtime_error{
-			fmt::format("Could not decode {:s}. Expected size: {:d}, calculated size: {:d}", png, result.size(), image_size)};
+	if (file_size > result.size()) {
+		throw std::runtime_error{fmt::format(
+			"Could not fit {:s} into the buffer. Expected size: {:d}, calculated size: {:d}", png, result.size(), file_size)};
 	}
 
 	if (const int ret = spng_decode_image(context.get(), nullptr, 0, format, SPNG_DECODE_PROGRESSIVE); ret != 0) {
@@ -77,11 +78,12 @@ image decode(const std::string& png, const std::vector<std::uint8_t>& buffer) {
 
 	int ret{};
 	spng_row_info row_info{};
-	const auto image_width = image_size / header.height;
+	const auto file_width = file_size / header.height;
+	const auto buffer_width = result.padded_width() * image::bytes_per_pixel;
 	do {
 		ret = spng_get_row_info(context.get(), &row_info);
 		if (ret != 0) { break; }
-		ret = spng_decode_row(context.get(), result.buffer() + row_info.row_num * image_width, image_width);
+		ret = spng_decode_row(context.get(), result.buffer() + row_info.row_num * buffer_width, file_width);
 	} while (ret == 0);
 
 	if (ret != SPNG_EOI) {

@@ -4,6 +4,7 @@
  */
 
 #include "png2dds/image.hpp"
+#include "png2dds/util.hpp"
 
 #include <type_traits>
 
@@ -27,11 +28,16 @@ TEST_CASE("png2dds::image type assumptions", "[image]") {
 }
 
 TEST_CASE("png2dds::image construction", "[image]") {
-	constexpr std::size_t width = 1024;
+	using png2dds::util::next_divisible_by_16;
+	constexpr std::size_t width = 1023;
+	constexpr std::size_t padded_width = next_divisible_by_16(width);
 	constexpr std::size_t height = 8888;
+	constexpr std::size_t padded_height = next_divisible_by_16(height);
 	const image img{width, height};
 	REQUIRE(img.width() == width);
 	REQUIRE(img.height() == height);
-	REQUIRE(img.size() == width * height * 4U);
+	REQUIRE(img.padded_width() == padded_width);
+	REQUIRE(img.padded_height() == padded_height);
+	REQUIRE(img.size() == padded_width * padded_height * 4U);
 	REQUIRE(img.buffer() != nullptr);
 }
