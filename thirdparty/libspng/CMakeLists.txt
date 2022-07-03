@@ -7,8 +7,9 @@ target_include_directories(libspng SYSTEM PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
 	)
 
-target_compile_definitions(libspng PRIVATE
+target_compile_definitions(libspng PUBLIC
 	SPNG_STATIC
+	PRIVATE
 	SPNG_USE_MINIZ
 	)
 
