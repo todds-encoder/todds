@@ -29,25 +29,25 @@ public:
 
 	/**
 	 * Width of the image excluding extra columns.
-	 * @return Real width.
+	 * @return Real width in pixels.
 	 */
 	[[nodiscard]] std::size_t width() const noexcept;
 
 	/**
 	 * Height of the image excluding extra rows.
-	 * @return Real height.
+	 * @return Real height in pixels.
 	 */
 	[[nodiscard]] std::size_t height() const noexcept;
 
 	/**
 	 * Width of the memory buffer.
-	 * @return Buffer width.
+	 * @return Buffer width in pixels.
 	 */
 	[[nodiscard]] std::size_t padded_width() const noexcept;
 
 	/**
 	 * Height of the memory buffer.
-	 * @return Buffer height.
+	 * @return Buffer height in pixels.
 	 */
 	[[nodiscard]] std::size_t padded_height() const noexcept;
 
@@ -64,6 +64,22 @@ public:
 	 * @return Internal memory buffer.
 	 */
 	[[nodiscard]] std::span<const std::uint8_t> buffer() const noexcept;
+
+	/**
+	 * Access an individual pixel of the image.
+	 * @param byte_x X coordinate of the byte.
+	 * @param byte_y Y coordinate of the byte.
+	 * @return Copy of the accessed byte.
+	 */
+	[[nodiscard]] const std::uint8_t& get_byte(std::size_t byte_x, std::size_t byte_y) const noexcept;
+
+	/**
+	 * Modify an individual pixel of the image.
+	 * @param byte_x X coordinate of the byte.
+	 * @param byte_y Y coordinate of the byte.
+	 * @return Reference to the accessed byte.
+	 */
+	[[nodiscard]] std::uint8_t& get_byte(std::size_t byte_x, std::size_t byte_y) noexcept;
 
 private:
 	std::size_t _padded_width;

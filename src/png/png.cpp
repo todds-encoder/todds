@@ -80,11 +80,11 @@ image decode(const std::string& png, const std::vector<std::uint8_t>& buffer) {
 	int ret{};
 	spng_row_info row_info{};
 	const auto file_width = file_size / header.height;
-	const auto buffer_width = result.padded_width() * image::bytes_per_pixel;
 	do {
 		ret = spng_get_row_info(context.get(), &row_info);
 		if (ret != 0) { break; }
-		ret = spng_decode_row(context.get(), result.buffer().data() + row_info.row_num * buffer_width, file_width);
+		ret = spng_decode_row(context.get(), &result.get_byte(0UL, row_info.row_num), file_width);
+
 	} while (ret == 0);
 
 	if (ret != SPNG_EOI) {

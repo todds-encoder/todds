@@ -43,10 +43,9 @@ TEST_CASE("png2dds::image construction", "[image]") {
 	REQUIRE(img.buffer().size() == padded_width * padded_height * image::bytes_per_pixel);
 }
 
+constexpr std::size_t iota_image_side = 16UL * 10UL;
 image iota_image() {
-	constexpr std::size_t width = 16UL * 10UL;
-	constexpr std::size_t height = 16UL * 10UL;
-	image img{width, height};
+	image img{iota_image_side, iota_image_side};
 	std::iota(img.buffer().begin(), img.buffer().end(), 0U);
 	return img;
 }
@@ -64,4 +63,14 @@ TEST_CASE("png2dds::image buffer access", "[image]") {
 	buffer.back() = 0U;
 	REQUIRE(buffer.front() == 0U);
 	REQUIRE(buffer.back() == 0U);
+}
+
+TEST_CASE("png2dds::image byte access", "[image]") {
+	const image img = iota_image();
+	REQUIRE(img.padded_width() == iota_image_side);
+	REQUIRE(img.padded_height() == iota_image_side);
+
+	constexpr std::size_t coord = 10U;
+	constexpr std::size_t expected = (coord + coord * iota_image_side * image::bytes_per_pixel) % 256U;
+	REQUIRE(img.get_byte(coord, coord) == expected);
 }

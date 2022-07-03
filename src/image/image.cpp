@@ -26,4 +26,12 @@ std::size_t image::padded_height() const noexcept { return _padded_height; }
 
 [[nodiscard]] std::span<const std::uint8_t> image::buffer() const noexcept { return _buffer; }
 
+const std::uint8_t& image::get_byte(std::size_t byte_x, std::size_t byte_y) const noexcept {
+	return _buffer[byte_x + byte_y * padded_width() * image::bytes_per_pixel];
+}
+
+std::uint8_t& image::get_byte(std::size_t byte_x, std::size_t byte_y) noexcept {
+	return _buffer[byte_x + byte_y * padded_width() * image::bytes_per_pixel];
+}
+
 } // namespace png2dds
