@@ -44,7 +44,8 @@ int main(int argc, char** argv) {
 
 		spng_set_ihdr(ctx, &ihdr);
 
-		if (const int ret = spng_encode_image(ctx, img.buffer(), img.size(), SPNG_FMT_PNG, SPNG_ENCODE_FINALIZE);
+		if (const int ret =
+					spng_encode_image(ctx, img.buffer().data(), img.buffer().size(), SPNG_FMT_PNG, SPNG_ENCODE_FINALIZE);
 				ret != 0) {
 			cerr << fmt::format("Could not encode png file {:s}: {:s}", png, spng_strerror(ret)) << '\n';
 			return execution_status;

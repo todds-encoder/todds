@@ -7,6 +7,7 @@
 #define PNG2DDS_IMAGE_HPP
 
 #include <cstdint>
+#include <span>
 #include <vector>
 
 namespace png2dds {
@@ -51,22 +52,18 @@ public:
 	[[nodiscard]] std::size_t padded_height() const noexcept;
 
 	/**
-	 * Size of the internal memory buffer in bytes. Must be padded_width * padded_height * bytes_per_pixel.
-	 * @return Size.
+	 * Memory buffer of the image.
+	 * Its size must be padded_width * padded_height * bytes_per_pixel.
+	 * @return Internal memory buffer.
 	 */
-	[[nodiscard]] std::size_t size() const noexcept;
+	[[nodiscard]] std::span<std::uint8_t> buffer() noexcept;
 
 	/**
-	 * Pointer to the first position of the memory buffer of the image.
-	 * @return Start of the image.
+	 * Memory buffer of the image.
+	 * Its size must be padded_width * padded_height * bytes_per_pixel.
+	 * @return Internal memory buffer.
 	 */
-	[[nodiscard]] std::uint8_t* buffer() noexcept;
-
-	/**
-	 * Pointer to the first position of the memory buffer of the image.
-	 * @return Start of the image.
-	 */
-	[[nodiscard]] const std::uint8_t* buffer() const noexcept;
+	[[nodiscard]] std::span<const std::uint8_t> buffer() const noexcept;
 
 private:
 	std::size_t _padded_width;

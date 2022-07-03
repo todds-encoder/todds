@@ -67,9 +67,10 @@ image decode(const std::string& png, const std::vector<std::uint8_t>& buffer) {
 		throw std::runtime_error{fmt::format("Could not calculate decoded size of {:s}: {:s}", png, spng_strerror(ret))};
 	}
 
-	if (file_size > result.size()) {
-		throw std::runtime_error{fmt::format(
-			"Could not fit {:s} into the buffer. Expected size: {:d}, calculated size: {:d}", png, result.size(), file_size)};
+	if (file_size > result.buffer().size()) {
+		throw std::runtime_error{
+			fmt::format("Could not fit {:s} into the buffer. Expected size: {:d}, calculated size: {:d}", png,
+				result.buffer().size(), file_size)};
 	}
 
 	if (const int ret = spng_decode_image(context.get(), nullptr, 0, format, SPNG_DECODE_PROGRESSIVE); ret != 0) {
@@ -83,7 +84,7 @@ image decode(const std::string& png, const std::vector<std::uint8_t>& buffer) {
 	do {
 		ret = spng_get_row_info(context.get(), &row_info);
 		if (ret != 0) { break; }
-		ret = spng_decode_row(context.get(), result.buffer() + row_info.row_num * buffer_width, file_width);
+		ret = spng_decode_row(context.get(), result.buffer().data() + row_info.row_num * buffer_width, file_width);
 	} while (ret == 0);
 
 	if (ret != SPNG_EOI) {
