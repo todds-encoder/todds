@@ -5,7 +5,8 @@
 
 #ifndef PNG2DDS_UTIL_HPP
 #define PNG2DDS_UTIL_HPP
-#include <cstdint>
+
+#include <cstddef>
 
 namespace png2dds::util {
 /**
