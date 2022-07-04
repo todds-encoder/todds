@@ -22,6 +22,8 @@ TEST_CASE("png2dds::image type trait checks", "[image]") {
 	STATIC_REQUIRE(!std::is_copy_assignable_v<image>);
 	STATIC_REQUIRE(std::is_nothrow_destructible_v<image>);
 	STATIC_REQUIRE(std::is_nothrow_swappable_v<image>);
+	// png2dds assumes that spans with a static extent have a single member.
+	STATIC_REQUIRE(sizeof(std::span<std::uint8_t, image::bytes_per_pixel>) == sizeof(std::uint8_t*));
 }
 
 TEST_CASE("png2dds::image type assumptions", "[image]") {
