@@ -6,6 +6,14 @@
 
 #include "png2dds/util.hpp"
 
+namespace {
+
+constexpr std::size_t get_byte_position(std::size_t padded_width, std::size_t byte_x, std::size_t byte_y) noexcept {
+	return byte_x + byte_y * padded_width * png2dds::image::bytes_per_pixel;
+}
+
+} // anonymous namespace
+
 namespace png2dds {
 image::image(std::size_t width, std::size_t height)
 	: _padded_width{util::next_divisible_by_16(width)}
@@ -27,11 +35,24 @@ std::size_t image::padded_height() const noexcept { return _padded_height; }
 [[nodiscard]] std::span<const std::uint8_t> image::buffer() const noexcept { return _buffer; }
 
 const std::uint8_t& image::get_byte(std::size_t byte_x, std::size_t byte_y) const noexcept {
-	return _buffer[byte_x + byte_y * padded_width() * image::bytes_per_pixel];
+	return _buffer[get_byte_position(padded_width(), byte_x, byte_y)];
 }
 
 std::uint8_t& image::get_byte(std::size_t byte_x, std::size_t byte_y) noexcept {
-	return _buffer[byte_x + byte_y * padded_width() * image::bytes_per_pixel];
+	return _buffer[get_byte_position(padded_width(), byte_x, byte_y)];
+}
+
+std::span<std::uint8_t, image::bytes_per_pixel> image::get_pixel(std::size_t pixel_x, std::size_t pixel_y) noexcept {
+	auto index = static_cast<std::ptrdiff_t>(get_byte_position(padded_width(), pixel_x * bytes_per_pixel, pixel_y));
+	return std::span<std::uint8_t, image::bytes_per_pixel>(
+		_buffer.begin() + index, _buffer.begin() + index + bytes_per_pixel);
+}
+
+std::span<const std::uint8_t, image::bytes_per_pixel> image::get_pixel(
+	std::size_t pixel_x, std::size_t pixel_y) const noexcept {
+	auto index = static_cast<std::ptrdiff_t>(get_byte_position(padded_width(), pixel_x * bytes_per_pixel, pixel_y));
+	return std::span<const std::uint8_t, image::bytes_per_pixel>(
+		_buffer.begin() + index, _buffer.begin() + index + bytes_per_pixel);
 }
 
 } // namespace png2dds

@@ -6,6 +6,7 @@
 #include "png2dds/image.hpp"
 #include "png2dds/util.hpp"
 
+#include <iostream>
 #include <limits>
 #include <numeric>
 #include <type_traits>
@@ -22,13 +23,14 @@ TEST_CASE("png2dds::image type trait checks", "[image]") {
 	STATIC_REQUIRE(!std::is_copy_assignable_v<image>);
 	STATIC_REQUIRE(std::is_nothrow_destructible_v<image>);
 	STATIC_REQUIRE(std::is_nothrow_swappable_v<image>);
-	// png2dds assumes that spans with a static extent have a single member.
-	STATIC_REQUIRE(sizeof(std::span<std::uint8_t, image::bytes_per_pixel>) == sizeof(std::uint8_t*));
 }
 
 TEST_CASE("png2dds::image type assumptions", "[image]") {
 	// Image stores R, G, B and A bytes for each pixel.
 	STATIC_REQUIRE(image::bytes_per_pixel == 4U);
+	// png2dds assumes that spans with a static extent have a single member.
+	STATIC_REQUIRE(sizeof(decltype(static_cast<image*>(nullptr)->get_pixel(0UL, 0UL))) == sizeof(std::uint8_t*));
+	STATIC_REQUIRE(sizeof(decltype(static_cast<const image*>(nullptr)->get_pixel(0UL, 0UL))) == sizeof(std::uint8_t*));
 }
 
 TEST_CASE("png2dds::image construction", "[image]") {
@@ -72,7 +74,41 @@ TEST_CASE("png2dds::image byte access", "[image]") {
 	REQUIRE(img.padded_width() == iota_image_side);
 	REQUIRE(img.padded_height() == iota_image_side);
 
-	constexpr std::size_t coord = 10U;
-	constexpr std::size_t expected = (coord + coord * iota_image_side * image::bytes_per_pixel) % 256U;
-	REQUIRE(img.get_byte(coord, coord) == expected);
+	SECTION("Byte in specific coordinate") {
+		constexpr std::size_t coord = 10U;
+		constexpr std::size_t expected = (coord + coord * iota_image_side * image::bytes_per_pixel) % 256U;
+		REQUIRE(img.get_byte(coord, coord) == expected);
+	}
+
+	SECTION("Expected distance in memory between bytes.") {
+		REQUIRE(std::distance(&img.get_byte(0U, 0U), &img.get_byte(0U, 1U)) == iota_image_side * image::bytes_per_pixel);
+	}
+}
+
+TEST_CASE("png2dds::image pixel access", "[image]") {
+	const image img = iota_image();
+
+	SECTION("First pixel") {
+		constexpr std::array<std::uint8_t, image::bytes_per_pixel> expected{0U, 1U, 2U, 3U};
+		const auto pixel = img.get_pixel(0U, 0U);
+		REQUIRE(std::equal(pixel.begin(), pixel.end(), expected.cbegin()));
+	}
+
+	SECTION("Pixel in the first row") {
+		constexpr std::size_t pixel_x = 3U;
+		constexpr std::uint8_t value = pixel_x * image::bytes_per_pixel;
+		constexpr std::array<std::uint8_t, image::bytes_per_pixel> expected{value, value + 1U, value + 2U, value + 3U};
+		const auto pixel = img.get_pixel(pixel_x, 0U);
+		REQUIRE(std::equal(pixel.begin(), pixel.end(), expected.cbegin()));
+		REQUIRE(pixel.data() == &img.get_byte(pixel_x * image::bytes_per_pixel, 0U));
+	}
+
+	SECTION("First pixel of the second row") {
+		constexpr std::size_t pixel_y = 1U;
+		constexpr std::uint8_t value = (pixel_y * iota_image_side * image::bytes_per_pixel) % 256U;
+		constexpr std::array<std::uint8_t, image::bytes_per_pixel> expected{value, value + 1U, value + 2U, value + 3U};
+		auto pixel = img.get_pixel(0U, pixel_y);
+		REQUIRE(std::equal(pixel.begin(), pixel.end(), expected.cbegin()));
+		REQUIRE(pixel.data() == &img.get_byte(0U, pixel_y));
+	}
 }

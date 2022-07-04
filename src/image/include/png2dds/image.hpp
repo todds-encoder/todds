@@ -66,7 +66,7 @@ public:
 	[[nodiscard]] std::span<const std::uint8_t> buffer() const noexcept;
 
 	/**
-	 * Access an individual pixel of the image.
+	 * Access an individual byte of the image.
 	 * @param byte_x X coordinate of the byte.
 	 * @param byte_y Y coordinate of the byte.
 	 * @return Copy of the accessed byte.
@@ -74,12 +74,29 @@ public:
 	[[nodiscard]] const std::uint8_t& get_byte(std::size_t byte_x, std::size_t byte_y) const noexcept;
 
 	/**
-	 * Modify an individual pixel of the image.
+	 * Modify an individual byte of the image.
 	 * @param byte_x X coordinate of the byte.
 	 * @param byte_y Y coordinate of the byte.
 	 * @return Reference to the accessed byte.
 	 */
 	[[nodiscard]] std::uint8_t& get_byte(std::size_t byte_x, std::size_t byte_y) noexcept;
+
+	/**
+	 * Write-access to an specific pixel of the image.
+	 * @param pixel_x X coordinate of the pixel.
+	 * @param pixel_y Y coordinate of the pixel.
+	 * @return Span containing the pixel.
+	 */
+	[[nodiscard]] std::span<std::uint8_t, bytes_per_pixel> get_pixel(std::size_t pixel_x, std::size_t pixel_y) noexcept;
+
+	/**
+	 * Read-access to an specific pixel of the image.
+	 * @param pixel_x X coordinate of the pixel.
+	 * @param pixel_y Y coordinate of the pixel.
+	 * @return Span containing the pixel.
+	 */
+	[[nodiscard]] std::span<const std::uint8_t, bytes_per_pixel> get_pixel(
+		std::size_t pixel_x, std::size_t pixel_y) const noexcept;
 
 private:
 	std::size_t _padded_width;
