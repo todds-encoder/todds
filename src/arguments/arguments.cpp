@@ -17,7 +17,7 @@
 namespace png2dds::args {
 
 data get(int argc, char** argv) {
-	boost::nowide::args _(argc, argv);
+	boost::nowide::args nowide_args(argc, argv);
 
 	data arguments;
 
