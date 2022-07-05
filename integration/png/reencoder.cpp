@@ -22,7 +22,7 @@ using boost::nowide::cerr;
  * @return EXIT_SUCCESS if the reencoding was made successfully.
  */
 int main(int argc, char** argv) {
-	boost::nowide::args _(argc, argv);
+	boost::nowide::args nowide_args(argc, argv);
 
 	int execution_status = EXIT_FAILURE;
 	if (argc == 3) {
