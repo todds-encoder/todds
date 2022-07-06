@@ -10,5 +10,6 @@ add_subdirectory(util)
 add_subdirectory(arguments)
 add_subdirectory(task)
 add_subdirectory(png)
+add_subdirectory(dds)
 # Application module
 add_subdirectory(main)

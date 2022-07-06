@@ -2,12 +2,16 @@
 # Checks producing undesirable results or false positives are to be disabled explicitly documenting the reason.
 #
 # altera-*: Disable FPGA checks.
+# bugprone-easily-swappable-parameters: Allow adjacent parameters of the same type.
 # clang-diagnostic-unknown-warning-option: Triggered by GCC-only warnings.
 # clang-diagnostic-unused-command-line-argument: Ignore unused command line arguments.
 # cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers: Required for test cases.
 # cppcoreguidelines-owning-memory: Allow using non-owner pointers without requiring gsl types.
+# cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay: Allow using the standard assert macro.
 # cppcoreguidelines-pro-bounds-constant-array-index: Do not force bounds checking.
 # cppcoreguidelines-pro-bounds-pointer-arithmetic: Allow using pointer arithmetic.
+# cppcoreguidelines-pro-type-union-access: Some third party libraries feature unions.
+# cppcoreguidelines-pro-type-reinterpret-cast: Writing objects to ofstream requires a reinterpret_cast.
 # fuchsia-default-arguments-calls: Allow calling functions with default arguments.
 # fuchsia-overloaded-operator: Allow overloading operators.
 # google-runtime-references: Allow non-const reference parameters.
@@ -18,12 +22,16 @@
 
 Checks: '*,
 -altera-*,
+-bugprone-easily-swappable-parameters,
 -clang-diagnostic-unknown-warning-option,
 -clang-diagnostic-unused-command-line-argument,
 -cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,
 -cppcoreguidelines-owning-memory,
+-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-hicpp-no-array-decay,
 -cppcoreguidelines-pro-bounds-constant-array-index,
 -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+-cppcoreguidelines-pro-type-union-access,
+-cppcoreguidelines-pro-type-reinterpret-cast,
 -fuchsia-default-arguments-calls,
 -fuchsia-overloaded-operator,
 -google-runtime-references,
