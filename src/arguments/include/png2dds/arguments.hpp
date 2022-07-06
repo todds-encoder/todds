@@ -18,6 +18,7 @@ struct data {
 	unsigned int threads{};
 	unsigned int depth{};
 	bool overwrite{};
+	unsigned int level{};
 };
 
 /**

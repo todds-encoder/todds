@@ -14,6 +14,10 @@
 #include <string_view>
 #include <thread>
 
+namespace {
+constexpr unsigned int max_level = 6U;
+} // anonymous namespace
+
 namespace png2dds::args {
 
 data get(int argc, char** argv) {
@@ -31,6 +35,10 @@ data get(int argc, char** argv) {
 		const std::string& list_help =
 			"Points to a text file with a list of PNG files and/or directories. Entries must be on separate lines. All "
 			"individual PNG files and those inside specified directories will be converted to DDS.";
+
+		const std::string& level_arg = "level";
+		const std::string& level_help =
+			"Encoder quality level [0, 6]. Higher values provide better quality but take longer.";
 
 		const std::string& threads_arg = "threads";
 		const std::string& threads_help = "Number of threads that png2dds will use";
@@ -52,6 +60,7 @@ data get(int argc, char** argv) {
 		options.add_options()
 			(path_arg, path_help, cxxopts::value<std::string>()->default_value(""))
 			(list_arg, list_help, cxxopts::value<std::string>()->default_value(""))
+			(level_arg, level_help, cxxopts::value<unsigned int>()->default_value(std::to_string(max_level)))
 			(threads_arg, threads_help, cxxopts::value<unsigned int>()->default_value(std::to_string(max_threads)))
 			(depth_arg, depth_help, cxxopts::value<unsigned int>())
 			(overwrite_arg, overwrite_help)
@@ -61,13 +70,19 @@ data get(int argc, char** argv) {
 
 		auto result = options.parse(argc, argv);
 
+		const auto level = result[level_arg].as<unsigned int>();
+
 		if (result.count(help_arg) > 0U) {
 			arguments.text = options.help();
 		} else if (result.count(version_arg) > 0U) {
 			arguments.text = fmt::format("{:s} {:s}", project::name(), project::version());
+		} else if (level > max_level) {
+			arguments.error = true;
+			arguments.text = fmt::format("Unsupported encode quality level {:d}", level);
 		} else {
 			arguments.path = result[path_arg].as<std::string>();
 			arguments.list = result[list_arg].as<std::string>();
+			arguments.level = level;
 			arguments.threads = std::min(result[threads_arg].as<unsigned int>(), max_threads);
 			arguments.depth =
 				result.count(depth_arg) > 0 ? result[depth_arg].as<unsigned int>() : std::numeric_limits<unsigned int>::max();
