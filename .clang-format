@@ -45,9 +45,13 @@ ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: true
 IncludeBlocks: Regroup
 IncludeCategories:
+  - Regex: '^<bc7e_ispc.*'
+    Priority: 20
   - Regex: '^<boost.*'
     Priority: 20
   - Regex: '^<cxxopts.*'
+    Priority: 20
+  - Regex: '^<dds_defs.*'
     Priority: 20
   - Regex: '^<fmt.*'
     Priority: 20
