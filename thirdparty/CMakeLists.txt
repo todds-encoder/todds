@@ -4,3 +4,4 @@
 
 add_subdirectory(miniz)
 add_subdirectory(libspng)
+add_subdirectory(bc7enc_rdo)

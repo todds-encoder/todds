@@ -17,6 +17,7 @@ png2dds is licensed under the Mozilla Public License, v. 2.0. See the [LICENSE](
 
 Currently all third party library dependencies are contained as source code in the thirdparty subfolder of the png2dds repository. Each one of these libraries is under its own license which is also included in the repository.
 
+* [bc7enc_rdo](https://github.com/richgel999/bc7enc_rdo)
 * [libspng](https://libspng.org/)
 * [miniz](https://github.com/richgel999/miniz)
 
