@@ -50,6 +50,7 @@ namespace png2dds {
 
 task::task(png2dds::args::data arguments)
 	: _arguments{std::move(arguments)}
+	, _encoder{_arguments.level}
 	, _png{} {
 	// Use UTF-8 as the default encoding for Boost.Filesystem.
 	boost::nowide::nowide_filesystem();
@@ -80,11 +81,17 @@ void task::start() {
 	for (std::size_t index = 0U; index < size; ++index) {
 		// Load PNG file into a buffer.
 		const std::string& png = _png[index];
+		const fs::path dds_path = fs::path{png}.replace_extension(".dds");
+
+		if (!_arguments.overwrite && fs::exists(dds_path)) { continue; }
+
 		boost::nowide::ifstream ifs{png, std::ios::in | std::ios::binary};
 		const std::vector<std::uint8_t> buffer{std::istreambuf_iterator<char>{ifs}, {}};
 		try {
 			// PNG decoding.
 			auto img = decode(png, buffer);
+			// DDS encoding
+			_encoder.encode(dds_path.string(), img);
 		} catch (const std::runtime_error& ex) { boost::nowide::cerr << ex.what() << '\n'; }
 	}
 }

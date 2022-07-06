@@ -7,6 +7,7 @@
 #define PNG2DDS_TASK_HPP
 
 #include "png2dds/arguments.hpp"
+#include "png2dds/dds.hpp"
 
 #include <string>
 #include <vector>
@@ -20,6 +21,7 @@ public:
 
 private:
 	args::data _arguments;
+	encoder _encoder;
 	std::vector<std::string> _png;
 };
 
