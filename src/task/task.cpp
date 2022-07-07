@@ -45,7 +45,13 @@ void process_directory(const fs::path& path, std::vector<std::string>& png, cons
 	}
 }
 
-void save_dds(png2dds::dds_image dds_img) {
+std::vector<std::uint8_t> load_png(bool overwrite, const std::string& png_path, const fs::path& dds_path) {
+	if (!overwrite && fs::exists(dds_path)) { return {}; }
+	boost::nowide::ifstream ifs{png_path, std::ios::in | std::ios::binary};
+	return std::vector<std::uint8_t>{std::istreambuf_iterator<char>{ifs}, {}};
+}
+
+void save_dds(const png2dds::dds_image& dds_img) {
 	// Write the DDS header, header extension and encoded data into the file.
 	boost::nowide::ofstream ofs{dds_img.name(), std::ios::out | std::ios::binary};
 	ofs << "DDS ";
@@ -92,17 +98,15 @@ void task::start() {
 	// ToDo multi-threading support.
 	for (std::size_t index = 0U; index < size; ++index) {
 		// Load PNG file into a buffer.
-		const std::string& png = _png[index];
-		const fs::path dds_path = fs::path{png}.replace_extension(".dds");
+		const std::string& png_path = _png[index];
+		const fs::path dds_path = fs::path{png_path}.replace_extension(".dds");
 
-		if (!_arguments.overwrite && fs::exists(dds_path)) { continue; }
-
-		boost::nowide::ifstream ifs{png, std::ios::in | std::ios::binary};
-		const std::vector<std::uint8_t> buffer{std::istreambuf_iterator<char>{ifs}, {}};
 		try {
-			auto img = decode(png, buffer);
-			auto dds_img = _encoder.encode(dds_path.string(), img);
-			save_dds(std::move(dds_img));
+			const std::vector<std::uint8_t> buffer = load_png(_arguments.overwrite, png_path, dds_path);
+			if (buffer.empty()) { continue; }
+			const auto png_img = decode(png_path, buffer);
+			const auto dds_img = _encoder.encode(dds_path.string(), png_img);
+			save_dds(dds_img);
 		} catch (const std::runtime_error& ex) { boost::nowide::cerr << ex.what() << '\n'; }
 	}
 }
