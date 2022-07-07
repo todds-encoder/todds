@@ -12,10 +12,16 @@ png2dds encourages community involvement and contributions. Check the [CONTRIBUT
 
 png2dds is licensed under the Mozilla Public License, v. 2.0. See the [LICENSE](LICENSE) file for details. Check the [MPL 2.0 FAQ](https://www.mozilla.org/en-US/MPL/2.0/FAQ/) to learn more.
 
-
 ## Dependencies
 
-Currently all third party library dependencies are contained as source code in the thirdparty subfolder of the png2dds repository. Each one of these libraries is under its own license which is also included in the repository.
+png2dds will retrieve the following dependencies using find_package:
+
+* [Boost.Filesystem](https://www.boost.org/doc/libs/master/libs/filesystem/doc/index.htm)
+* [Boost.NoWide](https://www.boost.org/doc/libs/master/libs/nowide/doc/html/index.html)
+* [cxxopts](https://github.com/jarro2783/cxxopts)
+* [fmt](https://fmt.dev/latest/index.html)
+
+The following third party library dependencies are contained as source code in the thirdparty subfolder of the png2dds repository. Each one of these libraries is under its own license which is also included in the repository.
 
 * [bc7enc_rdo](https://github.com/richgel999/bc7enc_rdo)
 * [libspng](https://libspng.org/)
