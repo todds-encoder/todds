@@ -9,20 +9,24 @@
 #include "png2dds/arguments.hpp"
 #include "png2dds/dds.hpp"
 
+#include <boost/filesystem.hpp>
+
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace png2dds {
 
 class task final {
 public:
+	using paths_vector = std::vector<std::pair<boost::filesystem::path, boost::filesystem::path>>;
 	explicit task(args::data arguments);
 	void start();
 
 private:
 	args::data _arguments;
 	encoder _encoder;
-	std::vector<std::string> _png;
+	paths_vector _paths;
 };
 
 } // namespace png2dds

@@ -7,7 +7,6 @@
 #include "png2dds/png.hpp"
 
 #include <boost/algorithm/string/case_conv.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/nowide/filesystem.hpp>
 #include <boost/nowide/fstream.hpp>
 #include <boost/nowide/iostream.hpp>
@@ -21,36 +20,38 @@
 namespace fs = boost::filesystem;
 
 namespace {
+using paths_vector = png2dds::task::paths_vector;
 
-bool has_png_extension(const fs::file_status& status, const fs::path& path) {
+bool try_add_file(const fs::path& png_path, const fs::file_status& status, paths_vector& paths, bool overwrite) {
 	if (!fs::is_regular_file(status)) { return false; }
-	const std::string extension = boost::to_lower_copy(path.extension().string());
+	const std::string extension = boost::to_lower_copy(png_path.extension().string());
 	constexpr std::string_view png_extension{".png"};
-	return boost::to_lower_copy(path.extension().string()) == png_extension;
+	if (boost::to_lower_copy(png_path.extension().string()) != png_extension) { return false; }
+	constexpr std::string_view dds_extension{".dds"};
+	fs::path dds_path{png_path};
+	dds_path.replace_extension(dds_extension.data());
+	if (overwrite || !fs::exists(dds_path)) { paths.emplace_back(png_path, fs::path{png_path}.replace_extension()); }
+	return true;
 }
 
-void process_directory(const fs::path& path, std::vector<std::string>& png, const unsigned int depth) {
+void process_directory(const fs::path& path, paths_vector& paths, bool overwrite, unsigned int depth) {
 	const fs::directory_entry dir{path};
 	if (!fs::exists(dir) || !fs::is_directory(dir)) { return; }
 
-	fs::recursive_directory_iterator itr{dir};
-	fs::recursive_directory_iterator end{};
-
-	for (; itr != end; ++itr) {
-		if (has_png_extension(itr->status(), itr->path())) { png.emplace_back(itr->path().string()); }
+	for (fs::recursive_directory_iterator itr{dir}; itr != fs::recursive_directory_iterator{}; ++itr) {
+		try_add_file(itr->path(), itr->status(), paths, overwrite);
 		if (static_cast<unsigned int>(itr.depth()) >= depth) { itr.disable_recursion_pending(); }
 	}
 }
 
-std::vector<std::uint8_t> load_png(bool overwrite, const std::string& png_path, const fs::path& dds_path) {
-	if (!overwrite && fs::exists(dds_path)) { return {}; }
-	boost::nowide::ifstream ifs{png_path, std::ios::in | std::ios::binary};
+std::vector<std::uint8_t> load_png(const paths_vector& paths, std::size_t path_index) {
+	boost::nowide::ifstream ifs{paths[path_index].first, std::ios::in | std::ios::binary};
 	return std::vector<std::uint8_t>{std::istreambuf_iterator<char>{ifs}, {}};
 }
 
-void save_dds(const png2dds::dds_image& dds_img) {
+void save_dds(const paths_vector& paths, std::size_t path_index, const png2dds::dds_image& dds_img) {
 	// Write the DDS header, header extension and encoded data into the file.
-	boost::nowide::ofstream ofs{dds_img.name(), std::ios::out | std::ios::binary};
+	boost::nowide::ofstream ofs{paths[path_index].second, std::ios::out | std::ios::binary};
 	ofs << "DDS ";
 	const std::size_t block_size_bytes = dds_img.blocks().size() * sizeof(png2dds::dds_image::block_type);
 	const auto header = dds_img.header();
@@ -66,44 +67,37 @@ namespace png2dds {
 task::task(png2dds::args::data arguments)
 	: _arguments{std::move(arguments)}
 	, _encoder{_arguments.level}
-	, _png{} {
+	, _paths{} {
 	// Use UTF-8 as the default encoding for Boost.Filesystem.
 	boost::nowide::nowide_filesystem();
 }
 
 void task::start() {
-	process_directory(_arguments.path, _png, _arguments.depth);
+	process_directory(_arguments.path, _paths, _arguments.overwrite, _arguments.depth);
 
 	if (fs::exists(_arguments.list) || fs::is_regular_file(_arguments.list)) {
 		boost::nowide::fstream stream{_arguments.list};
 		std::string buffer;
 		while (std::getline(stream, buffer)) {
-			const fs::path path{buffer};
-			const fs::file_status status = fs::status(path);
-			if (has_png_extension(status, path)) {
-				_png.emplace_back(path.string());
-			} else {
-				process_directory(path, _png, _arguments.depth);
+			fs::path path{buffer};
+
+			if (!try_add_file(path, fs::status(path), _paths, _arguments.overwrite)) {
+				process_directory(path, _paths, _arguments.overwrite, _arguments.depth);
 			}
 		}
 	}
 
 	// Move duplicates to the end and ignore them.
-	std::sort(_png.begin(), _png.end());
-	const auto size = static_cast<std::size_t>(std::distance(_png.begin(), std::unique(_png.begin(), _png.end())));
+	std::sort(_paths.begin(), _paths.end());
+	const auto size = static_cast<std::size_t>(std::distance(_paths.begin(), std::unique(_paths.begin(), _paths.end())));
 
 	// ToDo multi-threading support.
 	for (std::size_t index = 0U; index < size; ++index) {
-		// Load PNG file into a buffer.
-		const std::string& png_path = _png[index];
-		const fs::path dds_path = fs::path{png_path}.replace_extension(".dds");
-
 		try {
-			const std::vector<std::uint8_t> buffer = load_png(_arguments.overwrite, png_path, dds_path);
-			if (buffer.empty()) { continue; }
-			const auto png_img = decode(png_path, buffer);
-			const auto dds_img = _encoder.encode(dds_path.string(), png_img);
-			save_dds(dds_img);
+			const std::vector<std::uint8_t> buffer = load_png(_paths, index);
+			const auto png_img = decode(_paths[index].first.string(), buffer);
+			const auto dds_img = _encoder.encode(png_img);
+			save_dds(_paths, index, dds_img);
 		} catch (const std::runtime_error& ex) { boost::nowide::cerr << ex.what() << '\n'; }
 	}
 }

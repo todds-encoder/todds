@@ -95,14 +95,11 @@ static_assert(sizeof(DDSURFACEDESC2) + sizeof(DDS_HEADER_DXT10) == sizeof(dds_im
 static_assert(std::is_same_v<dds_image::block_type::value_type, std::uint64_t>);
 static_assert(sizeof(png2dds::dds_image::block_type) == 16U);
 
-dds_image::dds_image(std::string dds, const image& png)
-	: _dds_name{std::move(dds)}
-	, _width{png.padded_width() / pixel_block_side}
+dds_image::dds_image(const image& png)
+	: _width{png.padded_width() / pixel_block_side}
 	, _height{png.padded_height() / pixel_block_side}
 	, _blocks(_width * _height)
 	, _header{get_header(png.width(), png.height(), _blocks.size() * sizeof(dds_image::block_type))} {}
-
-const std::string& dds_image::name() const noexcept { return _dds_name; }
 
 const dds_image::header_type& dds_image::header() const noexcept { return _header; }
 
@@ -138,11 +135,11 @@ encoder::encoder(unsigned int level)
 
 encoder::~encoder() = default;
 
-dds_image encoder::encode(std::string dds, const image& png) const {
+dds_image encoder::encode(const image& png) const {
 	assert((png.padded_width() % pixel_block_side) == 0);
 	assert((png.padded_height() % pixel_block_side) == 0);
 
-	dds_image dds_img(std::move(dds), png);
+	dds_image dds_img(png);
 
 	// Stores squares of pixel blocks as contiguous data, to serve as the encoding input.
 	std::array<std::uint8_t, blocks_to_process * pixel_block_byte_size> pixel_blocks{};

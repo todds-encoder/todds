@@ -26,7 +26,7 @@ public:
 	using block_type = std::array<std::uint64_t, 2U>;
 	using header_type = std::array<char, 144U>;
 
-	dds_image(std::string dds, const image& png);
+	explicit dds_image(const image& png);
 	dds_image(const dds_image&) = delete;
 	dds_image(dds_image&&) = default;
 	dds_image& operator=(const dds_image&) = delete;
@@ -34,7 +34,6 @@ public:
 
 	~dds_image() = default;
 
-	[[nodiscard]] const std::string& name() const noexcept;
 	[[nodiscard]] const header_type& header() const noexcept;
 	[[nodiscard]] std::size_t width() const noexcept;
 	[[nodiscard]] std::size_t height() const noexcept;
@@ -43,7 +42,6 @@ public:
 	[[nodiscard]] const std::vector<block_type>& blocks() const noexcept;
 
 private:
-	std::string _dds_name;
 	std::size_t _width;
 	std::size_t _height;
 	std::vector<block_type> _blocks;
@@ -58,7 +56,7 @@ public:
 	encoder& operator=(const encoder&) = delete;
 	encoder& operator=(encoder&&) = default;
 	~encoder();
-	[[nodiscard]] dds_image encode(std::string dds, const image& png) const;
+	[[nodiscard]] dds_image encode(const image& png) const;
 
 private:
 	std::unique_ptr<ispc::bc7e_compress_block_params> _pimpl;
