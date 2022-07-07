@@ -28,6 +28,8 @@ find_package(Boost 1.73 REQUIRED COMPONENTS
 	)
 find_package(cxxopts REQUIRED)
 find_package(fmt CONFIG REQUIRED)
+find_package(Threads REQUIRED)
+find_package(TBB CONFIG REQUIRED)
 
 add_subdirectory(thirdparty)
 

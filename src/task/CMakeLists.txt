@@ -22,4 +22,5 @@ target_link_libraries(png2dds_task
 	Boost::headers
 	Boost::nowide
 	Boost::filesystem
+	TBB::tbb
 	)

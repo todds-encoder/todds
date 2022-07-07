@@ -38,14 +38,15 @@ public:
 	[[nodiscard]] std::size_t width() const noexcept;
 	[[nodiscard]] std::size_t height() const noexcept;
 	[[nodiscard]] block_type::value_type* block(std::size_t block_x, std::size_t block_y) noexcept;
-	[[nodiscard]] std::vector<block_type>& blocks() noexcept;
 	[[nodiscard]] const std::vector<block_type>& blocks() const noexcept;
+	[[nodiscard]] std::size_t file_index() const noexcept;
 
 private:
 	std::size_t _width;
 	std::size_t _height;
 	std::vector<block_type> _blocks;
 	header_type _header;
+	std::size_t _file_index;
 };
 
 class encoder final {

@@ -99,7 +99,8 @@ dds_image::dds_image(const image& png)
 	: _width{png.padded_width() / pixel_block_side}
 	, _height{png.padded_height() / pixel_block_side}
 	, _blocks(_width * _height)
-	, _header{get_header(png.width(), png.height(), _blocks.size() * sizeof(dds_image::block_type))} {}
+	, _header{get_header(png.width(), png.height(), _blocks.size() * sizeof(dds_image::block_type))}
+	, _file_index{png.file_index()} {}
 
 const dds_image::header_type& dds_image::header() const noexcept { return _header; }
 
@@ -111,9 +112,9 @@ dds_image::block_type::value_type* dds_image::block(std::size_t block_x, std::si
 	return _blocks[block_x + block_y * _width].data();
 }
 
-std::vector<dds_image::block_type>& dds_image::blocks() noexcept { return _blocks; }
-
 const std::vector<dds_image::block_type>& dds_image::blocks() const noexcept { return _blocks; }
+
+[[nodiscard]] std::size_t dds_image::file_index() const noexcept { return _file_index; }
 
 encoder::encoder(unsigned int level)
 	: _pimpl(std::make_unique<ispc::bc7e_compress_block_params>()) {

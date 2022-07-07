@@ -45,7 +45,7 @@ private:
 
 namespace png2dds {
 
-image decode(const std::string& png, const std::vector<std::uint8_t>& buffer) {
+image decode(std::size_t file_index, const std::string& png, const std::vector<std::uint8_t>& buffer) {
 	spng_context context{png};
 
 	if (const int ret = spng_set_png_buffer(context.get(), buffer.data(), buffer.size()); ret != 0) {
@@ -57,7 +57,7 @@ image decode(const std::string& png, const std::vector<std::uint8_t>& buffer) {
 		throw std::runtime_error{fmt::format("Could not read header data of {:s}: {:s}", png, spng_strerror(ret))};
 	}
 
-	image result(header.width, header.height);
+	image result(file_index, header.width, header.height);
 
 	constexpr spng_format format = SPNG_FMT_RGBA8;
 	// The png2dds buffer may be larger than the image size calculated by libspng because the buffer must ensure that

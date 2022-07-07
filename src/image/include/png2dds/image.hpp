@@ -20,7 +20,7 @@ class image final {
 public:
 	static constexpr std::uint8_t bytes_per_pixel = 4U;
 
-	image(std::size_t width, std::size_t height);
+	image(std::size_t index, std::size_t width, std::size_t height);
 	image(const image&) = delete;
 	image(image&&) noexcept = default;
 	image& operator=(const image&) = delete;
@@ -50,6 +50,13 @@ public:
 	 * @return Buffer height in pixels.
 	 */
 	[[nodiscard]] std::size_t padded_height() const noexcept;
+
+
+	/**
+	 * File index of the image in the list of files to load.
+	 * @return Index of the file
+	 */
+	[[nodiscard]] std::size_t file_index() const noexcept;
 
 	/**
 	 * Memory buffer of the image.
@@ -104,6 +111,7 @@ private:
 	std::vector<std::uint8_t> _buffer;
 	std::size_t _width;
 	std::size_t _height;
+	std::size_t _file_index;
 };
 
 } // namespace png2dds

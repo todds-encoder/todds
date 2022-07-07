@@ -21,6 +21,7 @@ png2dds will retrieve the following dependencies using find_package:
 * [Boost.String](https://www.boost.org/doc/libs/1_79_0/doc/html/string_algo.html)
 * [cxxopts](https://github.com/jarro2783/cxxopts)
 * [fmt](https://fmt.dev/latest/index.html)
+* [oneTBB](https://github.com/oneapi-src/oneTBB)
 
 The following third party library dependencies are contained as source code in the thirdparty subfolder of the png2dds repository. Each one of these libraries is under its own license which is also included in the repository.
 

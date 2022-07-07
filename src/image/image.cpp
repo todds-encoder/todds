@@ -15,12 +15,13 @@ constexpr std::size_t get_byte_position(std::size_t padded_width, std::size_t by
 } // anonymous namespace
 
 namespace png2dds {
-image::image(std::size_t width, std::size_t height)
+image::image(std::size_t index, std::size_t width, std::size_t height)
 	: _padded_width{util::next_divisible_by_16(width)}
 	, _padded_height{util::next_divisible_by_16(height)}
 	, _buffer(_padded_width * _padded_height * bytes_per_pixel)
 	, _width{width}
-	, _height{height} {}
+	, _height{height}
+	, _file_index{index} {}
 
 std::size_t image::width() const noexcept { return _width; }
 
@@ -29,6 +30,8 @@ std::size_t image::height() const noexcept { return _height; }
 std::size_t image::padded_width() const noexcept { return _padded_width; }
 
 std::size_t image::padded_height() const noexcept { return _padded_height; }
+
+std::size_t image::file_index() const noexcept { return _file_index; }
 
 [[nodiscard]] std::span<std::uint8_t> image::buffer() noexcept { return _buffer; }
 
