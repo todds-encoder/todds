@@ -6,6 +6,7 @@
 
 #include "png2dds/png.hpp"
 
+#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/nowide/filesystem.hpp>
 #include <boost/nowide/fstream.hpp>
@@ -13,9 +14,9 @@
 
 #include <algorithm>
 #include <cctype>
-#include <fstream>
 #include <iterator>
 #include <string>
+#include <string_view>
 
 namespace fs = boost::filesystem;
 
@@ -23,13 +24,9 @@ namespace {
 
 bool has_png_extension(const fs::file_status& status, const fs::path& path) {
 	if (!fs::is_regular_file(status)) { return false; }
-	const std::string extension = path.extension().string();
-
-	constexpr std::size_t extension_size = 4U;
-	if (extension.size() != extension_size) { return false; }
-
-	return (extension[1U] == 'p' || extension[1U] == 'P') && (extension[2U] == 'n' || extension[2U] == 'N') &&
-				 (extension[3U] == 'g' || extension[3U] == 'G');
+	const std::string extension = boost::to_lower_copy(path.extension().string());
+	constexpr std::string_view png_extension{".png"};
+	return boost::to_lower_copy(path.extension().string()) == png_extension;
 }
 
 void process_directory(const fs::path& path, std::vector<std::string>& png, const unsigned int depth) {

@@ -19,6 +19,7 @@ target_link_libraries(png2dds_task
 	png2dds_dds
 	PRIVATE
 	png2dds_png
+	Boost::headers
 	Boost::nowide
 	Boost::filesystem
 	)
