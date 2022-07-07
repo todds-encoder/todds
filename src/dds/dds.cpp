@@ -6,7 +6,6 @@
 #include "png2dds/dds.hpp"
 
 #include <bc7e_ispc.h>
-#include <boost/nowide/fstream.hpp>
 #include <dds_defs.h>
 
 #include <algorithm>
@@ -139,35 +138,29 @@ encoder::encoder(unsigned int level)
 
 encoder::~encoder() = default;
 
-void encoder::encode(std::string dds, const image& png) const {
+dds_image encoder::encode(std::string dds, const image& png) const {
 	assert((png.padded_width() % pixel_block_side) == 0);
 	assert((png.padded_height() % pixel_block_side) == 0);
 
-	dds_image dds_image(std::move(dds), png);
+	dds_image dds_img(std::move(dds), png);
 
 	// Stores squares of pixel blocks as contiguous data, to serve as the encoding input.
 	std::array<std::uint8_t, blocks_to_process * pixel_block_byte_size> pixel_blocks{};
 
-	for (std::size_t block_y = 0UL; block_y < dds_image.height(); ++block_y) {
-		for (std::size_t block_x = 0UL; block_x < dds_image.width(); block_x += blocks_to_process) {
+	for (std::size_t block_y = 0UL; block_y < dds_img.height(); ++block_y) {
+		for (std::size_t block_x = 0UL; block_x < dds_img.width(); block_x += blocks_to_process) {
 			// In some cases the number of blocks of the image may not be divisible by 64.
-			const std::size_t current_blocks_to_process = std::min(blocks_to_process, dds_image.width() - block_x);
+			const std::size_t current_blocks_to_process = std::min(blocks_to_process, dds_img.width() - block_x);
 			// Copy input data as pixel blocks.
 			get_pixel_blocks(png, current_blocks_to_process, pixel_blocks, block_x, block_y);
 
-			auto* dds_block = dds_image.block(block_x, block_y);
+			auto* dds_block = dds_img.block(block_x, block_y);
 			ispc::bc7e_compress_blocks(static_cast<std::uint32_t>(current_blocks_to_process), dds_block,
 				reinterpret_cast<const std::uint32_t*>(pixel_blocks.data()), _pimpl.get());
 		}
 	}
-	// Write the DDS header, header extension and encoded data into the file.
-	boost::nowide::ofstream ofs{dds_image.name(), std::ios::out | std::ios::binary};
-	ofs << "DDS ";
-	const std::size_t block_size_bytes = dds_image.blocks().size() * sizeof(dds_image::block_type);
-	const auto header = dds_image.header();
-	ofs.write(header.data(), header.size());
-	ofs.write(reinterpret_cast<const char*>(dds_image.blocks().data()), static_cast<std::ptrdiff_t>(block_size_bytes));
-	ofs.close();
+
+	return dds_img;
 }
 
 } // namespace png2dds

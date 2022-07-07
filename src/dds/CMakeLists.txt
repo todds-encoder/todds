@@ -19,6 +19,5 @@ target_link_libraries(png2dds_dds
 	PRIVATE
 	bc7e_ispc
 	bc7enc_dds_defs
-	Boost::nowide
 	fmt::fmt
 	)

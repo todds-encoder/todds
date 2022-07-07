@@ -44,6 +44,18 @@ void process_directory(const fs::path& path, std::vector<std::string>& png, cons
 		if (static_cast<unsigned int>(itr.depth()) >= depth) { itr.disable_recursion_pending(); }
 	}
 }
+
+void save_dds(png2dds::dds_image dds_img) {
+	// Write the DDS header, header extension and encoded data into the file.
+	boost::nowide::ofstream ofs{dds_img.name(), std::ios::out | std::ios::binary};
+	ofs << "DDS ";
+	const std::size_t block_size_bytes = dds_img.blocks().size() * sizeof(png2dds::dds_image::block_type);
+	const auto header = dds_img.header();
+	ofs.write(header.data(), header.size());
+	ofs.write(reinterpret_cast<const char*>(dds_img.blocks().data()), static_cast<std::ptrdiff_t>(block_size_bytes));
+	ofs.close();
+}
+
 } // anonymous namespace
 
 namespace png2dds {
@@ -88,10 +100,9 @@ void task::start() {
 		boost::nowide::ifstream ifs{png, std::ios::in | std::ios::binary};
 		const std::vector<std::uint8_t> buffer{std::istreambuf_iterator<char>{ifs}, {}};
 		try {
-			// PNG decoding.
 			auto img = decode(png, buffer);
-			// DDS encoding
-			_encoder.encode(dds_path.string(), img);
+			auto dds_img = _encoder.encode(dds_path.string(), img);
+			save_dds(std::move(dds_img));
 		} catch (const std::runtime_error& ex) { boost::nowide::cerr << ex.what() << '\n'; }
 	}
 }

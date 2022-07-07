@@ -58,7 +58,7 @@ public:
 	encoder& operator=(const encoder&) = delete;
 	encoder& operator=(encoder&&) = default;
 	~encoder();
-	void encode(std::string dds, const image& png) const;
+	[[nodiscard]] dds_image encode(std::string dds, const image& png) const;
 
 private:
 	std::unique_ptr<ispc::bc7e_compress_block_params> _pimpl;
