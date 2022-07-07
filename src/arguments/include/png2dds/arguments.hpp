@@ -15,7 +15,7 @@ struct data {
 	std::string text{};
 	std::string path{};
 	std::string list{};
-	unsigned int threads{};
+	std::size_t threads{};
 	unsigned int depth{};
 	bool overwrite{};
 	unsigned int level{};

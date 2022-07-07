@@ -86,7 +86,6 @@ public:
 	png2dds::image operator()(const png_file& file) const {
 		try {
 			return png2dds::decode(file.file_index, _paths[file.file_index].first.string(), file.buffer);
-
 		} catch (const std::runtime_error& ex) {
 			// ToDo error reporting when the verbose option is activated.
 		}
@@ -145,7 +144,7 @@ task::task(png2dds::args::data arguments)
 void task::start() {
 	process_directory(_arguments.path, _paths, _arguments.overwrite, _arguments.depth);
 
-	if (fs::exists(_arguments.list) || fs::is_regular_file(_arguments.list)) {
+	if (fs::exists(_arguments.list) && fs::is_regular_file(_arguments.list)) {
 		boost::nowide::fstream stream{_arguments.list};
 		std::string buffer;
 		while (std::getline(stream, buffer)) {
@@ -160,6 +159,8 @@ void task::start() {
 	// Process the list in order ignoring duplicates.
 	std::sort(_paths.begin(), _paths.end());
 	_paths.erase(std::unique(_paths.begin(), _paths.end()), _paths.end());
+
+	if (_paths.empty()) { return; }
 
 	std::atomic<std::size_t> counter;
 	// Configure the maximum parallelism allowed for tbb.

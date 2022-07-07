@@ -10,9 +10,9 @@
 #include <boost/nowide/args.hpp>
 #include <cxxopts.hpp>
 #include <fmt/format.h>
+#include <oneapi/tbb/info.h>
 
 #include <string_view>
-#include <thread>
 
 namespace {
 constexpr unsigned int max_level = 6U;
@@ -55,13 +55,14 @@ data get(int argc, char** argv) {
 		const std::string& version_arg = "version";
 		const std::string& version_help = "Show program version";
 
-		const unsigned int max_threads = std::thread::hardware_concurrency();
+		const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
+
 		// clang-format off
 		options.add_options()
 			(path_arg, path_help, cxxopts::value<std::string>()->default_value(""))
 			(list_arg, list_help, cxxopts::value<std::string>()->default_value(""))
 			(level_arg, level_help, cxxopts::value<unsigned int>()->default_value(std::to_string(max_level)))
-			(threads_arg, threads_help, cxxopts::value<unsigned int>()->default_value(std::to_string(max_threads)))
+			(threads_arg, threads_help, cxxopts::value<std::size_t>()->default_value(std::to_string(max_threads)))
 			(depth_arg, depth_help, cxxopts::value<unsigned int>())
 			(overwrite_arg, overwrite_help)
 			(help_arg, help_help)
@@ -83,7 +84,7 @@ data get(int argc, char** argv) {
 			arguments.path = result[path_arg].as<std::string>();
 			arguments.list = result[list_arg].as<std::string>();
 			arguments.level = level;
-			arguments.threads = std::min(result[threads_arg].as<unsigned int>(), max_threads);
+			arguments.threads = std::min(result[threads_arg].as<std::size_t>(), max_threads);
 			arguments.depth =
 				result.count(depth_arg) > 0 ? result[depth_arg].as<unsigned int>() : std::numeric_limits<unsigned int>::max();
 			arguments.overwrite = result.count(overwrite_arg) > 0;

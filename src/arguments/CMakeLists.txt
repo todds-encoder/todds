@@ -18,4 +18,5 @@ target_link_libraries(png2dds_arguments PRIVATE
 	Boost::nowide
 	cxxopts::cxxopts
 	fmt::fmt
+	TBB::tbb
 	)
