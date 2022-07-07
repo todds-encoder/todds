@@ -8,6 +8,7 @@
 
 #include "png2dds/image.hpp"
 
+#include <array>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -20,6 +21,35 @@ struct bc7e_compress_block_params;
 
 namespace png2dds {
 
+class dds_image final {
+public:
+	using block_type = std::array<std::uint64_t, 2U>;
+	using header_type = std::array<char, 144U>;
+
+	dds_image(std::string dds, const image& png);
+	dds_image(const dds_image&) = delete;
+	dds_image(dds_image&&) = default;
+	dds_image& operator=(const dds_image&) = delete;
+	dds_image& operator=(dds_image&&) = default;
+
+	~dds_image() = default;
+
+	[[nodiscard]] const std::string& name() const noexcept;
+	[[nodiscard]] const header_type& header() const noexcept;
+	[[nodiscard]] std::size_t width() const noexcept;
+	[[nodiscard]] std::size_t height() const noexcept;
+	[[nodiscard]] block_type::value_type* block(std::size_t block_x, std::size_t block_y) noexcept;
+	[[nodiscard]] std::vector<block_type>& blocks() noexcept;
+	[[nodiscard]] const std::vector<block_type>& blocks() const noexcept;
+
+private:
+	std::string _dds_name;
+	std::size_t _width;
+	std::size_t _height;
+	std::vector<block_type> _blocks;
+	header_type _header;
+};
+
 class encoder final {
 public:
 	explicit encoder(unsigned int level);
@@ -28,7 +58,7 @@ public:
 	encoder& operator=(const encoder&) = delete;
 	encoder& operator=(encoder&&) = default;
 	~encoder();
-	void encode(const std::string& dds, const image& png) const;
+	void encode(std::string dds, const image& png) const;
 
 private:
 	std::unique_ptr<ispc::bc7e_compress_block_params> _pimpl;
