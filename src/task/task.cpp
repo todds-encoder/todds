@@ -30,7 +30,7 @@ bool try_add_file(const fs::path& png_path, const fs::file_status& status, paths
 	constexpr std::string_view dds_extension{".dds"};
 	fs::path dds_path{png_path};
 	dds_path.replace_extension(dds_extension.data());
-	if (overwrite || !fs::exists(dds_path)) { paths.emplace_back(png_path, fs::path{png_path}.replace_extension()); }
+	if (overwrite || !fs::exists(dds_path)) { paths.emplace_back(png_path, dds_path); }
 	return true;
 }
 
