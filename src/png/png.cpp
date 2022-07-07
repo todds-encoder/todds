@@ -73,7 +73,7 @@ image decode(std::size_t file_index, const std::string& png, const std::vector<s
 				result.buffer().size(), file_size)};
 	}
 
-	if (const int ret = spng_decode_image(context.get(), nullptr, 0, format, SPNG_DECODE_PROGRESSIVE); ret != 0) {
+	if (const int ret = spng_decode_image(context.get(), nullptr, 0, format, SPNG_DECODE_TRNS | SPNG_DECODE_PROGRESSIVE); ret != 0) {
 		throw std::runtime_error{fmt::format("Could not initialize decoding of {:s}: {:s}", png, spng_strerror(ret))};
 	}
 
