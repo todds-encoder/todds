@@ -45,7 +45,7 @@ private:
 
 namespace png2dds {
 
-image decode(std::size_t file_index, const std::string& png, const std::vector<std::uint8_t>& buffer) {
+image decode(std::size_t file_index, const std::string& png, const std::vector<std::uint8_t>& buffer, bool flip) {
 	spng_context context{png};
 
 	if (const int ret = spng_set_png_buffer(context.get(), buffer.data(), buffer.size()); ret != 0) {
@@ -73,17 +73,20 @@ image decode(std::size_t file_index, const std::string& png, const std::vector<s
 				result.buffer().size(), file_size)};
 	}
 
-	if (const int ret = spng_decode_image(context.get(), nullptr, 0, format, SPNG_DECODE_TRNS | SPNG_DECODE_PROGRESSIVE); ret != 0) {
+	if (const int ret = spng_decode_image(context.get(), nullptr, 0, format, SPNG_DECODE_TRNS | SPNG_DECODE_PROGRESSIVE);
+			ret != 0) {
 		throw std::runtime_error{fmt::format("Could not initialize decoding of {:s}: {:s}", png, spng_strerror(ret))};
 	}
 
 	int ret{};
 	spng_row_info row_info{};
 	const auto file_width = file_size / header.height;
+
 	do {
 		ret = spng_get_row_info(context.get(), &row_info);
 		if (ret != 0) { break; }
-		ret = spng_decode_row(context.get(), &result.get_byte(0UL, row_info.row_num), file_width);
+		const std::size_t row = !flip ? row_info.row_num : result.height() - row_info.row_num - 1UL;
+		ret = spng_decode_row(context.get(), &result.get_byte(0UL, row), file_width);
 
 	} while (ret == 0);
 

@@ -80,12 +80,13 @@ private:
 
 class decode_png_image final {
 public:
-	explicit decode_png_image(const paths_vector& paths) noexcept
-		: _paths{paths} {}
+	explicit decode_png_image(const paths_vector& paths, bool flip) noexcept
+		: _paths{paths}
+		, _flip{flip} {}
 
 	png2dds::image operator()(const png_file& file) const {
 		try {
-			return png2dds::decode(file.file_index, _paths[file.file_index].first.string(), file.buffer);
+			return png2dds::decode(file.file_index, _paths[file.file_index].first.string(), file.buffer, _flip);
 		} catch (const std::runtime_error& ex) {
 			// ToDo error reporting when the verbose option is activated.
 		}
@@ -94,6 +95,7 @@ public:
 
 private:
 	const paths_vector& _paths;
+	bool _flip;
 };
 
 class encode_dds_image final {
@@ -168,7 +170,8 @@ void task::start() {
 	otbb::tick_count start = otbb::tick_count::now();
 	otbb::parallel_pipeline(_arguments.threads * 4UL,
 		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_out_of_order, load_png_file(_paths, counter)) &
-			otbb::make_filter<png_file, png2dds::image>(otbb::filter_mode::parallel, decode_png_image(_paths)) &
+			otbb::make_filter<png_file, png2dds::image>(
+				otbb::filter_mode::parallel, decode_png_image(_paths, _arguments.flip)) &
 			otbb::make_filter<png2dds::image, png2dds::dds_image>(otbb::filter_mode::parallel, encode_dds_image(_encoder)) &
 			otbb::make_filter<png2dds::dds_image, void>(otbb::filter_mode::serial_in_order, save_dds_file(_paths)));
 	otbb::tick_count stop = otbb::tick_count::now();

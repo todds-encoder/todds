@@ -49,6 +49,9 @@ data get(int argc, char** argv) {
 		const std::string& overwrite_arg = "overwrite";
 		const std::string& overwrite_help = "Convert PNG files to DDS even if they already have a DDS file";
 
+		const std::string& flip_arg = "flip";
+		const std::string& flip_help = "Flip source images vertically before encoding";
+
 		const std::string& help_arg = "help";
 		const std::string& help_help = "Show usage information";
 
@@ -65,6 +68,7 @@ data get(int argc, char** argv) {
 			(threads_arg, threads_help, cxxopts::value<std::size_t>()->default_value(std::to_string(max_threads)))
 			(depth_arg, depth_help, cxxopts::value<unsigned int>())
 			(overwrite_arg, overwrite_help)
+			(flip_arg, flip_help)
 			(help_arg, help_help)
 			(version_arg, version_help);
 		// clang-format on
@@ -88,6 +92,7 @@ data get(int argc, char** argv) {
 			arguments.depth =
 				result.count(depth_arg) > 0 ? result[depth_arg].as<unsigned int>() : std::numeric_limits<unsigned int>::max();
 			arguments.overwrite = result.count(overwrite_arg) > 0;
+			arguments.flip = result.count(flip_arg) > 0;
 
 			if (arguments.path.empty() && arguments.list.empty()) {
 				arguments.error = true;
