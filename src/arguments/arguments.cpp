@@ -29,7 +29,7 @@ data get(int argc, char** argv) {
 		cxxopts::Options options(std::string{project::name()}, std::string{project::description()});
 
 		const std::string& path_arg = "path";
-		const std::string& path_help = "Convert to DDS all PNG files inside of this folder";
+		const std::string& path_help = "Points to a PNG file or a folder. In the latter case, convert to DDS all PNG files inside of this folder";
 
 		const std::string& list_arg = "list";
 		const std::string& list_help =

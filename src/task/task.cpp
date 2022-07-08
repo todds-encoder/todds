@@ -144,7 +144,9 @@ task::task(png2dds::args::data arguments)
 }
 
 void task::start() {
-	process_directory(_arguments.path, _paths, _arguments.overwrite, _arguments.depth);
+	if (!try_add_file(_arguments.path, fs::status(_arguments.path), _paths, _arguments.overwrite)) {
+		process_directory(_arguments.path, _paths, _arguments.overwrite, _arguments.depth);
+	}
 
 	if (fs::exists(_arguments.list) && fs::is_regular_file(_arguments.list)) {
 		boost::nowide::fstream stream{_arguments.list};
