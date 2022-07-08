@@ -29,7 +29,8 @@ data get(int argc, char** argv) {
 		cxxopts::Options options(std::string{project::name()}, std::string{project::description()});
 
 		const std::string& path_arg = "path";
-		const std::string& path_help = "Points to a PNG file or a folder. In the latter case, convert to DDS all PNG files inside of this folder";
+		const std::string& path_help =
+			"Points to a PNG file or a folder. In the latter case, convert to DDS all PNG files inside of this folder";
 
 		const std::string& list_arg = "list";
 		const std::string& list_help =
@@ -88,7 +89,7 @@ data get(int argc, char** argv) {
 			arguments.path = result[path_arg].as<std::string>();
 			arguments.list = result[list_arg].as<std::string>();
 			arguments.level = level;
-			arguments.threads = std::min(result[threads_arg].as<std::size_t>(), max_threads);
+			arguments.threads = std::clamp<std::size_t>(result[threads_arg].as<std::size_t>(), 1UL, max_threads);
 			arguments.depth =
 				result.count(depth_arg) > 0 ? result[depth_arg].as<unsigned int>() : std::numeric_limits<unsigned int>::max();
 			arguments.overwrite = result.count(overwrite_arg) > 0;
