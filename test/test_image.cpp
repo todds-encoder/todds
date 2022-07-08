@@ -35,11 +35,13 @@ TEST_CASE("png2dds::image type assumptions", "[image]") {
 
 TEST_CASE("png2dds::image construction", "[image]") {
 	using png2dds::util::next_divisible_by_16;
+	constexpr std::size_t file_index = 88838UL;
 	constexpr std::size_t width = 1023UL;
 	constexpr std::size_t padded_width = next_divisible_by_16(width);
 	constexpr std::size_t height = 8888UL;
 	constexpr std::size_t padded_height = next_divisible_by_16(height);
-	const image img{width, height};
+	const image img{file_index, width, height};
+	REQUIRE(img.file_index() == file_index);
 	REQUIRE(img.width() == width);
 	REQUIRE(img.height() == height);
 	REQUIRE(img.padded_width() == padded_width);
@@ -49,7 +51,7 @@ TEST_CASE("png2dds::image construction", "[image]") {
 
 constexpr std::size_t iota_image_side = 16UL * 10UL;
 image iota_image() {
-	image img{iota_image_side, iota_image_side};
+	image img{0U, iota_image_side, iota_image_side};
 	std::iota(img.buffer().begin(), img.buffer().end(), 0U);
 	return img;
 }
