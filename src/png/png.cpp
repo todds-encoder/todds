@@ -94,6 +94,28 @@ image decode(std::size_t file_index, const std::string& png, const std::vector<s
 		throw std::runtime_error{fmt::format("Progressive decode error in {:s}: {:s}", png, spng_strerror(ret))};
 	}
 
+	// When padding has been added to the image, copy the border pixel into the padding.
+	if (result.width() < result.padded_width()) {
+		const auto border_pixel_x = result.width() - 1UL;
+		for (std::size_t pixel_y = 0UL; pixel_y < result.padded_height(); ++pixel_y) {
+			const auto border_pixel = result.get_pixel(border_pixel_x, std::min(pixel_y, result.height() - 1U));
+			for (std::size_t pixel_x = result.width(); pixel_x < result.padded_width(); ++pixel_x) {
+				const auto current_pixel = result.get_pixel(pixel_x, pixel_y);
+				std::copy(border_pixel.begin(), border_pixel.end(), current_pixel.begin());
+			}
+		}
+	}
+	if (result.height() < result.padded_height()) {
+		const auto border_pixel_y = result.height() - 1UL;
+		for (std::size_t pixel_x = 0UL; pixel_x < result.padded_width(); ++pixel_x) {
+			const auto border_pixel = result.get_pixel(std::min(pixel_x, result.width() - 1U), border_pixel_y);
+			for (std::size_t pixel_y = result.height(); pixel_y < result.padded_height(); ++pixel_y) {
+				const auto current_pixel = result.get_pixel(pixel_x, pixel_y);
+				std::copy(border_pixel.begin(), border_pixel.end(), current_pixel.begin());
+			}
+		}
+	}
+
 	return result;
 }
 
