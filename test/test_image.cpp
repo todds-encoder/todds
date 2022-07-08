@@ -34,12 +34,11 @@ TEST_CASE("png2dds::image type assumptions", "[image]") {
 }
 
 TEST_CASE("png2dds::image construction", "[image]") {
-	using png2dds::util::next_divisible_by_16;
 	constexpr std::size_t file_index = 88838UL;
 	constexpr std::size_t width = 1023UL;
-	constexpr std::size_t padded_width = next_divisible_by_16(width);
-	constexpr std::size_t height = 8888UL;
-	constexpr std::size_t padded_height = next_divisible_by_16(height);
+	constexpr std::size_t padded_width = 1024UL;
+	constexpr std::size_t height = 8887UL;
+	constexpr std::size_t padded_height = 8888UL;
 	const image img{file_index, width, height};
 	REQUIRE(img.file_index() == file_index);
 	REQUIRE(img.width() == width);

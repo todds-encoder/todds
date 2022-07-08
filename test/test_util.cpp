@@ -7,12 +7,11 @@
 
 #include <catch2/catch.hpp>
 
-TEST_CASE("png2dds::util::next_divisible_by_16", "[util]") {
-	using png2dds::util::next_divisible_by_16;
-	STATIC_REQUIRE(next_divisible_by_16(1UL) == 16UL);
-	STATIC_REQUIRE(next_divisible_by_16(16UL) == 16UL);
-	STATIC_REQUIRE(next_divisible_by_16(18UL) == 32UL);
-	STATIC_REQUIRE(next_divisible_by_16(31UL) == 32UL);
-	STATIC_REQUIRE(next_divisible_by_16(32UL) == 32UL);
-	STATIC_REQUIRE(next_divisible_by_16(999UL) == 1008UL);
+TEST_CASE("png2dds::util::next_divisible_by_4", "[util]") {
+	using png2dds::util::next_divisible_by_4;
+	STATIC_REQUIRE(next_divisible_by_4(1UL) == 4UL);
+	STATIC_REQUIRE(next_divisible_by_4(16UL) == 16UL);
+	STATIC_REQUIRE(next_divisible_by_4(18UL) == 20UL);
+	STATIC_REQUIRE(next_divisible_by_4(31UL) == 32UL);
+	STATIC_REQUIRE(next_divisible_by_4(997UL) == 1000UL);
 }

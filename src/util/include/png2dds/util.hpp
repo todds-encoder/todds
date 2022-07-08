@@ -10,13 +10,11 @@
 
 namespace png2dds::util {
 /**
- * Provides the smallest value divisible by 16 larger than the input.
+ * Provides the smallest value divisible by 4 larger than the input.
  * @param value Input value.
- * @return Number larger than input and divisible by 16.
+ * @return Number larger than input and divisible by 4.
  */
-[[nodiscard]] constexpr std::size_t next_divisible_by_16(std::size_t value) noexcept {
-	return (value + 0b1111U) & ~0b1111U;
-}
+[[nodiscard]] constexpr std::size_t next_divisible_by_4(std::size_t value) noexcept { return (value + 0b11U) & ~0b11U; }
 } // namespace png2dds::util
 
 #endif // PNG2DDS_UTIL_HPP

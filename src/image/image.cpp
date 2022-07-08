@@ -16,8 +16,8 @@ constexpr std::size_t get_byte_position(std::size_t padded_width, std::size_t by
 
 namespace png2dds {
 image::image(std::size_t index, std::size_t width, std::size_t height)
-	: _padded_width{util::next_divisible_by_16(width)}
-	, _padded_height{util::next_divisible_by_16(height)}
+	: _padded_width{util::next_divisible_by_4(width)}
+	, _padded_height{util::next_divisible_by_4(height)}
 	, _buffer(_padded_width * _padded_height * bytes_per_pixel)
 	, _width{width}
 	, _height{height}
