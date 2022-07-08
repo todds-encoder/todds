@@ -35,7 +35,7 @@ void get_pixel_blocks(const png2dds::image& png, std::size_t num_blocks, pixel_b
 	const auto pixel_y = pixel_block_y * pixel_block_side;
 	assert(pixel_y < png.padded_height());
 	// Blocks will be copied sequentially in the output array.
-	auto* pixel_block_itr = pixel_blocks.begin();
+	auto pixel_block_itr = pixel_blocks.begin();
 
 	for (std::size_t block_x_offset = 0UL; block_x_offset < num_blocks; ++block_x_offset) {
 		// The starting x coordinate must be adjusted for each block to copy.

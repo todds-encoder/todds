@@ -6,7 +6,7 @@
 #include "png2dds/image.hpp"
 #include "png2dds/util.hpp"
 
-#include <iostream>
+#include <array>
 #include <limits>
 #include <numeric>
 #include <type_traits>

@@ -87,7 +87,7 @@ public:
 	png2dds::image operator()(const png_file& file) const {
 		try {
 			return png2dds::decode(file.file_index, _paths[file.file_index].first.string(), file.buffer, _flip);
-		} catch (const std::runtime_error& ex) {
+		} catch (const std::runtime_error& /*ex*/) {
 			// ToDo error reporting when the verbose option is activated.
 		}
 		return {error_file_index, 0U, 0U};
