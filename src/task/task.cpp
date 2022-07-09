@@ -24,6 +24,8 @@
 namespace fs = boost::filesystem;
 namespace otbb = oneapi::tbb;
 using paths_vector = std::vector<std::pair<boost::filesystem::path, boost::filesystem::path>>;
+using png_image = png2dds::image;
+using png2dds::dds_image;
 
 namespace {
 constexpr std::size_t error_file_index = std::numeric_limits<std::size_t>::max();
@@ -82,7 +84,7 @@ public:
 		: _paths{paths}
 		, _flip{flip} {}
 
-	png2dds::image operator()(const png_file& file) const {
+	png_image operator()(const png_file& file) const {
 		try {
 			return png2dds::decode(file.file_index, _paths[file.file_index].first.string(), file.buffer, _flip);
 		} catch (const std::runtime_error& /*ex*/) {
@@ -101,8 +103,8 @@ public:
 	explicit encode_dds_image(const png2dds::encoder& encoder) noexcept
 		: _encoder{encoder} {}
 
-	png2dds::dds_image operator()(const png2dds::image& png_image) const {
-		return png_image.width() > 0U ? _encoder.encode(png_image) : png2dds::dds_image{png_image};
+	dds_image operator()(const png_image& png_image) const {
+		return png_image.width() > 0U ? _encoder.encode(png_image) : dds_image{png_image};
 	}
 
 private:
@@ -114,11 +116,11 @@ public:
 	explicit save_dds_file(const paths_vector& paths) noexcept
 		: _paths{paths} {}
 
-	void operator()(const png2dds::dds_image& dds_img) const {
+	void operator()(const dds_image& dds_img) const {
 		if (dds_img.file_index() == error_file_index) { return; }
 		boost::nowide::ofstream ofs{_paths[dds_img.file_index()].second, std::ios::out | std::ios::binary};
 		ofs << "DDS ";
-		const std::size_t block_size_bytes = dds_img.blocks().size() * sizeof(png2dds::dds_image::block_type);
+		const std::size_t block_size_bytes = dds_img.blocks().size() * sizeof(dds_image::block_type);
 		const auto header = dds_img.header();
 		ofs.write(header.data(), header.size());
 		ofs.write(reinterpret_cast<const char*>(dds_img.blocks().data()), static_cast<std::ptrdiff_t>(block_size_bytes));
@@ -168,12 +170,14 @@ void task::start() {
 	png2dds::encoder encoder{_arguments.level};
 	// Configure the maximum parallelism allowed for tbb.
 	otbb::global_control control(otbb::global_control::max_allowed_parallelism, _arguments.threads);
-	otbb::parallel_pipeline(_arguments.threads * 4UL,
+
+	const otbb::filter<void, void> filters =
 		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_out_of_order, load_png_file(paths, counter)) &
-			otbb::make_filter<png_file, png2dds::image>(
-				otbb::filter_mode::parallel, decode_png_image(paths, _arguments.flip)) &
-			otbb::make_filter<png2dds::image, png2dds::dds_image>(otbb::filter_mode::parallel, encode_dds_image(encoder)) &
-			otbb::make_filter<png2dds::dds_image, void>(otbb::filter_mode::serial_in_order, save_dds_file(paths)));
+		otbb::make_filter<png_file, png_image>(otbb::filter_mode::parallel, decode_png_image(paths, _arguments.flip)) &
+		otbb::make_filter<png_image, dds_image>(otbb::filter_mode::parallel, encode_dds_image(encoder)) &
+		otbb::make_filter<dds_image, void>(otbb::filter_mode::serial_in_order, save_dds_file(paths));
+
+	otbb::parallel_pipeline(_arguments.threads * 4UL, filters);
 }
 
 } // namespace png2dds
