@@ -19,14 +19,11 @@ namespace png2dds {
 
 class task final {
 public:
-	using paths_vector = std::vector<std::pair<boost::filesystem::path, boost::filesystem::path>>;
 	explicit task(args::data arguments);
 	void start();
 
 private:
 	args::data _arguments;
-	encoder _encoder;
-	paths_vector _paths;
 };
 
 } // namespace png2dds

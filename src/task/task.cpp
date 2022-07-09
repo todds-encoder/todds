@@ -23,11 +23,10 @@
 
 namespace fs = boost::filesystem;
 namespace otbb = oneapi::tbb;
+using paths_vector = std::vector<std::pair<boost::filesystem::path, boost::filesystem::path>>;
 
 namespace {
 constexpr std::size_t error_file_index = std::numeric_limits<std::size_t>::max();
-
-using paths_vector = png2dds::task::paths_vector;
 
 bool try_add_file(const fs::path& png_path, const fs::file_status& status, paths_vector& paths, bool overwrite) {
 	if (!fs::is_regular_file(status)) { return false; }
@@ -135,16 +134,15 @@ private:
 namespace png2dds {
 
 task::task(png2dds::args::data arguments)
-	: _arguments{std::move(arguments)}
-	, _encoder{_arguments.level}
-	, _paths{} {
+	: _arguments{std::move(arguments)} {
 	// Use UTF-8 as the default encoding for Boost.Filesystem.
 	boost::nowide::nowide_filesystem();
 }
 
 void task::start() {
-	if (!try_add_file(_arguments.path, fs::status(_arguments.path), _paths, _arguments.overwrite)) {
-		process_directory(_arguments.path, _paths, _arguments.overwrite, _arguments.depth);
+	paths_vector paths;
+	if (!try_add_file(_arguments.path, fs::status(_arguments.path), paths, _arguments.overwrite)) {
+		process_directory(_arguments.path, paths, _arguments.overwrite, _arguments.depth);
 	}
 
 	if (fs::exists(_arguments.list) && fs::is_regular_file(_arguments.list)) {
@@ -153,27 +151,29 @@ void task::start() {
 		while (std::getline(stream, buffer)) {
 			fs::path path{buffer};
 
-			if (!try_add_file(path, fs::status(path), _paths, _arguments.overwrite)) {
-				process_directory(path, _paths, _arguments.overwrite, _arguments.depth);
+			if (!try_add_file(path, fs::status(path), paths, _arguments.overwrite)) {
+				process_directory(path, paths, _arguments.overwrite, _arguments.depth);
 			}
 		}
 	}
 
 	// Process the list in order ignoring duplicates.
-	std::sort(_paths.begin(), _paths.end());
-	_paths.erase(std::unique(_paths.begin(), _paths.end()), _paths.end());
+	std::sort(paths.begin(), paths.end());
+	paths.erase(std::unique(paths.begin(), paths.end()), paths.end());
 
-	if (_paths.empty()) { return; }
+	if (paths.empty()) { return; }
 
+	// Variables referenced by filters.
 	std::atomic<std::size_t> counter;
+	png2dds::encoder encoder{_arguments.level};
 	// Configure the maximum parallelism allowed for tbb.
 	otbb::global_control control(otbb::global_control::max_allowed_parallelism, _arguments.threads);
 	otbb::parallel_pipeline(_arguments.threads * 4UL,
-		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_out_of_order, load_png_file(_paths, counter)) &
+		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_out_of_order, load_png_file(paths, counter)) &
 			otbb::make_filter<png_file, png2dds::image>(
-				otbb::filter_mode::parallel, decode_png_image(_paths, _arguments.flip)) &
-			otbb::make_filter<png2dds::image, png2dds::dds_image>(otbb::filter_mode::parallel, encode_dds_image(_encoder)) &
-			otbb::make_filter<png2dds::dds_image, void>(otbb::filter_mode::serial_in_order, save_dds_file(_paths)));
+				otbb::filter_mode::parallel, decode_png_image(paths, _arguments.flip)) &
+			otbb::make_filter<png2dds::image, png2dds::dds_image>(otbb::filter_mode::parallel, encode_dds_image(encoder)) &
+			otbb::make_filter<png2dds::dds_image, void>(otbb::filter_mode::serial_in_order, save_dds_file(paths)));
 }
 
 } // namespace png2dds
