@@ -102,7 +102,10 @@ data get(int argc, char** argv) {
 
 			if (arguments.path.empty() && arguments.list.empty()) {
 				arguments.error = true;
-				arguments.text = fmt::format("Must provide {:s} and/or {:s}.", path_arg, list_arg);
+				arguments.text = fmt::format("Must provide {:s} or {:s}.", path_arg, list_arg);
+			} else if (!arguments.path.empty() && !arguments.list.empty()) {
+				arguments.error = true;
+				arguments.text = fmt::format("Must only provide one of {:s} or {:s}.", path_arg, list_arg);
 			} else if (arguments.threads == 0U) {
 				arguments.error = true;
 				arguments.text = fmt::format("{:s} must be greater than zero.", threads_arg);
