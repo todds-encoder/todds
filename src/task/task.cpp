@@ -12,7 +12,6 @@
 #include <boost/nowide/iostream.hpp>
 #include <oneapi/tbb/global_control.h>
 #include <oneapi/tbb/parallel_pipeline.h>
-#include <oneapi/tbb/tick_count.h>
 
 #include <algorithm>
 #include <atomic>
@@ -169,16 +168,12 @@ void task::start() {
 	std::atomic<std::size_t> counter;
 	// Configure the maximum parallelism allowed for tbb.
 	otbb::global_control control(otbb::global_control::max_allowed_parallelism, _arguments.threads);
-	otbb::tick_count start = otbb::tick_count::now();
 	otbb::parallel_pipeline(_arguments.threads * 4UL,
 		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_out_of_order, load_png_file(_paths, counter)) &
 			otbb::make_filter<png_file, png2dds::image>(
 				otbb::filter_mode::parallel, decode_png_image(_paths, _arguments.flip)) &
 			otbb::make_filter<png2dds::image, png2dds::dds_image>(otbb::filter_mode::parallel, encode_dds_image(_encoder)) &
 			otbb::make_filter<png2dds::dds_image, void>(otbb::filter_mode::serial_in_order, save_dds_file(_paths)));
-	otbb::tick_count stop = otbb::tick_count::now();
-
-	boost::nowide::cerr << "Total time: " << (stop - start).seconds() << " seconds \n";
 }
 
 } // namespace png2dds

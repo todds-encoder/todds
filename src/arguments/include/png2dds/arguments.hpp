@@ -20,6 +20,7 @@ struct data {
 	unsigned int depth{};
 	bool overwrite{};
 	bool flip{};
+	bool time{};
 };
 
 /**

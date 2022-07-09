@@ -12,4 +12,5 @@ target_link_libraries(png2dds PRIVATE
 	png2dds_task
 	Boost::nowide
 	fmt::fmt
+	TBB::tbb
 	)

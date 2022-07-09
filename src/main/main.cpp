@@ -9,11 +9,14 @@
 
 #include <boost/nowide/iostream.hpp>
 #include <fmt/format.h>
+#include <oneapi/tbb/tick_count.h>
 
 using boost::nowide::cerr;
 using boost::nowide::cout;
 
 int main(int argc, char** argv) {
+	const auto start_time = oneapi::tbb::tick_count::now();
+
 	int execution_status = EXIT_FAILURE;
 
 	try {
@@ -25,6 +28,10 @@ int main(int argc, char** argv) {
 		if (!data.error) {
 			png2dds::task(std::move(data)).start();
 			execution_status = EXIT_SUCCESS;
+			if (data.time) {
+				const auto end_time = oneapi::tbb::tick_count::now();
+				boost::nowide::cerr << "Total time: " << (end_time - start_time).seconds() << " seconds \n";
+			}
 		}
 	} catch (const std::exception& ex) {
 		cerr << fmt::format(
