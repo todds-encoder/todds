@@ -135,8 +135,8 @@ private:
 
 namespace png2dds {
 
-task::task(png2dds::args::data arguments)
-	: _arguments{std::move(arguments)} {
+task::task(const args::data& arguments)
+	: _arguments{arguments} {
 	// Use UTF-8 as the default encoding for Boost.Filesystem.
 	boost::nowide::nowide_filesystem();
 }
