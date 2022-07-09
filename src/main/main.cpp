@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 			stream << data.text;
 		}
 		if (!data.error) {
-			png2dds::task(data).start();
+			png2dds::task{data};
 			execution_status = EXIT_SUCCESS;
 			if (data.time) {
 				const auto end_time = oneapi::tbb::tick_count::now();

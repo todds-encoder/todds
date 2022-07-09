@@ -135,26 +135,23 @@ private:
 
 namespace png2dds {
 
-task::task(const args::data& arguments)
-	: _arguments{arguments} {
+task::task(const args::data& arguments) {
 	// Use UTF-8 as the default encoding for Boost.Filesystem.
 	boost::nowide::nowide_filesystem();
-}
 
-void task::start() {
 	paths_vector paths;
-	if (!try_add_file(_arguments.path, fs::status(_arguments.path), paths, _arguments.overwrite)) {
-		process_directory(_arguments.path, paths, _arguments.overwrite, _arguments.depth);
+	if (!try_add_file(arguments.path, fs::status(arguments.path), paths, arguments.overwrite)) {
+		process_directory(arguments.path, paths, arguments.overwrite, arguments.depth);
 	}
 
-	if (fs::exists(_arguments.list) && fs::is_regular_file(_arguments.list)) {
-		boost::nowide::fstream stream{_arguments.list};
+	if (fs::exists(arguments.list) && fs::is_regular_file(arguments.list)) {
+		boost::nowide::fstream stream{arguments.list};
 		std::string buffer;
 		while (std::getline(stream, buffer)) {
 			fs::path path{buffer};
 
-			if (!try_add_file(path, fs::status(path), paths, _arguments.overwrite)) {
-				process_directory(path, paths, _arguments.overwrite, _arguments.depth);
+			if (!try_add_file(path, fs::status(path), paths, arguments.overwrite)) {
+				process_directory(path, paths, arguments.overwrite, arguments.depth);
 			}
 		}
 	}
@@ -167,17 +164,17 @@ void task::start() {
 
 	// Variables referenced by filters.
 	std::atomic<std::size_t> counter;
-	png2dds::encoder encoder{_arguments.level};
+	png2dds::encoder encoder{arguments.level};
 	// Configure the maximum parallelism allowed for tbb.
-	otbb::global_control control(otbb::global_control::max_allowed_parallelism, _arguments.threads);
+	otbb::global_control control(otbb::global_control::max_allowed_parallelism, arguments.threads);
 
 	const otbb::filter<void, void> filters =
 		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_out_of_order, load_png_file(paths, counter)) &
-		otbb::make_filter<png_file, png_image>(otbb::filter_mode::parallel, decode_png_image(paths, _arguments.flip)) &
+		otbb::make_filter<png_file, png_image>(otbb::filter_mode::parallel, decode_png_image(paths, arguments.flip)) &
 		otbb::make_filter<png_image, dds_image>(otbb::filter_mode::parallel, encode_dds_image(encoder)) &
 		otbb::make_filter<dds_image, void>(otbb::filter_mode::serial_in_order, save_dds_file(paths));
 
-	otbb::parallel_pipeline(_arguments.threads * 4UL, filters);
+	otbb::parallel_pipeline(arguments.threads * 4UL, filters);
 }
 
 } // namespace png2dds

@@ -20,10 +20,6 @@ namespace png2dds {
 class task final {
 public:
 	explicit task(const args::data& arguments);
-	void start();
-
-private:
-	const args::data& _arguments;
 };
 
 } // namespace png2dds
