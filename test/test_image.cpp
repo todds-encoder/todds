@@ -4,7 +4,6 @@
  */
 
 #include "png2dds/image.hpp"
-#include "png2dds/util.hpp"
 
 #include <array>
 #include <limits>

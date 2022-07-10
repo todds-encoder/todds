@@ -6,7 +6,6 @@
 
 #include <dds_defs.h>
 
-#include <type_traits>
 
 namespace {
 
@@ -44,13 +43,6 @@ png2dds::dds_image::header_type get_header(std::size_t width, std::size_t height
 } // namespace
 
 namespace png2dds {
-
-// The header must have exactly enough memory to store all data from these two types.
-static_assert(sizeof(DDSURFACEDESC2) + sizeof(DDS_HEADER_DXT10) == sizeof(dds_image::header_type));
-
-// Blocks must meet these constraints.
-static_assert(std::is_same_v<dds_image::block_type::value_type, std::uint64_t>);
-static_assert(sizeof(png2dds::dds_image::block_type) == 16U);
 
 dds_image::dds_image(const image& png)
 	: _width{png.padded_width() / pixel_block_side}
