@@ -104,7 +104,7 @@ public:
 		: _encoder{encoder} {}
 
 	dds_image operator()(const png_image& png_image) const {
-		return png_image.width() > 0U ? _encoder.encode(png_image) : dds_image{png_image};
+		return png_image.file_index() != error_file_index ? _encoder.encode(png_image) : dds_image{png_image};
 	}
 
 private:
