@@ -169,10 +169,10 @@ task::task(const args::data& arguments) {
 	otbb::global_control control(otbb::global_control::max_allowed_parallelism, arguments.threads);
 
 	const otbb::filter<void, void> filters =
-		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_out_of_order, load_png_file(paths, counter)) &
+		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_in_order, load_png_file(paths, counter)) &
 		otbb::make_filter<png_file, png_image>(otbb::filter_mode::parallel, decode_png_image(paths, arguments.flip)) &
 		otbb::make_filter<png_image, dds_image>(otbb::filter_mode::parallel, encode_dds_image(encoder)) &
-		otbb::make_filter<dds_image, void>(otbb::filter_mode::serial_in_order, save_dds_file(paths));
+		otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_dds_file(paths));
 
 	otbb::parallel_pipeline(arguments.threads * 4UL, filters);
 }
