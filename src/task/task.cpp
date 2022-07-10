@@ -4,31 +4,23 @@
  */
 #include "png2dds/task.hpp"
 
-#include "png2dds/png.hpp"
-
 #include <boost/algorithm/string/case_conv.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/nowide/filesystem.hpp>
 #include <boost/nowide/fstream.hpp>
-#include <boost/nowide/iostream.hpp>
 #include <oneapi/tbb/global_control.h>
-#include <oneapi/tbb/parallel_pipeline.h>
 
 #include <algorithm>
-#include <atomic>
-#include <cctype>
-#include <iterator>
-#include <limits>
 #include <string>
 #include <string_view>
 
+#include "pipeline.hpp"
+
 namespace fs = boost::filesystem;
 namespace otbb = oneapi::tbb;
-using paths_vector = std::vector<std::pair<boost::filesystem::path, boost::filesystem::path>>;
-using png_image = png2dds::image;
-using png2dds::dds_image;
+using png2dds::pipeline::paths_vector;
 
 namespace {
-constexpr std::size_t error_file_index = std::numeric_limits<std::size_t>::max();
 
 bool try_add_file(const fs::path& png_path, const fs::file_status& status, paths_vector& paths, bool overwrite) {
 	if (!fs::is_regular_file(status)) { return false; }
@@ -51,85 +43,6 @@ void process_directory(const fs::path& path, paths_vector& paths, bool overwrite
 		if (static_cast<unsigned int>(itr.depth()) >= depth) { itr.disable_recursion_pending(); }
 	}
 }
-
-struct png_file {
-	std::vector<std::uint8_t> buffer;
-	std::size_t file_index;
-};
-
-class load_png_file final {
-public:
-	explicit load_png_file(const paths_vector& paths, std::atomic<std::size_t>& counter) noexcept
-		: _paths{paths}
-		, _counter{counter} {}
-
-	png_file operator()(otbb::flow_control& flow) const {
-		std::size_t index = _counter++;
-		if (index >= _paths.size()) {
-			flow.stop();
-			return {};
-		}
-		boost::nowide::ifstream ifs{_paths[index].first, std::ios::in | std::ios::binary};
-		return {{std::istreambuf_iterator<char>{ifs}, {}}, index};
-	}
-
-private:
-	const paths_vector& _paths;
-	std::atomic<std::size_t>& _counter;
-};
-
-class decode_png_image final {
-public:
-	explicit decode_png_image(const paths_vector& paths, bool flip) noexcept
-		: _paths{paths}
-		, _flip{flip} {}
-
-	png_image operator()(const png_file& file) const {
-		try {
-			return png2dds::decode(file.file_index, _paths[file.file_index].first.string(), file.buffer, _flip);
-		} catch (const std::runtime_error& /*ex*/) {
-			// ToDo error reporting when the verbose option is activated.
-		}
-		return {error_file_index, 0U, 0U};
-	}
-
-private:
-	const paths_vector& _paths;
-	bool _flip;
-};
-
-class encode_dds_image final {
-public:
-	explicit encode_dds_image(const png2dds::encoder& encoder) noexcept
-		: _encoder{encoder} {}
-
-	dds_image operator()(const png_image& png_image) const {
-		return png_image.file_index() != error_file_index ? _encoder.encode(png_image) : dds_image{png_image};
-	}
-
-private:
-	const png2dds::encoder& _encoder;
-};
-
-class save_dds_file final {
-public:
-	explicit save_dds_file(const paths_vector& paths) noexcept
-		: _paths{paths} {}
-
-	void operator()(const dds_image& dds_img) const {
-		if (dds_img.file_index() == error_file_index) { return; }
-		boost::nowide::ofstream ofs{_paths[dds_img.file_index()].second, std::ios::out | std::ios::binary};
-		ofs << "DDS ";
-		const std::size_t block_size_bytes = dds_img.blocks().size() * sizeof(dds_image::block_type);
-		const auto header = dds_img.header();
-		ofs.write(header.data(), header.size());
-		ofs.write(reinterpret_cast<const char*>(dds_img.blocks().data()), static_cast<std::ptrdiff_t>(block_size_bytes));
-		ofs.close();
-	}
-
-private:
-	const paths_vector& _paths;
-};
 
 } // anonymous namespace
 
@@ -162,19 +75,11 @@ task::task(const args::data& arguments) {
 
 	if (paths.empty()) { return; }
 
-	// Variables referenced by filters.
-	std::atomic<std::size_t> counter;
-	png2dds::encoder encoder{arguments.level};
 	// Configure the maximum parallelism allowed for tbb.
 	otbb::global_control control(otbb::global_control::max_allowed_parallelism, arguments.threads);
+	const std::size_t num_tokens = arguments.threads * 4UL;
 
-	const otbb::filter<void, void> filters =
-		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_in_order, load_png_file(paths, counter)) &
-		otbb::make_filter<png_file, png_image>(otbb::filter_mode::parallel, decode_png_image(paths, arguments.flip)) &
-		otbb::make_filter<png_image, dds_image>(otbb::filter_mode::parallel, encode_dds_image(encoder)) &
-		otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_dds_file(paths));
-
-	otbb::parallel_pipeline(arguments.threads * 4UL, filters);
+	pipeline::encode_as_dds(num_tokens, arguments.level, arguments.flip, paths);
 }
 
 } // namespace png2dds

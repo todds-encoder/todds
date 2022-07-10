@@ -4,6 +4,8 @@
 
 add_library(png2dds_task STATIC
 	include/png2dds/task.hpp
+	pipeline.cpp
+	pipeline.hpp
 	task.cpp
 	)
 

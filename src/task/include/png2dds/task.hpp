@@ -7,13 +7,6 @@
 #define PNG2DDS_TASK_HPP
 
 #include "png2dds/arguments.hpp"
-#include "png2dds/dds.hpp"
-
-#include <boost/filesystem.hpp>
-
-#include <string>
-#include <utility>
-#include <vector>
 
 namespace png2dds {
 
