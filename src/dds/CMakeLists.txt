@@ -18,6 +18,5 @@ target_link_libraries(png2dds_dds
 	png2dds_image
 	PRIVATE
 	bc7e_ispc
-	bc7enc_dds_defs
 	fmt::fmt
 	)

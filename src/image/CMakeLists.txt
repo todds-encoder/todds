@@ -3,7 +3,9 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 add_library(png2dds_image STATIC
+	include/png2dds/dds_image.hpp
 	include/png2dds/image.hpp
+	dds_image.cpp
 	image.cpp
 	)
 
@@ -15,4 +17,5 @@ target_compile_options(png2dds_image PRIVATE ${PNG2DDS_CPP_WARNING_FLAGS})
 
 target_link_libraries(png2dds_image PRIVATE
 	png2dds_util
+	bc7enc_dds_defs
 	)
