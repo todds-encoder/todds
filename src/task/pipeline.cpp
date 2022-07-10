@@ -15,7 +15,7 @@
 namespace otbb = oneapi::tbb;
 
 using png2dds::pipeline::paths_vector;
-using png_image = png2dds::image;
+using image = png2dds::image;
 using png2dds::dds_image;
 
 namespace {
@@ -54,7 +54,7 @@ public:
 		: _paths{paths}
 		, _flip{flip} {}
 
-	png_image operator()(const png_file& file) const {
+	image operator()(const png_file& file) const {
 		try {
 			return png2dds::decode(file.file_index, _paths[file.file_index].first.string(), file.buffer, _flip);
 		} catch (const std::runtime_error& /*ex*/) {
@@ -73,7 +73,7 @@ public:
 	explicit encode_dds_image(const png2dds::encoder& encoder) noexcept
 		: _encoder{encoder} {}
 
-	dds_image operator()(const png_image& png_image) const {
+	dds_image operator()(const image& png_image) const {
 		return png_image.file_index() != error_file_index ? _encoder.encode(png_image) : dds_image{png_image};
 	}
 
@@ -112,8 +112,8 @@ void encode_as_dds(std::size_t tokens, unsigned int level, bool flip, const path
 
 	const otbb::filter<void, void> filters =
 		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_in_order, load_png_file(paths, counter)) &
-		otbb::make_filter<png_file, png_image>(otbb::filter_mode::parallel, decode_png_image(paths, flip)) &
-		otbb::make_filter<png_image, dds_image>(otbb::filter_mode::parallel, encode_dds_image(encoder)) &
+		otbb::make_filter<png_file, image>(otbb::filter_mode::parallel, decode_png_image(paths, flip)) &
+		otbb::make_filter<image, dds_image>(otbb::filter_mode::parallel, encode_dds_image(encoder)) &
 		otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_dds_file(paths));
 
 	otbb::parallel_pipeline(tokens, filters);
