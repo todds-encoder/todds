@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-namespace png2dds {
+namespace png2dds::png {
 /**
  * Decodes a PNG file stored in a memory buffer.
  * @param file_index File index of the image in the list of files to load.
@@ -23,6 +23,6 @@ namespace png2dds {
  */
 image decode(std::size_t file_index, const std::string& png, const std::vector<std::uint8_t>& buffer, bool flip);
 
-} // namespace png2dds
+} // namespace png2dds::png
 
 #endif // PNG2DDS_PNG_HPP

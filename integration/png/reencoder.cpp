@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 		std::string png = argv[1];
 		boost::nowide::ifstream ifs{png, std::ios::in | std::ios::binary};
 		const std::vector<std::uint8_t> buffer{std::istreambuf_iterator<char>{ifs}, {}};
-		auto img = png2dds::decode(0U, png, buffer, false);
+		auto img = png2dds::png::decode(0U, png, buffer, false);
 
 		/* Creating an encoder context requires a flag */
 		spng_ctx* ctx = spng_ctx_new(SPNG_CTX_ENCODER);

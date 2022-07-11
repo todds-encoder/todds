@@ -43,7 +43,7 @@ private:
 
 } // anonymous namespace
 
-namespace png2dds {
+namespace png2dds::png {
 
 image decode(std::size_t file_index, const std::string& png, const std::vector<std::uint8_t>& buffer, bool flip) {
 	spng_context context{png};
@@ -119,4 +119,4 @@ image decode(std::size_t file_index, const std::string& png, const std::vector<s
 	return result;
 }
 
-} // namespace png2dds
+} // namespace png2dds::png

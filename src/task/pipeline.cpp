@@ -56,7 +56,7 @@ public:
 
 	image operator()(const png_file& file) const {
 		try {
-			return png2dds::decode(file.file_index, _paths[file.file_index].first.string(), file.buffer, _flip);
+			return png2dds::png::decode(file.file_index, _paths[file.file_index].first.string(), file.buffer, _flip);
 		} catch (const std::runtime_error& /*ex*/) {
 			// ToDo error reporting when the verbose option is activated.
 		}
@@ -70,7 +70,7 @@ private:
 
 class encode_dds_image final {
 public:
-	explicit encode_dds_image(const png2dds::encoder& encoder) noexcept
+	explicit encode_dds_image(const png2dds::dds::encoder& encoder) noexcept
 		: _encoder{encoder} {}
 
 	dds_image operator()(const image& png_image) const {
@@ -78,7 +78,7 @@ public:
 	}
 
 private:
-	const png2dds::encoder& _encoder;
+	const png2dds::dds::encoder& _encoder;
 };
 
 class save_dds_file final {
@@ -108,7 +108,7 @@ namespace png2dds::pipeline {
 void encode_as_dds(std::size_t tokens, unsigned int level, bool flip, const paths_vector& paths) {
 	// Variables referenced by the filters.
 	std::atomic<std::size_t> counter;
-	png2dds::encoder encoder{level};
+	dds::encoder encoder{level};
 
 	const otbb::filter<void, void> filters =
 		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_in_order, load_png_file(paths, counter)) &

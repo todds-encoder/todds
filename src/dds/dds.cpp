@@ -4,6 +4,7 @@
  */
 
 #include "png2dds/dds.hpp"
+
 #include "png2dds/dds_image.hpp"
 
 #include <bc7e_ispc.h>
@@ -51,10 +52,9 @@ void get_pixel_blocks(const png2dds::image& png, std::size_t num_blocks, pixel_b
 	}
 }
 
-
 } // anonymous namespace
 
-namespace png2dds {
+namespace png2dds::dds {
 
 encoder::encoder(unsigned int level)
 	: _pimpl(std::make_unique<ispc::bc7e_compress_block_params>()) {
@@ -101,4 +101,4 @@ dds_image encoder::encode(const image& png) const {
 	return dds_img;
 }
 
-} // namespace png2dds
+} // namespace png2dds::dds

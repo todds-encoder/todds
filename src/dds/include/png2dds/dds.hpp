@@ -20,7 +20,7 @@ namespace ispc {
 struct bc7e_compress_block_params;
 } // namespace ispc
 
-namespace png2dds {
+namespace png2dds::dds {
 
 class encoder final {
 public:
@@ -36,6 +36,6 @@ private:
 	std::unique_ptr<ispc::bc7e_compress_block_params> _pimpl;
 };
 
-} // namespace png2dds
+} // namespace png2dds::dds
 
 #endif // PNG2DDS_DDS_HPP
