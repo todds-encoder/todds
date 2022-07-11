@@ -26,30 +26,17 @@ int main(int argc, char** argv) {
 
 	int execution_status = EXIT_FAILURE;
 	if (argc == 3) {
-		std::string png = argv[1];
-		boost::nowide::ifstream ifs{png, std::ios::in | std::ios::binary};
-		const std::vector<std::uint8_t> buffer{std::istreambuf_iterator<char>{ifs}, {}};
-		auto img = png2dds::png::decode(0U, png, buffer, false);
+		const std::string input_png = argv[1];
+		boost::nowide::ifstream ifs{input_png, std::ios::in | std::ios::binary};
+		const std::vector<std::uint8_t> input_buffer{std::istreambuf_iterator<char>{ifs}, {}};
+		const auto img = png2dds::png::decode(0U, input_png, input_buffer, false);
 
-		/* Creating an encoder context requires a flag */
-		spng_ctx* ctx = spng_ctx_new(SPNG_CTX_ENCODER);
+		const std::string output_png = argv[2];
+		const auto output_buffer = png2dds::png::encode(output_png, img);
 
-		std::FILE* file = boost::nowide::fopen(argv[2], "wbe");
-		spng_set_png_file(ctx, file);
-		spng_ihdr ihdr{};
-		ihdr.width = static_cast<std::uint32_t>(img.padded_width());
-		ihdr.height = static_cast<std::uint32_t>(img.padded_height());
-		ihdr.color_type = SPNG_COLOR_TYPE_TRUECOLOR_ALPHA;
-		ihdr.bit_depth = 8;
-
-		spng_set_ihdr(ctx, &ihdr);
-
-		if (const int ret =
-					spng_encode_image(ctx, img.buffer().data(), img.buffer().size(), SPNG_FMT_PNG, SPNG_ENCODE_FINALIZE);
-				ret != 0) {
-			cerr << fmt::format("Could not encode png file {:s}: {:s}", png, spng_strerror(ret)) << '\n';
-			return execution_status;
-		}
+		boost::nowide::ofstream ofs{output_png, std::ios::out | std::ios::binary};
+		ofs.write(output_buffer.span().data(), static_cast<std::ptrdiff_t>(output_buffer.span().size()));
+		ofs.close();
 
 		execution_status = EXIT_SUCCESS;
 	}

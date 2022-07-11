@@ -8,6 +8,8 @@
 #include "spng.h"
 #include <fmt/format.h>
 
+#include <cstddef>
+#include <cstdlib>
 #include <stdexcept>
 
 namespace {
@@ -15,17 +17,9 @@ namespace {
 // RAII wrapper around the spng_ctx object.
 class spng_context final {
 public:
-	static constexpr std::size_t limit = 1024UL * 1024UL * 64UL;
-
-	explicit spng_context(const std::string& png)
-		: _ctx{spng_ctx_new(0)} {
+	explicit spng_context(const std::string& png, int flags)
+		: _ctx{spng_ctx_new(flags)} {
 		if (_ctx == nullptr) { throw std::runtime_error{fmt::format("libspng context creation failed for {:s}", png)}; }
-
-		/* Ignore chunk CRCs and their calculations. */
-		spng_set_crc_action(_ctx, SPNG_CRC_USE, SPNG_CRC_USE);
-
-		/* Set memory usage limits for storing standard and unknown chunks. */
-		spng_set_chunk_limits(_ctx, limit, limit);
 	}
 
 	spng_context(const spng_context&) = delete;
@@ -46,7 +40,14 @@ private:
 namespace png2dds::png {
 
 image decode(std::size_t file_index, const std::string& png, const std::vector<std::uint8_t>& buffer, bool flip) {
-	spng_context context{png};
+	spng_context context{png, 0};
+
+	/* Ignore chunk CRCs and their calculations. */
+	spng_set_crc_action(context.get(), SPNG_CRC_USE, SPNG_CRC_USE);
+
+	/* Set memory usage limits for storing standard and unknown chunks. */
+	constexpr auto limit = static_cast<const std::size_t>(1024UL * 1024UL * 64UL);
+	spng_set_chunk_limits(context.get(), limit, limit);
 
 	if (const int ret = spng_set_png_buffer(context.get(), buffer.data(), buffer.size()); ret != 0) {
 		throw std::runtime_error{fmt::format("Could not set PNG file to buffer {:s}: {:s}", png, spng_strerror(ret))};
@@ -117,6 +118,46 @@ image decode(std::size_t file_index, const std::string& png, const std::vector<s
 	}
 
 	return result;
+}
+
+encode_buffer::encode_buffer(void* memory, std::size_t size)
+	: _memory{memory}
+	, _size{size} {}
+
+encode_buffer::~encode_buffer() {
+	std::free(_memory); // NOLINT
+}
+
+std::span<const char> encode_buffer::span() const noexcept { return {reinterpret_cast<const char*>(_memory), _size}; }
+
+encode_buffer encode(const std::string& png, const image& img) {
+	spng_context context{png, SPNG_CTX_ENCODER};
+
+	spng_set_option(context.get(), SPNG_ENCODE_TO_BUFFER, 1);
+
+	spng_ihdr ihdr{};
+	ihdr.width = static_cast<std::uint32_t>(img.padded_width());
+	ihdr.height = static_cast<std::uint32_t>(img.padded_height());
+	ihdr.color_type = SPNG_COLOR_TYPE_TRUECOLOR_ALPHA;
+	ihdr.bit_depth = 8;
+
+	spng_set_ihdr(context.get(), &ihdr);
+
+	if (const int ret =
+				spng_encode_image(context.get(), img.buffer().data(), img.buffer().size(), SPNG_FMT_PNG, SPNG_ENCODE_FINALIZE);
+			ret != 0) {
+		throw std::runtime_error{fmt::format("Could not encode PNG file {:s}: {:s}", png, spng_strerror(ret))};
+	}
+
+	std::size_t png_size{};
+	int ret{};
+	void* png_buf = spng_get_png_buffer(context.get(), &png_size, &ret);
+	if (ret != 0 || png_buf == nullptr) {
+		throw std::runtime_error{
+			fmt::format("Could not obtain encoded PNG buffer for {:s}: {:s}", png, spng_strerror(ret))};
+	}
+
+	return encode_buffer{png_buf, png_size};
 }
 
 } // namespace png2dds::png
