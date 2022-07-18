@@ -3,9 +3,9 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 add_library(png2dds_task STATIC
+	include/png2dds/pipeline.hpp
 	include/png2dds/task.hpp
 	pipeline.cpp
-	pipeline.hpp
 	task.cpp
 	)
 

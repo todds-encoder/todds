@@ -4,6 +4,8 @@
  */
 #include "png2dds/task.hpp"
 
+#include "png2dds/pipeline.hpp"
+
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/nowide/filesystem.hpp>
@@ -13,8 +15,6 @@
 #include <algorithm>
 #include <string>
 #include <string_view>
-
-#include "pipeline.hpp"
 
 namespace fs = boost::filesystem;
 namespace otbb = oneapi::tbb;
