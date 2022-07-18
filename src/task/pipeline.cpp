@@ -5,6 +5,9 @@
 #include "png2dds/pipeline.hpp"
 
 #include "png2dds/dds.hpp"
+#include "png2dds/dds_image.hpp"
+#include "png2dds/image.hpp"
+#include "png2dds/pixel_block_image.hpp"
 #include "png2dds/png.hpp"
 
 #include <boost/nowide/fstream.hpp>
@@ -14,9 +17,10 @@
 
 namespace otbb = oneapi::tbb;
 
-using png2dds::pipeline::paths_vector;
-using image = png2dds::image;
 using png2dds::dds_image;
+using png2dds::image;
+using png2dds::pixel_block_image;
+using png2dds::pipeline::paths_vector;
 
 namespace {
 
@@ -68,13 +72,18 @@ private:
 	bool _flip;
 };
 
+class get_pixel_blocks final {
+public:
+	pixel_block_image operator()(const image& image) const { return pixel_block_image{image}; }
+};
+
 class encode_dds_image final {
 public:
 	explicit encode_dds_image(const png2dds::dds::encoder& encoder) noexcept
 		: _encoder{encoder} {}
 
-	dds_image operator()(const image& png_image) const {
-		return png_image.file_index() != error_file_index ? _encoder.encode(png_image) : dds_image{png_image};
+	dds_image operator()(const pixel_block_image& pixel_image) const {
+		return pixel_image.file_index() != error_file_index ? _encoder.encode(pixel_image) : dds_image{pixel_image};
 	}
 
 private:
@@ -113,7 +122,8 @@ void encode_as_dds(std::size_t tokens, unsigned int level, bool flip, const path
 	const otbb::filter<void, void> filters =
 		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_in_order, load_png_file(paths, counter)) &
 		otbb::make_filter<png_file, image>(otbb::filter_mode::parallel, decode_png_image(paths, flip)) &
-		otbb::make_filter<image, dds_image>(otbb::filter_mode::parallel, encode_dds_image(encoder)) &
+		otbb::make_filter<image, pixel_block_image>(otbb::filter_mode::parallel, get_pixel_blocks{}) &
+		otbb::make_filter<pixel_block_image, dds_image>(otbb::filter_mode::parallel, encode_dds_image(encoder)) &
 		otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_dds_file(paths));
 
 	otbb::parallel_pipeline(tokens, filters);

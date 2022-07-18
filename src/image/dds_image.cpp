@@ -6,7 +6,6 @@
 
 #include <dds_defs.h>
 
-
 namespace {
 
 // dwWidth, dwHeight and dwLinearSize must be filled in later by the caller.
@@ -44,12 +43,12 @@ png2dds::dds_image::header_type get_header(std::size_t width, std::size_t height
 
 namespace png2dds {
 
-dds_image::dds_image(const image& png)
-	: _width{png.padded_width() / pixel_block_side}
-	, _height{png.padded_height() / pixel_block_side}
+dds_image::dds_image(const pixel_block_image& image)
+	: _width{image.width()}
+	, _height{image.height()}
 	, _blocks(_width * _height)
-	, _header{get_header(png.width(), png.height(), _blocks.size() * sizeof(dds_image::block_type))}
-	, _file_index{png.file_index()} {}
+	, _header{get_header(image.image_width(), image.image_height(), _blocks.size() * sizeof(dds_image::block_type))}
+	, _file_index{image.file_index()} {}
 
 const dds_image::header_type& dds_image::header() const noexcept { return _header; }
 

@@ -7,7 +7,7 @@
 #define PNG2DDS_DDS_HPP
 
 #include "png2dds/dds_image.hpp"
-#include "png2dds/image.hpp"
+#include "png2dds/pixel_block_image.hpp"
 
 #include <array>
 #include <cstdint>
@@ -30,7 +30,7 @@ public:
 	encoder& operator=(const encoder&) = delete;
 	encoder& operator=(encoder&&) = default;
 	~encoder();
-	[[nodiscard]] dds_image encode(const image& png) const;
+	[[nodiscard]] dds_image encode(const pixel_block_image& image) const;
 
 private:
 	std::unique_ptr<ispc::bc7e_compress_block_params> _pimpl;

@@ -5,8 +5,10 @@
 add_library(png2dds_image STATIC
 	include/png2dds/dds_image.hpp
 	include/png2dds/image.hpp
+	include/png2dds/pixel_block_image.hpp
 	dds_image.cpp
 	image.cpp
+	pixel_block_image.cpp
 	)
 
 target_include_directories(png2dds_image PUBLIC

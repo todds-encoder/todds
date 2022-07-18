@@ -6,7 +6,7 @@
 #ifndef PNG2DDS_DDS_IMAGE_HPP
 #define PNG2DDS_DDS_IMAGE_HPP
 
-#include "png2dds/image.hpp"
+#include "png2dds/pixel_block_image.hpp"
 
 #include <array>
 #include <vector>
@@ -18,10 +18,7 @@ public:
 	using block_type = std::array<std::uint64_t, 2U>;
 	using header_type = std::array<char, 144U>;
 
-	// Pixel blocks are squares of size block_side * block_side.
-	static constexpr std::size_t pixel_block_side = 4UL;
-
-	explicit dds_image(const image& png);
+	explicit dds_image(const pixel_block_image& image);
 	dds_image(const dds_image&) = delete;
 	dds_image(dds_image&&) = default;
 	dds_image& operator=(const dds_image&) = delete;
