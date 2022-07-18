@@ -8,6 +8,7 @@ add_executable(png2dds_test
 	tests.cpp # Catch2 main file
 	test_dds_image.cpp
 	test_image.cpp
+	test_pixel_block_image.cpp
 	test_project.cpp
 	test_util.cpp
   )
