@@ -7,12 +7,7 @@
 
 #include "spng.h"
 #include <boost/nowide/args.hpp>
-#include <boost/nowide/cstdio.hpp>
 #include <boost/nowide/fstream.hpp>
-#include <boost/nowide/iostream.hpp>
-#include <fmt/format.h>
-
-using boost::nowide::cerr;
 
 /**
  * Simple program that decodes and then re-encodes the same PNG file.
