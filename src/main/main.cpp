@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 			execution_status = EXIT_SUCCESS;
 			if (data.time) {
 				const auto end_time = oneapi::tbb::tick_count::now();
-				boost::nowide::cerr << "Total time: " << (end_time - start_time).seconds() << " seconds \n";
+				cout << "Total time: " << (end_time - start_time).seconds() << " seconds \n";
 			}
 		}
 	} catch (const std::exception& ex) {
