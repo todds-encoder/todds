@@ -46,7 +46,7 @@ image decode(std::size_t file_index, const std::string& png, const std::vector<s
 	spng_set_crc_action(context.get(), SPNG_CRC_USE, SPNG_CRC_USE);
 
 	/* Set memory usage limits for storing standard and unknown chunks. */
-	constexpr auto limit = static_cast<const std::size_t>(1024UL * 1024UL * 64UL);
+	constexpr std::size_t limit = 1024UL * 1024UL * 64UL;
 	spng_set_chunk_limits(context.get(), limit, limit);
 
 	if (const int ret = spng_set_png_buffer(context.get(), buffer.data(), buffer.size()); ret != 0) {
