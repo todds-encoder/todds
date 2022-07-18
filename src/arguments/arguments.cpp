@@ -15,7 +15,41 @@
 #include <string_view>
 
 namespace {
+const std::string path_arg = "path";
+const std::string path_help =
+	"Points to a PNG file or a folder. In the latter case, convert to DDS all PNG files inside of this folder.";
+
+const std::string list_arg = "list";
+const std::string list_help =
+	"Points to a text file with a list of PNG files and/or directories. Entries must be on separate lines. All "
+	"individual PNG files and those inside specified directories will be converted to DDS.";
+
+// Maximum BC7 encoding quality level.
 constexpr unsigned int max_level = 6U;
+const std::string level_arg = "level";
+const std::string level_help = "Encoder quality level [0, 6]. Higher values provide better quality but take longer.";
+
+const std::string threads_arg = "threads";
+const std::string threads_help = "Number of threads that png2dds will use.";
+
+const std::string depth_arg = "depth";
+const std::string depth_help = "Maximum subdirectory depth to look for PNG files.";
+
+const std::string overwrite_arg = "overwrite";
+const std::string overwrite_help = "Convert PNG files to DDS even if they already have a DDS file.";
+
+const std::string flip_arg = "flip";
+const std::string flip_help = "Flip source images vertically before encoding.";
+
+const std::string time_arg = "time";
+const std::string time_help = "Show the amount of time it takes to process all files.";
+
+const std::string help_arg = "help";
+const std::string help_help = "Show usage information.";
+
+const std::string version_arg = "version";
+const std::string version_help = "Show program version.";
+
 } // anonymous namespace
 
 namespace png2dds::args {
@@ -27,40 +61,6 @@ data get(int argc, char** argv) {
 
 	try {
 		cxxopts::Options options(std::string{project::name()}, std::string{project::description()});
-
-		const std::string& path_arg = "path";
-		const std::string& path_help =
-			"Points to a PNG file or a folder. In the latter case, convert to DDS all PNG files inside of this folder.";
-
-		const std::string& list_arg = "list";
-		const std::string& list_help =
-			"Points to a text file with a list of PNG files and/or directories. Entries must be on separate lines. All "
-			"individual PNG files and those inside specified directories will be converted to DDS.";
-
-		const std::string& level_arg = "level";
-		const std::string& level_help =
-			"Encoder quality level [0, 6]. Higher values provide better quality but take longer.";
-
-		const std::string& threads_arg = "threads";
-		const std::string& threads_help = "Number of threads that png2dds will use.";
-
-		const std::string& depth_arg = "depth";
-		const std::string& depth_help = "Maximum subdirectory depth to look for PNG files.";
-
-		const std::string& overwrite_arg = "overwrite";
-		const std::string& overwrite_help = "Convert PNG files to DDS even if they already have a DDS file.";
-
-		const std::string& flip_arg = "flip";
-		const std::string& flip_help = "Flip source images vertically before encoding.";
-
-		const std::string& time_arg = "time";
-		const std::string& time_help = "Show the amount of time it takes to process all files.";
-
-		const std::string& help_arg = "help";
-		const std::string& help_help = "Show usage information.";
-
-		const std::string& version_arg = "version";
-		const std::string& version_help = "Show program version.";
 
 		const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
 

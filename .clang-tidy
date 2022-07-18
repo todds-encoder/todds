@@ -14,6 +14,7 @@
 # cppcoreguidelines-pro-type-reinterpret-cast: Writing objects to ofstream requires a reinterpret_cast.
 # fuchsia-default-arguments-calls: Allow calling functions with default arguments.
 # fuchsia-overloaded-operator: Allow overloading operators.
+# fuchsia-statically-constructed-objects, cert-err58-cpp: Allow statically constructed objects, sparingly.
 # google-runtime-references: Allow non-const reference parameters.
 # llvm-qualified-auto,readability-qualified-auto: Tries to treat array iterators as pointers on Linux.
 # llvmlibc-*: Disable all llvm libc specific checks.
@@ -35,6 +36,7 @@ Checks: '*,
 -cppcoreguidelines-pro-type-reinterpret-cast,
 -fuchsia-default-arguments-calls,
 -fuchsia-overloaded-operator,
+-fuchsia-statically-constructed-objects,-cert-err58-cpp,
 -google-runtime-references,
 -llvm-qualified-auto,-readability-qualified-auto,
 -llvmlibc-*,
