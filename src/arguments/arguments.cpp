@@ -30,7 +30,7 @@ data get(int argc, char** argv) {
 
 		const std::string& path_arg = "path";
 		const std::string& path_help =
-			"Points to a PNG file or a folder. In the latter case, convert to DDS all PNG files inside of this folder";
+			"Points to a PNG file or a folder. In the latter case, convert to DDS all PNG files inside of this folder.";
 
 		const std::string& list_arg = "list";
 		const std::string& list_help =
@@ -42,25 +42,25 @@ data get(int argc, char** argv) {
 			"Encoder quality level [0, 6]. Higher values provide better quality but take longer.";
 
 		const std::string& threads_arg = "threads";
-		const std::string& threads_help = "Number of threads that png2dds will use";
+		const std::string& threads_help = "Number of threads that png2dds will use.";
 
 		const std::string& depth_arg = "depth";
-		const std::string& depth_help = "Maximum subdirectory depth to look for PNG files";
+		const std::string& depth_help = "Maximum subdirectory depth to look for PNG files.";
 
 		const std::string& overwrite_arg = "overwrite";
-		const std::string& overwrite_help = "Convert PNG files to DDS even if they already have a DDS file";
+		const std::string& overwrite_help = "Convert PNG files to DDS even if they already have a DDS file.";
 
 		const std::string& flip_arg = "flip";
-		const std::string& flip_help = "Flip source images vertically before encoding";
+		const std::string& flip_help = "Flip source images vertically before encoding.";
 
 		const std::string& time_arg = "time";
 		const std::string& time_help = "Show the amount of time it takes to process all files.";
 
 		const std::string& help_arg = "help";
-		const std::string& help_help = "Show usage information";
+		const std::string& help_help = "Show usage information.";
 
 		const std::string& version_arg = "version";
-		const std::string& version_help = "Show program version";
+		const std::string& version_help = "Show program version.";
 
 		const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
 
