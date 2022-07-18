@@ -16,6 +16,5 @@ target_compile_options(png2dds_dds PRIVATE ${PNG2DDS_CPP_WARNING_FLAGS})
 target_link_libraries(png2dds_dds
 	PUBLIC
 	png2dds_image
-	PRIVATE
 	bc7e_ispc
 	)

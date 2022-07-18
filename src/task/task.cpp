@@ -4,6 +4,7 @@
  */
 #include "png2dds/task.hpp"
 
+#include "png2dds/dds.hpp"
 #include "png2dds/pipeline.hpp"
 
 #include <boost/algorithm/string/case_conv.hpp>
@@ -79,6 +80,10 @@ task::task(const args::data& arguments) {
 	otbb::global_control control(otbb::global_control::max_allowed_parallelism, arguments.threads);
 	const std::size_t num_tokens = arguments.threads * 4UL;
 
+	// Initialize the BC7 DDS encoder.
+	dds::initialize_bc7_encoding();
+
+	// Launch the parallel pipeline.
 	pipeline::encode_as_dds(num_tokens, arguments.level, arguments.flip, paths);
 }
 

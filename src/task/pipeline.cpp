@@ -79,15 +79,16 @@ public:
 
 class encode_dds_image final {
 public:
-	explicit encode_dds_image(const png2dds::dds::encoder& encoder) noexcept
-		: _encoder{encoder} {}
+	explicit encode_dds_image(unsigned int level) noexcept
+		: _params{png2dds::dds::bc7_encode_params(level)} {}
 
 	dds_image operator()(const pixel_block_image& pixel_image) const {
-		return pixel_image.file_index() != error_file_index ? _encoder.encode(pixel_image) : dds_image{pixel_image};
+		return pixel_image.file_index() != error_file_index ? png2dds::dds::bc7_encode(_params, pixel_image) :
+																													dds_image{pixel_image};
 	}
 
 private:
-	const png2dds::dds::encoder& _encoder;
+	ispc::bc7e_compress_block_params _params;
 };
 
 class save_dds_file final {
@@ -117,13 +118,12 @@ namespace png2dds::pipeline {
 void encode_as_dds(std::size_t tokens, unsigned int level, bool flip, const paths_vector& paths) {
 	// Variables referenced by the filters.
 	std::atomic<std::size_t> counter;
-	dds::encoder encoder{level};
 
 	const otbb::filter<void, void> filters =
 		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_in_order, load_png_file(paths, counter)) &
 		otbb::make_filter<png_file, image>(otbb::filter_mode::parallel, decode_png_image(paths, flip)) &
 		otbb::make_filter<image, pixel_block_image>(otbb::filter_mode::parallel, get_pixel_blocks{}) &
-		otbb::make_filter<pixel_block_image, dds_image>(otbb::filter_mode::parallel, encode_dds_image(encoder)) &
+		otbb::make_filter<pixel_block_image, dds_image>(otbb::filter_mode::parallel, encode_dds_image(level)) &
 		otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_dds_file(paths));
 
 	otbb::parallel_pipeline(tokens, filters);

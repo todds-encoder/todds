@@ -9,32 +9,26 @@
 #include "png2dds/dds_image.hpp"
 #include "png2dds/pixel_block_image.hpp"
 
-#include <array>
-#include <cstdint>
-#include <memory>
-#include <string>
-#include <vector>
+#include <bc7e_ispc.h>
 
-namespace ispc {
-// Forward-declaration of the internal bc7e object required by the encoder.
-struct bc7e_compress_block_params;
-} // namespace ispc
+#include <memory>
 
 namespace png2dds::dds {
 
-class encoder final {
-public:
-	explicit encoder(unsigned int level);
-	encoder(const encoder&) = delete;
-	encoder(encoder&&) = default;
-	encoder& operator=(const encoder&) = delete;
-	encoder& operator=(encoder&&) = default;
-	~encoder();
-	[[nodiscard]] dds_image encode(const pixel_block_image& image) const;
+/**
+ * Initialize the BC7 DDS encoder.
+ * This function is not thread safe and it should be called only once.
+ */
+void initialize_bc7_encoding();
 
-private:
-	std::unique_ptr<ispc::bc7e_compress_block_params> _pimpl;
-};
+/**
+ * Generate the parameters to use for BC7 DDS encoding.
+ * @param level Encoder quality level.
+ * @return Parameters for the given quality level.
+ */
+ispc::bc7e_compress_block_params bc7_encode_params(unsigned int level) noexcept;
+
+[[nodiscard]] dds_image bc7_encode(const ispc::bc7e_compress_block_params& params, const pixel_block_image& image);
 
 } // namespace png2dds::dds
 
