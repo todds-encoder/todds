@@ -27,16 +27,19 @@ const std::string list_help =
 // Maximum BC7 encoding quality level.
 constexpr unsigned int max_level = 6U;
 const std::string level_arg = "level";
-const std::string level_help = "Encoder quality level [0, 6]. Higher values provide better quality but take longer.";
+const std::string level_help =
+	fmt::format("Encoder quality level [0, {:d}]. Higher values provide better quality but take longer.", max_level);
 
+const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
 const std::string threads_arg = "threads";
-const std::string threads_help = "Number of threads that png2dds will use.";
+const std::string threads_help =
+	fmt::format("Total number of threads used by the parallel pipeline [1, {:d}].", max_threads);
 
 const std::string depth_arg = "depth";
-const std::string depth_help = "Maximum subdirectory depth to look for PNG files.";
+const std::string depth_help = "Maximum subdirectory depth to use when looking for source files.";
 
 const std::string overwrite_arg = "overwrite";
-const std::string overwrite_help = "Convert PNG files to DDS even if they already have a DDS file.";
+const std::string overwrite_help = "Convert files even if an output file already exists.";
 
 const std::string flip_arg = "flip";
 const std::string flip_help = "Flip source images vertically before encoding.";
@@ -61,8 +64,6 @@ data get(int argc, char** argv) {
 
 	try {
 		cxxopts::Options options(std::string{project::name()}, std::string{project::description()});
-
-		const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
 
 		// clang-format off
 		options.add_options()
