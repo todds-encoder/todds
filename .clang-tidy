@@ -15,6 +15,7 @@
 # fuchsia-default-arguments-calls: Allow calling functions with default arguments.
 # fuchsia-overloaded-operator: Allow overloading operators.
 # google-runtime-references: Allow non-const reference parameters.
+# llvm-qualified-auto,readability-qualified-auto: Tries to treat array iterators as pointers on Linux.
 # llvmlibc-*: Disable all llvm libc specific checks.
 # modernize-use-trailing-return-type: Allow declarations without trailing return types.
 # readability-function-cognitive-complexity: Triggered by catch2 tests.
@@ -35,6 +36,7 @@ Checks: '*,
 -fuchsia-default-arguments-calls,
 -fuchsia-overloaded-operator,
 -google-runtime-references,
+-llvm-qualified-auto,-readability-qualified-auto,
 -llvmlibc-*,
 -modernize-use-trailing-return-type,
 -readability-function-cognitive-complexity,
