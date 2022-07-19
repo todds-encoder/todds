@@ -10,7 +10,6 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/nowide/filesystem.hpp>
-#include <boost/nowide/fstream.hpp>
 #include <oneapi/tbb/global_control.h>
 
 #include <algorithm>
@@ -56,18 +55,6 @@ task::task(const args::data& arguments) {
 	paths_vector paths;
 	if (!try_add_file(arguments.path, fs::status(arguments.path), paths, arguments.overwrite)) {
 		process_directory(arguments.path, paths, arguments.overwrite, arguments.depth);
-	}
-
-	if (fs::exists(arguments.list) && fs::is_regular_file(arguments.list)) {
-		boost::nowide::fstream stream{arguments.list};
-		std::string buffer;
-		while (std::getline(stream, buffer)) {
-			fs::path path{buffer};
-
-			if (!try_add_file(path, fs::status(path), paths, arguments.overwrite)) {
-				process_directory(path, paths, arguments.overwrite, arguments.depth);
-			}
-		}
 	}
 
 	// Process the list in order ignoring duplicates.

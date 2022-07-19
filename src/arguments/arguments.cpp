@@ -19,11 +19,6 @@ const std::string path_arg = "path";
 const std::string path_help =
 	"Points to a PNG file or a folder. In the latter case, convert to DDS all PNG files inside of this folder.";
 
-const std::string list_arg = "list";
-const std::string list_help =
-	"Points to a text file with a list of PNG files and/or directories. Entries must be on separate lines. All "
-	"individual PNG files and those inside specified directories will be converted to DDS.";
-
 // Maximum BC7 encoding quality level.
 constexpr unsigned int max_level = 6U;
 const std::string level_arg = "level";
@@ -68,7 +63,6 @@ data get(int argc, char** argv) {
 		// clang-format off
 		options.add_options()
 			(path_arg, path_help, cxxopts::value<std::string>()->default_value(""))
-			(list_arg, list_help, cxxopts::value<std::string>()->default_value(""))
 			(level_arg, level_help, cxxopts::value<unsigned int>()->default_value(std::to_string(max_level)))
 			(threads_arg, threads_help, cxxopts::value<std::size_t>()->default_value(std::to_string(max_threads)))
 			(depth_arg, depth_help, cxxopts::value<unsigned int>())
@@ -92,7 +86,6 @@ data get(int argc, char** argv) {
 			arguments.text = fmt::format("Unsupported encode quality level {:d}", level);
 		} else {
 			arguments.path = result[path_arg].as<std::string>();
-			arguments.list = result[list_arg].as<std::string>();
 			arguments.level = level;
 			arguments.threads = std::clamp<std::size_t>(result[threads_arg].as<std::size_t>(), 1UL, max_threads);
 			arguments.depth =
@@ -101,12 +94,9 @@ data get(int argc, char** argv) {
 			arguments.flip = result.count(flip_arg) > 0;
 			arguments.time = result.count(time_arg) > 0;
 
-			if (arguments.path.empty() && arguments.list.empty()) {
+			if (arguments.path.empty()) {
 				arguments.error = true;
-				arguments.text = fmt::format("Must provide {:s} or {:s}.", path_arg, list_arg);
-			} else if (!arguments.path.empty() && !arguments.list.empty()) {
-				arguments.error = true;
-				arguments.text = fmt::format("Must only provide one of {:s} or {:s}.", path_arg, list_arg);
+				arguments.text = fmt::format("Must provide {:s}.", path_arg);
 			} else if (arguments.threads == 0U) {
 				arguments.error = true;
 				arguments.text = fmt::format("{:s} must be greater than zero.", threads_arg);

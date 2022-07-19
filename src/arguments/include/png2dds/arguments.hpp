@@ -14,7 +14,6 @@ struct data {
 	bool error{};
 	std::string text{};
 	std::string path{};
-	std::string list{};
 	unsigned int level{};
 	std::size_t threads{};
 	unsigned int depth{};
