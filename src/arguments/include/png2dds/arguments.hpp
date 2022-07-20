@@ -6,6 +6,9 @@
 #ifndef PNG2DDS_ARGUMENTS_HPP
 #define PNG2DDS_ARGUMENTS_HPP
 
+#include <boost/filesystem.hpp>
+
+#include <optional>
 #include <string>
 
 namespace png2dds::args {
@@ -13,7 +16,8 @@ namespace png2dds::args {
 struct data {
 	bool error;
 	std::string text;
-	std::string input;
+	boost::filesystem::path input;
+	std::optional<boost::filesystem::path> output;
 	unsigned int level;
 	std::size_t threads;
 	std::size_t depth;

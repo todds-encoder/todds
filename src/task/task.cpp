@@ -13,6 +13,7 @@
 #include <oneapi/tbb/global_control.h>
 
 #include <algorithm>
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -22,26 +23,58 @@ using png2dds::pipeline::paths_vector;
 
 namespace {
 
-bool try_add_file(const fs::path& png_path, const fs::file_status& status, paths_vector& paths, bool overwrite) {
-	if (!fs::is_regular_file(status)) { return false; }
-	const std::string extension = boost::to_lower_copy(png_path.extension().string());
+bool has_png_extension(const fs::path& path) {
 	constexpr std::string_view png_extension{".png"};
-	if (boost::to_lower_copy(png_path.extension().string()) != png_extension) { return false; }
-	constexpr std::string_view dds_extension{".dds"};
-	fs::path dds_path{png_path};
-	dds_path.replace_extension(dds_extension.data());
-	if (overwrite || !fs::exists(dds_path)) { paths.emplace_back(png_path, dds_path); }
-	return true;
+	return boost::to_lower_copy(path.extension().string()) == png_extension;
 }
 
-void process_directory(const fs::path& path, paths_vector& paths, bool overwrite, std::size_t depth) {
-	const fs::directory_entry dir{path};
-	if (!fs::exists(dir) || !fs::is_directory(dir)) { return; }
+fs::path to_dds_path(const fs::path& png_path, const fs::path& output) {
+	constexpr std::string_view dds_extension{".dds"};
+	return (output / png_path.stem()) += dds_extension.data();
+}
 
-	for (fs::recursive_directory_iterator itr{dir}; itr != fs::recursive_directory_iterator{}; ++itr) {
-		try_add_file(itr->path(), itr->status(), paths, overwrite);
-		if (static_cast<unsigned int>(itr.depth()) >= depth) { itr.disable_recursion_pending(); }
+void add_files(const fs::path& png_path, const fs::path& dds_path, paths_vector& paths, bool overwrite) {
+	if (overwrite || !fs::exists(dds_path)) { paths.emplace_back(png_path, dds_path); }
+}
+
+paths_vector get_paths(const png2dds::args::data& arguments) {
+	const fs::path& input = arguments.input;
+	const bool different_output = static_cast<bool>(arguments.output);
+	const fs::path output = different_output ? arguments.output.value() : input.parent_path();
+	const bool overwrite = arguments.overwrite;
+	const auto depth = arguments.depth;
+
+	paths_vector paths;
+	if (fs::is_directory(input)) {
+		fs::path current_output = output;
+		const fs::directory_entry dir{input};
+		for (fs::recursive_directory_iterator itr{dir}; itr != fs::recursive_directory_iterator{}; ++itr) {
+			const fs::path& current_input = itr->path();
+			if (has_png_extension(current_input)) {
+				fs::path output_current = current_input.parent_path();
+				const fs::path dds_path =
+					to_dds_path(current_input, different_output ? current_output : current_input.parent_path());
+				add_files(current_input, dds_path, paths, overwrite);
+				if (different_output && !fs::exists(current_output)) {
+					// Create the output folder if necessary.
+					fs::create_directories(current_output);
+				}
+			} else if (different_output && fs::is_directory(current_input)) {
+				// Update current_output to match the relative path of the current input.
+				current_output = output / fs::relative(current_input, input);
+			}
+			if (static_cast<unsigned int>(itr.depth()) >= depth) { itr.disable_recursion_pending(); }
+		}
+	} else if (has_png_extension(input)) {
+		const fs::path dds_path = to_dds_path(input, output);
+		add_files(input, dds_path, paths, overwrite);
 	}
+
+	// Process the list in order ignoring duplicates.
+	std::sort(paths.begin(), paths.end());
+	paths.erase(std::unique(paths.begin(), paths.end()), paths.end());
+
+	return paths;
 }
 
 } // anonymous namespace
@@ -49,15 +82,7 @@ void process_directory(const fs::path& path, paths_vector& paths, bool overwrite
 namespace png2dds {
 
 task::task(const args::data& arguments) {
-	paths_vector paths;
-	if (!try_add_file(arguments.input, fs::status(arguments.input), paths, arguments.overwrite)) {
-		process_directory(arguments.input, paths, arguments.overwrite, arguments.depth);
-	}
-
-	// Process the list in order ignoring duplicates.
-	std::sort(paths.begin(), paths.end());
-	paths.erase(std::unique(paths.begin(), paths.end()), paths.end());
-
+	const paths_vector paths = get_paths(arguments);
 	if (paths.empty()) { return; }
 
 	// Configure the maximum parallelism allowed for tbb.

@@ -19,4 +19,6 @@ target_link_libraries(png2dds_arguments PRIVATE
 	Boost::program_options
 	fmt::fmt
 	TBB::tbb
+	PUBLIC
+	Boost::filesystem
 	)

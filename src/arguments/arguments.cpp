@@ -23,12 +23,9 @@ using boost::program_options::positional_options_description;
 using boost::program_options::store;
 using boost::program_options::value;
 using boost::program_options::variables_map;
+namespace fs = boost::filesystem;
 
 namespace {
-constexpr std::string_view input_arg = "input";
-constexpr std::string_view input_help =
-	"Converts to DDS all PNG files inside of this folder. Can also point to a single PNG file.";
-
 // Maximum BC7 encoding quality level.
 constexpr unsigned int max_level = 6U;
 constexpr std::string_view level_arg = "level";
@@ -54,6 +51,14 @@ constexpr std::string_view time_help = "Show the amount of time it takes to proc
 constexpr std::string_view help_arg = "help";
 constexpr std::string_view help_help = "Show usage information.";
 
+constexpr std::string_view input_arg = "input";
+constexpr std::string_view input_help =
+	"Converts to DDS all PNG files inside of this folder. Can also point to a single PNG file.";
+
+constexpr std::string_view output_arg = "output_arg";
+constexpr std::string_view output_help = "By default DDS files are created next to their input PNG files. If this "
+																				 "argument is provided, DDS files will be created in this folder instead.";
+
 std::string get_help(const options_description& description) {
 	std::ostringstream ostream;
 	ostream << png2dds::project::name() << ' ' << png2dds::project::version() << "\n\n"
@@ -75,6 +80,8 @@ data get(int argc, char** argv) {
 
 	data arguments{};
 	bool help{};
+	std::string input_str;
+	std::string output_str;
 	description.add_options()
 		// clang-format off
 		(level_arg.data(), value<unsigned int>(&arguments.level)->default_value(max_level), level_help.data())
@@ -84,11 +91,13 @@ data get(int argc, char** argv) {
 		(flip_arg.data(), bool_switch(&arguments.flip),flip_help.data())
 		(time_arg.data(), bool_switch(&arguments.time),time_help.data())
 		(help_arg.data(), bool_switch(&help), help_help.data())
-		(input_arg.data(), value<std::string>(&arguments.input), input_help.data());
+		(input_arg.data(), value<std::string>(&input_str), input_help.data())
+		(output_arg.data(), value<std::string>(&output_str), output_help.data());
 	// clang-format on
 
 	positional_options_description positional_description;
 	positional_description.add(input_arg.data(), 1);
+	positional_description.add(output_arg.data(), 1);
 	try {
 		const auto parsed_options =
 			command_line_parser(argc, argv).options(description).positional(positional_description).run();
@@ -106,14 +115,21 @@ data get(int argc, char** argv) {
 	} else if (arguments.level > max_level) {
 		arguments.error = true;
 		arguments.text = fmt::format("Argument error: Unsupported encode quality level {:d}.", arguments.level);
-	} else if (arguments.input.empty()) {
+	} else if (input_str.empty()) {
 		arguments.error = true;
 		arguments.text = fmt::format("Argument error: {:s} has not been provided.", input_arg);
 	}
 
 	arguments.threads = std::clamp(arguments.threads, 1UL, max_threads);
-	if (arguments.depth == 0UL) {
-		arguments.depth = std::numeric_limits<unsigned int>::max();
+	if (arguments.depth == 0UL) { arguments.depth = std::numeric_limits<unsigned int>::max(); }
+
+	boost::system::error_code error_code;
+	arguments.input = fs::canonical(input_str, error_code);
+	if (error_code) {
+		arguments.error = true;
+		arguments.text = fmt::format("Invalid input {:s}: {:s}.", input_str, error_code.message());
+	} else if (!output_str.empty()) {
+		arguments.output = output_str;
 	}
 
 	return arguments;
