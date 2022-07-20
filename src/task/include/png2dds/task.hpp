@@ -13,10 +13,7 @@ namespace png2dds {
 /**
  * Assumes that a UTF-8 locale has been set.
  */
-class task final {
-public:
-	explicit task(const args::data& arguments);
-};
+void run(const args::data& arguments);
 
 } // namespace png2dds
 

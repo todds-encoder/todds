@@ -81,7 +81,7 @@ paths_vector get_paths(const png2dds::args::data& arguments) {
 
 namespace png2dds {
 
-task::task(const args::data& arguments) {
+void run(const args::data& arguments) {
 	const paths_vector paths = get_paths(arguments);
 	if (paths.empty()) { return; }
 
