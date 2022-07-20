@@ -11,19 +11,20 @@
 namespace png2dds::args {
 
 struct data {
-	bool error{};
-	std::string text{};
-	std::string path{};
-	unsigned int level{};
-	std::size_t threads{};
-	unsigned int depth{};
-	bool overwrite{};
-	bool flip{};
-	bool time{};
+	bool error;
+	std::string text;
+	std::string input;
+	unsigned int level;
+	std::size_t threads;
+	std::size_t depth;
+	bool overwrite;
+	bool flip;
+	bool time;
 };
 
 /**
- * Obtain argument data from command-line data
+ * Parse all argument data from command-line arguments.
+ * Assumes that a UTF-8 locale has been set.
  * @param argc Number of arguments.
  * @param argv Array of arguments
  * @return Structure containing parsed arguments.

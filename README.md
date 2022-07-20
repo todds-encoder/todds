@@ -18,8 +18,8 @@ png2dds will retrieve the following dependencies using find_package:
 
 * [Boost.Filesystem](https://www.boost.org/doc/libs/master/libs/filesystem/doc/index.htm)
 * [Boost.NoWide](https://www.boost.org/doc/libs/master/libs/nowide/doc/html/index.html)
+* [Boost.Program_options](https://www.boost.org/doc/libs/master/doc/html/program_options.html)
 * [Boost.String](https://www.boost.org/doc/libs/1_79_0/doc/html/string_algo.html)
-* [cxxopts](https://github.com/jarro2783/cxxopts)
 * [fmt](https://fmt.dev/latest/index.html)
 * [oneTBB](https://github.com/oneapi-src/oneTBB)
 

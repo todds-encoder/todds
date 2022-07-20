@@ -8,45 +8,59 @@
 #include "png2dds/project.hpp"
 
 #include <boost/nowide/args.hpp>
-#include <cxxopts.hpp>
+#include <boost/program_options.hpp>
 #include <fmt/format.h>
 #include <oneapi/tbb/info.h>
 
+#include <ostream>
 #include <string_view>
 
+using boost::program_options::bool_switch;
+using boost::program_options::command_line_parser;
+using boost::program_options::notify;
+using boost::program_options::options_description;
+using boost::program_options::positional_options_description;
+using boost::program_options::store;
+using boost::program_options::value;
+using boost::program_options::variables_map;
+
 namespace {
-const std::string path_arg = "path";
-const std::string path_help =
-	"Points to a PNG file or a folder. In the latter case, convert to DDS all PNG files inside of this folder.";
+constexpr std::string_view input_arg = "input";
+constexpr std::string_view input_help =
+	"Converts to DDS all PNG files inside of this folder. Can also point to a single PNG file.";
 
 // Maximum BC7 encoding quality level.
 constexpr unsigned int max_level = 6U;
-const std::string level_arg = "level";
-const std::string level_help =
-	fmt::format("Encoder quality level [0, {:d}]. Higher values provide better quality but take longer.", max_level);
+constexpr std::string_view level_arg = "level";
+constexpr std::string_view level_help =
+	"Encoder quality level [0, 6]. Higher values provide better quality but take longer.";
 
-const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
-const std::string threads_arg = "threads";
-const std::string threads_help =
-	fmt::format("Total number of threads used by the parallel pipeline [1, {:d}].", max_threads);
+constexpr std::string_view threads_arg = "threads";
+constexpr std::string_view threads_help_unformatted =
+	"Total number of threads used by the parallel pipeline [1, {:d}].";
 
-const std::string depth_arg = "depth";
-const std::string depth_help = "Maximum subdirectory depth to use when looking for source files.";
+constexpr std::string_view depth_arg = "depth";
+constexpr std::string_view depth_help = "Maximum subdirectory depth to use when looking for source files.";
 
-const std::string overwrite_arg = "overwrite";
-const std::string overwrite_help = "Convert files even if an output file already exists.";
+constexpr std::string_view overwrite_arg = "overwrite";
+constexpr std::string_view overwrite_help = "Convert files even if an output file already exists.";
 
-const std::string flip_arg = "flip";
-const std::string flip_help = "Flip source images vertically before encoding.";
+constexpr std::string_view flip_arg = "flip";
+constexpr std::string_view flip_help = "Flip source images vertically before encoding.";
 
-const std::string time_arg = "time";
-const std::string time_help = "Show the amount of time it takes to process all files.";
+constexpr std::string_view time_arg = "time";
+constexpr std::string_view time_help = "Show the amount of time it takes to process all files.";
 
-const std::string help_arg = "help";
-const std::string help_help = "Show usage information.";
+constexpr std::string_view help_arg = "help";
+constexpr std::string_view help_help = "Show usage information.";
 
-const std::string version_arg = "version";
-const std::string version_help = "Show program version.";
+std::string get_help(const options_description& description) {
+	std::ostringstream ostream;
+	ostream << png2dds::project::name() << ' ' << png2dds::project::version() << "\n\n"
+					<< png2dds::project::description() << "\n\n";
+	description.print(ostream);
+	return std::move(ostream).str();
+}
 
 } // anonymous namespace
 
@@ -55,57 +69,51 @@ namespace png2dds::args {
 data get(int argc, char** argv) {
 	boost::nowide::args nowide_args(argc, argv);
 
-	data arguments;
+	options_description description("OPTIONS");
+	const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
+	const std::string threads_help = fmt::format(threads_help_unformatted, max_threads);
 
-	try {
-		cxxopts::Options options(std::string{project::name()}, std::string{project::description()});
-
+	data arguments{};
+	bool help{};
+	description.add_options()
 		// clang-format off
-		options.add_options()
-			(path_arg, path_help, cxxopts::value<std::string>()->default_value(""))
-			(level_arg, level_help, cxxopts::value<unsigned int>()->default_value(std::to_string(max_level)))
-			(threads_arg, threads_help, cxxopts::value<std::size_t>()->default_value(std::to_string(max_threads)))
-			(depth_arg, depth_help, cxxopts::value<unsigned int>())
-			(overwrite_arg, overwrite_help)
-			(flip_arg, flip_help)
-			(time_arg, time_help)
-			(help_arg, help_help)
-			(version_arg, version_help);
-		// clang-format on
+		(level_arg.data(), value<unsigned int>(&arguments.level)->default_value(max_level), level_help.data())
+		(threads_arg.data(), value<std::size_t>(&arguments.threads)->default_value(max_threads), threads_help.c_str())
+		(depth_arg.data(), value<std::size_t>(&arguments.depth), depth_help.data())
+		(overwrite_arg.data(), bool_switch(&arguments.overwrite),overwrite_help.data())
+		(flip_arg.data(), bool_switch(&arguments.flip),flip_help.data())
+		(time_arg.data(), bool_switch(&arguments.time),time_help.data())
+		(help_arg.data(), bool_switch(&help), help_help.data())
+		(input_arg.data(), value<std::string>(&arguments.input), input_help.data());
+	// clang-format on
 
-		auto result = options.parse(argc, argv);
-
-		const auto level = result[level_arg].as<unsigned int>();
-
-		if (result.count(help_arg) > 0U) {
-			arguments.text = options.help();
-		} else if (result.count(version_arg) > 0U) {
-			arguments.text = fmt::format("{:s} {:s}", project::name(), project::version());
-		} else if (level > max_level) {
-			arguments.error = true;
-			arguments.text = fmt::format("Unsupported encode quality level {:d}", level);
-		} else {
-			arguments.path = result[path_arg].as<std::string>();
-			arguments.level = level;
-			arguments.threads = std::clamp<std::size_t>(result[threads_arg].as<std::size_t>(), 1UL, max_threads);
-			arguments.depth =
-				result.count(depth_arg) > 0 ? result[depth_arg].as<unsigned int>() : std::numeric_limits<unsigned int>::max();
-			arguments.overwrite = result.count(overwrite_arg) > 0;
-			arguments.flip = result.count(flip_arg) > 0;
-			arguments.time = result.count(time_arg) > 0;
-
-			if (arguments.path.empty()) {
-				arguments.error = true;
-				arguments.text = fmt::format("Must provide {:s}.", path_arg);
-			} else if (arguments.threads == 0U) {
-				arguments.error = true;
-				arguments.text = fmt::format("{:s} must be greater than zero.", threads_arg);
-			}
-		}
-
-	} catch (const cxxopts::OptionException& ex) {
+	positional_options_description positional_description;
+	positional_description.add(input_arg.data(), 1);
+	try {
+		const auto parsed_options =
+			command_line_parser(argc, argv).options(description).positional(positional_description).run();
+		variables_map variables;
+		store(parsed_options, variables, true);
+		notify(variables);
+	} catch (const boost::program_options::error& exc) {
 		arguments.error = true;
-		arguments.text = ex.what();
+		arguments.text = fmt::format("Argument error: {:s}.", exc.what());
+		return arguments;
+	}
+
+	if (help) {
+		arguments.text = get_help(description);
+	} else if (arguments.level > max_level) {
+		arguments.error = true;
+		arguments.text = fmt::format("Argument error: Unsupported encode quality level {:d}.", arguments.level);
+	} else if (arguments.input.empty()) {
+		arguments.error = true;
+		arguments.text = fmt::format("Argument error: {:s} has not been provided.", input_arg);
+	}
+
+	arguments.threads = std::clamp(arguments.threads, 1UL, max_threads);
+	if (arguments.depth == 0UL) {
+		arguments.depth = std::numeric_limits<unsigned int>::max();
 	}
 
 	return arguments;

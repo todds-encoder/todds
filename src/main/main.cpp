@@ -7,6 +7,7 @@
 #include "png2dds/project.hpp"
 #include "png2dds/task.hpp"
 
+#include <boost/nowide/filesystem.hpp>
 #include <boost/nowide/iostream.hpp>
 #include <fmt/format.h>
 #include <oneapi/tbb/tick_count.h>
@@ -18,6 +19,9 @@ int main(int argc, char** argv) {
 	const auto start_time = oneapi::tbb::tick_count::now();
 
 	int execution_status = EXIT_FAILURE;
+
+	// Use UTF-8 as the default encoding for Boost.Filesystem and the global C++ locale.
+	std::locale::global(boost::nowide::nowide_filesystem());
 
 	try {
 		auto data = png2dds::args::get(argc, argv);

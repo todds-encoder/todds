@@ -25,8 +25,10 @@ find_package(Boost 1.73 REQUIRED COMPONENTS
 	nowide
 	# Use UTF-8 when converting char*/string to filesystem::path and viceversa.
 	filesystem
+	# Parse command-line arguments.
+	program_options
 	)
-find_package(cxxopts REQUIRED)
+
 find_package(fmt CONFIG REQUIRED)
 find_package(Threads REQUIRED)
 find_package(TBB CONFIG REQUIRED)

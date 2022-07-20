@@ -34,7 +34,7 @@ bool try_add_file(const fs::path& png_path, const fs::file_status& status, paths
 	return true;
 }
 
-void process_directory(const fs::path& path, paths_vector& paths, bool overwrite, unsigned int depth) {
+void process_directory(const fs::path& path, paths_vector& paths, bool overwrite, std::size_t depth) {
 	const fs::directory_entry dir{path};
 	if (!fs::exists(dir) || !fs::is_directory(dir)) { return; }
 
@@ -49,12 +49,9 @@ void process_directory(const fs::path& path, paths_vector& paths, bool overwrite
 namespace png2dds {
 
 task::task(const args::data& arguments) {
-	// Use UTF-8 as the default encoding for Boost.Filesystem.
-	boost::nowide::nowide_filesystem();
-
 	paths_vector paths;
-	if (!try_add_file(arguments.path, fs::status(arguments.path), paths, arguments.overwrite)) {
-		process_directory(arguments.path, paths, arguments.overwrite, arguments.depth);
+	if (!try_add_file(arguments.input, fs::status(arguments.input), paths, arguments.overwrite)) {
+		process_directory(arguments.input, paths, arguments.overwrite, arguments.depth);
 	}
 
 	// Process the list in order ignoring duplicates.
