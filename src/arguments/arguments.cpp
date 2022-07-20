@@ -15,14 +15,7 @@
 #include <ostream>
 #include <string_view>
 
-using boost::program_options::bool_switch;
-using boost::program_options::command_line_parser;
-using boost::program_options::notify;
-using boost::program_options::options_description;
-using boost::program_options::positional_options_description;
-using boost::program_options::store;
-using boost::program_options::value;
-using boost::program_options::variables_map;
+namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
 namespace {
@@ -59,7 +52,7 @@ constexpr std::string_view output_arg = "output_arg";
 constexpr std::string_view output_help = "By default DDS files are created next to their input PNG files. If this "
 																				 "argument is provided, DDS files will be created in this folder instead.";
 
-std::string get_help(const options_description& description) {
+std::string get_help(const po::options_description& description) {
 	std::ostringstream ostream;
 	ostream << png2dds::project::name() << ' ' << png2dds::project::version() << "\n\n"
 					<< png2dds::project::description() << "\n\n";
@@ -74,7 +67,7 @@ namespace png2dds::args {
 data get(int argc, char** argv) {
 	boost::nowide::args nowide_args(argc, argv);
 
-	options_description description("OPTIONS");
+	po::options_description description("OPTIONS");
 	const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
 	const std::string threads_help = fmt::format(threads_help_unformatted, max_threads);
 
@@ -84,24 +77,24 @@ data get(int argc, char** argv) {
 	std::string output_str;
 	description.add_options()
 		// clang-format off
-		(level_arg.data(), value<unsigned int>(&arguments.level)->default_value(max_level), level_help.data())
-		(threads_arg.data(), value<std::size_t>(&arguments.threads)->default_value(max_threads), threads_help.c_str())
-		(depth_arg.data(), value<std::size_t>(&arguments.depth), depth_help.data())
-		(overwrite_arg.data(), bool_switch(&arguments.overwrite),overwrite_help.data())
-		(flip_arg.data(), bool_switch(&arguments.flip),flip_help.data())
-		(time_arg.data(), bool_switch(&arguments.time),time_help.data())
-		(help_arg.data(), bool_switch(&help), help_help.data())
-		(input_arg.data(), value<std::string>(&input_str), input_help.data())
-		(output_arg.data(), value<std::string>(&output_str), output_help.data());
+		(level_arg.data(), po::value<unsigned int>(&arguments.level)->default_value(max_level), level_help.data())
+		(threads_arg.data(), po::value<std::size_t>(&arguments.threads)->default_value(max_threads), threads_help.c_str())
+		(depth_arg.data(), po::value<std::size_t>(&arguments.depth), depth_help.data())
+		(overwrite_arg.data(), po::bool_switch(&arguments.overwrite),overwrite_help.data())
+		(flip_arg.data(), po::bool_switch(&arguments.flip),flip_help.data())
+		(time_arg.data(), po::bool_switch(&arguments.time),time_help.data())
+		(help_arg.data(), po::bool_switch(&help), help_help.data())
+		(input_arg.data(), po::value<std::string>(&input_str), input_help.data())
+		(output_arg.data(), po::value<std::string>(&output_str), output_help.data());
 	// clang-format on
 
-	positional_options_description positional_description;
+	po::positional_options_description positional_description;
 	positional_description.add(input_arg.data(), 1);
 	positional_description.add(output_arg.data(), 1);
 	try {
 		const auto parsed_options =
-			command_line_parser(argc, argv).options(description).positional(positional_description).run();
-		variables_map variables;
+			po::command_line_parser(argc, argv).options(description).positional(positional_description).run();
+		po::variables_map variables;
 		store(parsed_options, variables, true);
 		notify(variables);
 	} catch (const boost::program_options::error& exc) {
