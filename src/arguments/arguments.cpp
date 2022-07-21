@@ -141,7 +141,7 @@ data get(int argc, char** argv) {
 		arguments.text = fmt::format("Argument error: {:s} has not been provided.", input_arg);
 	}
 
-	arguments.threads = std::clamp(arguments.threads, 1UL, max_threads);
+	arguments.threads = std::clamp<std::size_t>(arguments.threads, 1ULL, max_threads);
 	if (arguments.depth == 0UL) { arguments.depth = std::numeric_limits<unsigned int>::max(); }
 
 	boost::system::error_code error_code;
