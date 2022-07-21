@@ -35,7 +35,7 @@ bool has_png_extension(const fs::path& path) {
  * @return True if the path should be processed.
  */
 bool is_valid_source(const fs::path& path, const png2dds::regex& regex, png2dds::regex::scratch_type& scratch) {
-	return has_png_extension(path) && regex.match(scratch, path.c_str());
+	return has_png_extension(path) && regex.match(scratch, path.string());
 }
 
 fs::path to_dds_path(const fs::path& png_path, const fs::path& output) {
