@@ -5,7 +5,7 @@
 
 #include "png2dds/regex.hpp"
 
-#include <hs/hs.h>
+#include <hs.h>
 
 #include <cassert>
 
