@@ -42,6 +42,9 @@ constexpr std::string_view flip_help = "Flip source images vertically before enc
 constexpr std::string_view time_arg = "time";
 constexpr std::string_view time_help = "Show the amount of time it takes to process all files.";
 
+constexpr std::string_view regex_arg = "regex";
+constexpr std::string_view regex_help = "Process only absolute paths matching this regex.";
+
 constexpr std::string_view help_arg = "help";
 constexpr std::string_view help_help = "Show usage information.";
 
@@ -91,6 +94,7 @@ data get(int argc, char** argv) {
 	bool help{};
 	std::string input_str;
 	std::string output_str;
+	std::string regex_str;
 	optional_arguments.add_options()
 		// clang-format off
 		(level_arg.data(), po::value<unsigned int>(&arguments.level)->default_value(max_level), level_help.data())
@@ -99,6 +103,7 @@ data get(int argc, char** argv) {
 		(overwrite_arg.data(), po::bool_switch(&arguments.overwrite),overwrite_help.data())
 		(flip_arg.data(), po::bool_switch(&arguments.flip),flip_help.data())
 		(time_arg.data(), po::bool_switch(&arguments.time),time_help.data())
+		(regex_arg.data(), po::value<std::string>(&regex_str),regex_help.data())
 		(help_arg.data(), po::bool_switch(&help), help_help.data());
 
 	// clang-format on
@@ -144,8 +149,16 @@ data get(int argc, char** argv) {
 	if (error_code) {
 		arguments.error = true;
 		arguments.text = fmt::format("Invalid input {:s}: {:s}.", input_str, error_code.message());
-	} else if (!output_str.empty()) {
-		arguments.output = output_str;
+	} else {
+		if (!output_str.empty()) { arguments.output = output_str; }
+		if (!regex_str.empty()) {
+			arguments.regex = png2dds::regex{regex_str};
+			const auto regex_err = arguments.regex.error();
+			if (!regex_err.empty()) {
+				arguments.error = true;
+				arguments.text = fmt::format("Could not compile regular expression {:s}: {:s}", regex_str, regex_err);
+			}
+		}
 	}
 
 	return arguments;

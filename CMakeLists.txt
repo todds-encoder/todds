@@ -19,17 +19,18 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(cmake/platform.cmake)
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
 
 find_package(Boost 1.73 REQUIRED COMPONENTS
 	# Support UTF-8 on Windows.
 	nowide
-	# Use UTF-8 when converting char*/string to filesystem::path and viceversa.
+	# Use UTF-8 when converting char*/string to filesystem::path and vice-versa.
 	filesystem
 	# Parse command-line arguments.
 	program_options
 	)
-
 find_package(fmt CONFIG REQUIRED)
+find_package(Hyperscan REQUIRED)
 find_package(Threads REQUIRED)
 find_package(TBB CONFIG REQUIRED)
 

@@ -8,8 +8,9 @@ add_subdirectory(image)
 add_subdirectory(util)
 # Core modules
 add_subdirectory(arguments)
-add_subdirectory(task)
-add_subdirectory(png)
 add_subdirectory(dds)
+add_subdirectory(png)
+add_subdirectory(regex)
+add_subdirectory(task)
 # Application module
 add_subdirectory(main)

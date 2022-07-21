@@ -15,6 +15,7 @@
 # fuchsia-default-arguments-calls: Allow calling functions with default arguments.
 # fuchsia-overloaded-operator: Allow overloading operators.
 # fuchsia-statically-constructed-objects, cert-err58-cpp: Allow statically constructed objects, sparingly.
+# google-runtime-int: Types requested by third party APIs cannot be changed.
 # google-runtime-references: Allow non-const reference parameters.
 # llvm-qualified-auto,readability-qualified-auto: Tries to treat array iterators as pointers on Linux.
 # llvmlibc-*: Disable all llvm libc specific checks.
@@ -37,6 +38,7 @@ Checks: '*,
 -fuchsia-default-arguments-calls,
 -fuchsia-overloaded-operator,
 -fuchsia-statically-constructed-objects,-cert-err58-cpp,
+-google-runtime-int,
 -google-runtime-references,
 -llvm-qualified-auto,-readability-qualified-auto,
 -llvmlibc-*,

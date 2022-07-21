@@ -6,15 +6,14 @@
 
 #include "png2dds/dds.hpp"
 #include "png2dds/pipeline.hpp"
+#include "png2dds/regex.hpp"
 
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/nowide/filesystem.hpp>
 #include <oneapi/tbb/global_control.h>
 
 #include <algorithm>
 #include <optional>
-#include <string>
 #include <string_view>
 
 namespace fs = boost::filesystem;
@@ -26,6 +25,17 @@ namespace {
 bool has_png_extension(const fs::path& path) {
 	constexpr std::string_view png_extension{".png"};
 	return boost::to_lower_copy(path.extension().string()) == png_extension;
+}
+
+/**
+ * Checks if a source path is a valid input.
+ * @param path Source path to be checked.
+ * @param regex A regex constructed with an empty pattern will always return true.
+ * @param scratch Scratch used for regular expression evaluation.
+ * @return True if the path should be processed.
+ */
+bool is_valid_source(const fs::path& path, const png2dds::regex& regex, png2dds::regex::scratch_type& scratch) {
+	return has_png_extension(path) && regex.match(scratch, path.c_str());
 }
 
 fs::path to_dds_path(const fs::path& png_path, const fs::path& output) {
@@ -44,13 +54,16 @@ paths_vector get_paths(const png2dds::args::data& arguments) {
 	const bool overwrite = arguments.overwrite;
 	const auto depth = arguments.depth;
 
+	const auto& regex = arguments.regex;
+	png2dds::regex::scratch_type scratch = regex.allocate_scratch();
+
 	paths_vector paths;
 	if (fs::is_directory(input)) {
 		fs::path current_output = output;
 		const fs::directory_entry dir{input};
 		for (fs::recursive_directory_iterator itr{dir}; itr != fs::recursive_directory_iterator{}; ++itr) {
 			const fs::path& current_input = itr->path();
-			if (has_png_extension(current_input)) {
+			if (is_valid_source(current_input, regex, scratch)) {
 				fs::path output_current = current_input.parent_path();
 				const fs::path dds_path =
 					to_dds_path(current_input, different_output ? current_output : current_input.parent_path());
@@ -65,7 +78,7 @@ paths_vector get_paths(const png2dds::args::data& arguments) {
 			}
 			if (static_cast<unsigned int>(itr.depth()) >= depth) { itr.disable_recursion_pending(); }
 		}
-	} else if (has_png_extension(input)) {
+	} else if (is_valid_source(input, arguments.regex, scratch)) {
 		const fs::path dds_path = to_dds_path(input, output);
 		add_files(input, dds_path, paths, overwrite);
 	}

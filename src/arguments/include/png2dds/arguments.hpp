@@ -6,6 +6,7 @@
 #ifndef PNG2DDS_ARGUMENTS_HPP
 #define PNG2DDS_ARGUMENTS_HPP
 
+#include "png2dds/regex.hpp"
 #include <boost/filesystem.hpp>
 
 #include <optional>
@@ -24,6 +25,7 @@ struct data {
 	bool overwrite;
 	bool flip;
 	bool time;
+	png2dds::regex regex;
 };
 
 /**
