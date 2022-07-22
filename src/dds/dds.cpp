@@ -8,8 +8,7 @@
 #include "png2dds/dds_image.hpp"
 
 #include <bc7e_ispc.h>
-
-#include <algorithm>
+#include <oneapi/tbb/parallel_for.h>
 
 namespace {
 
@@ -41,16 +40,19 @@ ispc::bc7e_compress_block_params bc7_encode_params(unsigned int level) noexcept 
 dds_image bc7_encode(const ispc::bc7e_compress_block_params& params, const pixel_block_image& image) {
 	dds_image dds_img(image);
 
-	for (std::size_t block_y = 0UL; block_y < dds_img.height(); ++block_y) {
-		for (std::size_t block_x = 0UL; block_x < dds_img.width(); block_x += blocks_to_process) {
-			// In some cases the number of blocks of the image may not be divisible by 64.
-			const std::size_t current_blocks_to_process = std::min(blocks_to_process, dds_img.width() - block_x);
-			auto* dds_block = dds_img.block(block_x, block_y);
-			const pixel_block_image::block pixel_block = image.get_block(block_x, block_y);
-			ispc::bc7e_compress_blocks(
-				static_cast<std::uint32_t>(current_blocks_to_process), dds_block, pixel_block.data(), &params);
+	using blocked_range = oneapi::tbb::blocked_range<size_t>;
+	oneapi::tbb::parallel_for(blocked_range(0UL, dds_img.height()), [&](const blocked_range& range) {
+		for (std::size_t block_y = range.begin(); block_y < range.end(); ++block_y) {
+			for (std::size_t block_x = 0UL; block_x < dds_img.width(); block_x += blocks_to_process) {
+				// In some cases the number of blocks of the image may not be divisible by 64.
+				const std::size_t current_blocks_to_process = std::min(blocks_to_process, dds_img.width() - block_x);
+				auto* dds_block = dds_img.block(block_x, block_y);
+				const pixel_block_image::block pixel_block = image.get_block(block_x, block_y);
+				ispc::bc7e_compress_blocks(
+					static_cast<std::uint32_t>(current_blocks_to_process), dds_block, pixel_block.data(), &params);
+			}
 		}
-	}
+	});
 
 	return dds_img;
 }
