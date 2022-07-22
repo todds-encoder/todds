@@ -23,7 +23,9 @@ int main(int argc, char** argv) {
 	// Use UTF-8 as the default encoding for Boost.Filesystem and the global C++ locale.
 	std::locale::global(boost::nowide::nowide_filesystem());
 
+#if defined(NDEBUG)
 	try {
+#endif // defined(_NDEBUG)
 		auto data = png2dds::args::get(argc, argv);
 		if (!data.text.empty()) {
 			auto& stream = data.error ? cerr : cout;
@@ -36,12 +38,14 @@ int main(int argc, char** argv) {
 				cout << "Total time: " << (end_time - start_time).seconds() << " seconds \n";
 			}
 		}
+#if defined(NDEBUG)
 	} catch (const std::exception& ex) {
 		cerr << fmt::format(
 			"{:s} has been terminated because of an exception: {:s}\n", png2dds::project::name(), ex.what());
 	} catch (...) {
 		cerr << fmt::format("{:s} has been terminated because of an unknown exception.\n", png2dds::project::name());
 	}
+#endif // defined(_NDEBUG)
 
 	return execution_status;
 }
