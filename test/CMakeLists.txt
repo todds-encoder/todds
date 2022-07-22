@@ -5,7 +5,6 @@
 find_package(Catch2 REQUIRED)
 
 add_executable(png2dds_test
-	tests.cpp # Catch2 main file
 	test_dds_image.cpp
 	test_image.cpp
 	test_pixel_block_image.cpp
@@ -15,7 +14,7 @@ add_executable(png2dds_test
 
 target_link_libraries(png2dds_test PRIVATE
 	bc7enc_dds_defs
-	Catch2::Catch2
+	Catch2::Catch2WithMain
 	png2dds_project
 	png2dds_image
 	png2dds_util

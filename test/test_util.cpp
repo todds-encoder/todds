@@ -5,7 +5,7 @@
 
 #include "png2dds/util.hpp"
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("png2dds::util::next_divisible_by_4", "[util]") {
 	using png2dds::util::next_divisible_by_4;

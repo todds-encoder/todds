@@ -5,7 +5,7 @@
 
 #include "png2dds/project.hpp"
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("png2dds::project coherence checks", "[project]") {
 	STATIC_REQUIRE(!png2dds::project::name().empty());
