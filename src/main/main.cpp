@@ -28,8 +28,7 @@ int main(int argc, char** argv) {
 		if (!data.text.empty()) {
 			auto& stream = data.error ? cerr : cout;
 			stream << data.text;
-		}
-		if (!data.error) {
+		} else if (!data.error) {
 			png2dds::run(data);
 			execution_status = EXIT_SUCCESS;
 			if (data.time) {
