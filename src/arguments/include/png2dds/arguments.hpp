@@ -7,10 +7,12 @@
 #define PNG2DDS_ARGUMENTS_HPP
 
 #include "png2dds/regex.hpp"
+
 #include <boost/filesystem.hpp>
 
 #include <optional>
-#include <string>
+#include <string_view>
+#include <vector>
 
 namespace png2dds::args {
 
@@ -36,6 +38,14 @@ struct data {
  * @return Structure containing parsed arguments.
  */
 data get(int argc, char** argv);
+
+/**
+ * Parse all argument data from command-line arguments.
+ * Assumes that a UTF-8 locale has been set.
+ * @param arguments Argument vector.
+ * @return Structure containing parsed arguments.
+ */
+data get(const std::vector<std::string_view>& arguments);
 } // namespace png2dds::args
 
 #endif // PNG2DDS_ARGUMENTS_HPP
