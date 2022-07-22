@@ -20,5 +20,4 @@ target_compile_options(png2dds_image PRIVATE ${PNG2DDS_CPP_WARNING_FLAGS})
 target_link_libraries(png2dds_image PRIVATE
 	png2dds_util
 	bc7enc_dds_defs
-	TBB::tbb
 	)

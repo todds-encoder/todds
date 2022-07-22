@@ -6,8 +6,6 @@
 
 #include "png2dds/image.hpp"
 
-#include <oneapi/tbb/parallel_for.h>
-
 #include <cassert>
 
 namespace png2dds {
@@ -24,24 +22,20 @@ pixel_block_image::pixel_block_image(const image& png)
 
 	auto* pixel_block_current = reinterpret_cast<std::uint8_t*>(_buffer.data());
 
-	using blocked_range = oneapi::tbb::blocked_range<size_t>;
-
-	oneapi::tbb::parallel_for(blocked_range(0UL, _height), [&](const blocked_range& range) {
-		for (std::size_t block_y = range.begin(); block_y < range.end(); ++block_y) {
-			const auto pixel_y = block_y * block_side;
-			for (std::size_t block_x = 0UL; block_x < _width; ++block_x) {
-				const auto pixel_x = block_x * block_side;
-				for (std::size_t pixel_offset_y = 0U; pixel_offset_y < block_side; ++pixel_offset_y) {
-					const std::uint8_t* pixel_start = png.get_pixel(pixel_x, pixel_y + pixel_offset_y).data();
-					assert(pixel_start < &png.buffer().back());
-					const std::uint8_t* pixel_end = png.get_pixel(pixel_x + block_side, pixel_y + pixel_offset_y).data();
-					assert(pixel_end <= &*png.buffer().end());
-					assert(std::distance(pixel_start, pixel_end) == block_side * png2dds::image::bytes_per_pixel);
-					pixel_block_current = std::copy(pixel_start, pixel_end, pixel_block_current);
-				}
+	for (std::size_t block_y = 0U; block_y < _height; ++block_y) {
+		const auto pixel_y = block_y * block_side;
+		for (std::size_t block_x = 0UL; block_x < _width; ++block_x) {
+			const auto pixel_x = block_x * block_side;
+			for (std::size_t pixel_offset_y = 0U; pixel_offset_y < block_side; ++pixel_offset_y) {
+				const std::uint8_t* pixel_start = png.get_pixel(pixel_x, pixel_y + pixel_offset_y).data();
+				assert(pixel_start < &png.buffer().back());
+				const std::uint8_t* pixel_end = png.get_pixel(pixel_x + block_side, pixel_y + pixel_offset_y).data();
+				assert(pixel_end <= &*png.buffer().end());
+				assert(std::distance(pixel_start, pixel_end) == block_side * png2dds::image::bytes_per_pixel);
+				pixel_block_current = std::copy(pixel_start, pixel_end, pixel_block_current);
 			}
 		}
-	});
+	}
 }
 
 std::size_t pixel_block_image::width() const noexcept { return _width; }
