@@ -114,6 +114,7 @@ namespace png2dds::args {
 data get(int argc, char** argv) {
 	boost::nowide::args nowide_args(argc, argv);
 	std::vector<std::string_view> arguments;
+	arguments.reserve(static_cast<std::size_t>(argc));
 	for (std::size_t index = 0UL; index < static_cast<std::size_t>(argc); ++index) {
 		arguments.emplace_back(argv[index]);
 	}

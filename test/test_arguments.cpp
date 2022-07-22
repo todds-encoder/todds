@@ -13,7 +13,6 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using png2dds::args::data;
 using png2dds::args::get;
 
 constexpr auto binary = png2dds::project::name();
