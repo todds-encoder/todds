@@ -39,7 +39,7 @@ constexpr auto level_arg =
 	optional_argument("--level", "Encoder quality level [0, 6]. Higher values provide better quality but take longer.");
 
 constexpr auto threads_arg =
-	optional_argument("--threads", "Number of threads used by the parallel pipeline [1, {:d}].");
+	optional_arg{"--threads", "-th", "Number of threads used by the parallel pipeline [1, {:d}]."};
 
 constexpr std::size_t max_depth = std::numeric_limits<std::size_t>::max();
 constexpr auto depth_arg =
@@ -48,6 +48,8 @@ constexpr auto depth_arg =
 constexpr auto overwrite_arg = optional_argument("--overwrite", "Convert files even if an output file already exists.");
 
 constexpr auto vflip_arg = optional_arg{"--vflip", "-vf", "Flip source images vertically before encoding."};
+
+constexpr auto time_arg = optional_argument("--time", "Show total execution time.");
 
 constexpr auto regex_arg = optional_argument("--regex", "Process only absolute paths matching this regex.");
 
@@ -64,7 +66,7 @@ constexpr std::string_view output_help = "Create DDS files in this folder instea
 
 consteval std::size_t get_max_argument_size() {
 	const std::vector<std::string_view> arg_names{level_arg.name, threads_arg.name, depth_arg.name, overwrite_arg.name,
-		vflip_arg.name, verbose_arg.name, regex_arg.name, help_arg.name, input_name, output_name};
+		vflip_arg.name, time_arg.name, verbose_arg.name, regex_arg.name, help_arg.name, input_name, output_name};
 	auto iterator = std::max_element(arg_names.cbegin(), arg_names.cend(),
 		[](std::string_view lhs, std::string_view rhs) -> bool { return lhs.size() < rhs.size(); });
 
@@ -118,6 +120,7 @@ std::string get_help(std::size_t max_threads) {
 	print_optional_argument(ostream, depth_arg);
 	print_optional_argument(ostream, overwrite_arg);
 	print_optional_argument(ostream, vflip_arg);
+	print_optional_argument(ostream, time_arg);
 	print_optional_argument(ostream, regex_arg);
 	print_optional_argument(ostream, verbose_arg);
 	print_optional_argument(ostream, help_arg);
@@ -196,6 +199,8 @@ data get(const std::vector<std::string_view>& arguments) {
 			parsed_arguments.overwrite = true;
 		} else if (matches(argument, vflip_arg)) {
 			parsed_arguments.vflip = true;
+		} else if (matches(argument, time_arg)) {
+			parsed_arguments.time = true;
 		} else if (matches(argument, verbose_arg)) {
 			parsed_arguments.verbose = true;
 		} else {

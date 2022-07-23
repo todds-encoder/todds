@@ -18,9 +18,10 @@ using paths_vector = std::vector<std::pair<boost::filesystem::path, boost::files
  * @param tokens Maximum number of files that the pipeline can process at the same time.
  * @param level BC7 encoding level to use.
  * @param vflip Flip source images vertically before encoding.
+ * @param verbose If true it will report progress and errors.
  * @param paths List of files to encode, along with their corresponding desired dds paths.
  */
-void encode_as_dds(std::size_t tokens, unsigned int level, bool vflip, const paths_vector& paths);
+void encode_as_dds(std::size_t tokens, unsigned int level, bool vflip, bool verbose, const paths_vector& paths);
 
 } // namespace png2dds::pipeline
 

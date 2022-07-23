@@ -11,9 +11,14 @@
 #include "png2dds/png.hpp"
 
 #include <boost/nowide/fstream.hpp>
+#include <boost/nowide/iostream.hpp>
+#include <fmt/format.h>
+#include <oneapi/tbb/concurrent_queue.h>
 #include <oneapi/tbb/parallel_pipeline.h>
 
 #include <atomic>
+#include <chrono>
+#include <future>
 
 namespace otbb = oneapi::tbb;
 
@@ -54,22 +59,23 @@ private:
 
 class decode_png_image final {
 public:
-	explicit decode_png_image(const paths_vector& paths, bool vflip) noexcept
+	explicit decode_png_image(
+		const paths_vector& paths, bool vflip, otbb::concurrent_queue<std::string>& error_log) noexcept
 		: _paths{paths}
-		, _vflip{vflip} {}
+		, _vflip{vflip}
+		, _error_log{error_log} {}
 
 	image operator()(const png_file& file) const {
 		try {
 			return png2dds::png::decode(file.file_index, _paths[file.file_index].first.string(), file.buffer, _vflip);
-		} catch (const std::runtime_error& /*ex*/) {
-			// ToDo error reporting when the verbose option is activated.
-		}
+		} catch (const std::runtime_error& exc) { _error_log.push(fmt::format("PNG Decoding error -> {:s}", exc.what())); }
 		return {error_file_index, 0U, 0U};
 	}
 
 private:
 	const paths_vector& _paths;
 	bool _vflip;
+	otbb::concurrent_queue<std::string>& _error_log;
 };
 
 class get_pixel_blocks final {
@@ -111,21 +117,62 @@ private:
 	const paths_vector& _paths;
 };
 
+void error_reporting(
+	std::atomic<std::size_t>& progress, std::size_t total, otbb::concurrent_queue<std::string>& error_log) {
+	using namespace std::chrono_literals;
+	std::size_t last_progress{};
+	std::string error_str;
+	bool requires_newline = false;
+
+	while (progress < total) {
+		while (error_log.try_pop(error_str)) {
+			if (requires_newline) {
+				boost::nowide::cerr << '\n';
+				requires_newline = false;
+			}
+			boost::nowide::cerr << error_str << '\n';
+		}
+		const std::size_t current_progress = progress;
+
+		if (current_progress > last_progress && current_progress < total) {
+			last_progress = current_progress;
+			boost::nowide::cout << fmt::format("\rProgress: {:d}/{:d}", current_progress, total);
+			boost::nowide::cout.flush();
+			requires_newline = true;
+			std::this_thread::sleep_for(50ms);
+		}
+	}
+
+	while (error_log.try_pop(error_str)) { boost::nowide::cerr << error_str << '\n'; }
+	boost::nowide::cout << fmt::format("\rProgress: {:d}/{:d}\n", total, total);
+	boost::nowide::cout.flush();
+}
+
 } // Anonymous namespace
 
 namespace png2dds::pipeline {
 
-void encode_as_dds(std::size_t tokens, unsigned int level, bool vflip, const paths_vector& paths) {
+void encode_as_dds(std::size_t tokens, unsigned int level, bool vflip, bool verbose, const paths_vector& paths) {
 	// Variables referenced by the filters.
 	std::atomic<std::size_t> counter;
+	otbb::concurrent_queue<std::string> error_log;
+
+	auto error_report =
+		verbose ? std::async(std::launch::async, error_reporting, std::ref(counter), paths.size(), std::ref(error_log)) :
+							std::future<void>{};
 
 	const otbb::filter<void, void> filters =
 		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_in_order, load_png_file(paths, counter)) &
-		otbb::make_filter<png_file, image>(otbb::filter_mode::parallel, decode_png_image(paths, vflip)) &
+		otbb::make_filter<png_file, image>(otbb::filter_mode::parallel, decode_png_image(paths, vflip, error_log)) &
 		otbb::make_filter<image, pixel_block_image>(otbb::filter_mode::parallel, get_pixel_blocks{}) &
 		otbb::make_filter<pixel_block_image, dds_image>(otbb::filter_mode::parallel, encode_dds_image(level)) &
 		otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_dds_file(paths));
 
 	otbb::parallel_pipeline(tokens, filters);
+
+	if (error_report.valid()) {
+		// Wait until the error report is done.
+		error_report.get();
+	}
 }
 } // namespace png2dds::pipeline

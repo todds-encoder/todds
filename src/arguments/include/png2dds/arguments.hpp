@@ -26,6 +26,7 @@ struct data {
 	std::size_t depth;
 	bool overwrite;
 	bool vflip;
+	bool time;
 	bool verbose;
 	png2dds::regex regex;
 };

@@ -24,5 +24,6 @@ target_link_libraries(png2dds_task
 	png2dds_regex
 	Boost::headers
 	Boost::filesystem
+	fmt
 	TBB::tbb
 	)

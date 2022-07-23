@@ -173,7 +173,7 @@ TEST_CASE("png2dds::arguments threads", "[arguments]") {
 		auto arguments = get({binary, "--threads", std::to_string(max_threads - 1UL), "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.threads == max_threads - 1UL);
-		const auto shorter = get({binary, "-t", std::to_string(max_threads - 1UL), "."});
+		const auto shorter = get({binary, "-th", std::to_string(max_threads - 1UL), "."});
 		REQUIRE(is_valid(shorter));
 		REQUIRE(shorter.threads == max_threads - 1UL);
 	}
@@ -233,8 +233,8 @@ TEST_CASE("png2dds::arguments overwrite", "[arguments]") {
 	}
 }
 
-TEST_CASE("png2dds::arguments flip", "[arguments]") {
-	SECTION("The default value of flip is false") {
+TEST_CASE("png2dds::arguments vflip", "[arguments]") {
+	SECTION("The default value of vflip is false") {
 		auto arguments = get({binary, "."});
 		REQUIRE(!arguments.vflip);
 	}
@@ -246,6 +246,22 @@ TEST_CASE("png2dds::arguments flip", "[arguments]") {
 		const auto shorter = get({binary, "-vf", "."});
 		REQUIRE(is_valid(shorter));
 		REQUIRE(shorter.vflip);
+	}
+}
+
+TEST_CASE("png2dds::arguments time", "[arguments]") {
+	SECTION("The default value of time is false") {
+		auto arguments = get({binary, "."});
+		REQUIRE(!arguments.time);
+	}
+
+	SECTION("Providing the time parameter sets its value to true") {
+		auto arguments = get({binary, "--time", "."});
+		REQUIRE(is_valid(arguments));
+		REQUIRE(arguments.time);
+		const auto shorter = get({binary, "-t", "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(shorter.time);
 	}
 }
 
