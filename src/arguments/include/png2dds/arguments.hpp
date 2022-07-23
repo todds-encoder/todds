@@ -25,7 +25,7 @@ struct data {
 	std::size_t threads;
 	std::size_t depth;
 	bool overwrite;
-	bool flip;
+	bool vflip;
 	bool verbose;
 	png2dds::regex regex;
 };

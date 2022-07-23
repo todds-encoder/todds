@@ -47,7 +47,7 @@ constexpr auto depth_arg =
 
 constexpr auto overwrite_arg = optional_argument("--overwrite", "Convert files even if an output file already exists.");
 
-constexpr auto flip_arg = optional_argument("--flip", "Flip source images vertically before encoding.");
+constexpr auto vflip_arg = optional_arg{"--vflip", "-vf", "Flip source images vertically before encoding."};
 
 constexpr auto regex_arg = optional_argument("--regex", "Process only absolute paths matching this regex.");
 
@@ -64,7 +64,7 @@ constexpr std::string_view output_help = "Create DDS files in this folder instea
 
 consteval std::size_t get_max_argument_size() {
 	const std::vector<std::string_view> arg_names{level_arg.name, threads_arg.name, depth_arg.name, overwrite_arg.name,
-		flip_arg.name, verbose_arg.name, regex_arg.name, help_arg.name, input_name, output_name};
+		vflip_arg.name, verbose_arg.name, regex_arg.name, help_arg.name, input_name, output_name};
 	auto iterator = std::max_element(arg_names.cbegin(), arg_names.cend(),
 		[](std::string_view lhs, std::string_view rhs) -> bool { return lhs.size() < rhs.size(); });
 
@@ -117,7 +117,7 @@ std::string get_help(std::size_t max_threads) {
 	print_argument_impl(ostream, threads_arg.shorter, threads_arg.name, threads_help);
 	print_optional_argument(ostream, depth_arg);
 	print_optional_argument(ostream, overwrite_arg);
-	print_optional_argument(ostream, flip_arg);
+	print_optional_argument(ostream, vflip_arg);
 	print_optional_argument(ostream, regex_arg);
 	print_optional_argument(ostream, verbose_arg);
 	print_optional_argument(ostream, help_arg);
@@ -194,8 +194,8 @@ data get(const std::vector<std::string_view>& arguments) {
 			}
 		} else if (matches(argument, overwrite_arg)) {
 			parsed_arguments.overwrite = true;
-		} else if (matches(argument, flip_arg)) {
-			parsed_arguments.flip = true;
+		} else if (matches(argument, vflip_arg)) {
+			parsed_arguments.vflip = true;
 		} else if (matches(argument, verbose_arg)) {
 			parsed_arguments.verbose = true;
 		} else {

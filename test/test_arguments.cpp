@@ -236,16 +236,16 @@ TEST_CASE("png2dds::arguments overwrite", "[arguments]") {
 TEST_CASE("png2dds::arguments flip", "[arguments]") {
 	SECTION("The default value of flip is false") {
 		auto arguments = get({binary, "."});
-		REQUIRE(!arguments.flip);
+		REQUIRE(!arguments.vflip);
 	}
 
-	SECTION("Providing the flip parameter sets its value to true") {
-		auto arguments = get({binary, "--flip", "."});
+	SECTION("Providing the vflip parameter sets its value to true") {
+		auto arguments = get({binary, "--vflip", "."});
 		REQUIRE(is_valid(arguments));
-		REQUIRE(arguments.flip);
-		const auto shorter = get({binary, "-f", "."});
+		REQUIRE(arguments.vflip);
+		const auto shorter = get({binary, "-vf", "."});
 		REQUIRE(is_valid(shorter));
-		REQUIRE(shorter.flip);
+		REQUIRE(shorter.vflip);
 	}
 }
 

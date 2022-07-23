@@ -54,13 +54,13 @@ private:
 
 class decode_png_image final {
 public:
-	explicit decode_png_image(const paths_vector& paths, bool flip) noexcept
+	explicit decode_png_image(const paths_vector& paths, bool vflip) noexcept
 		: _paths{paths}
-		, _flip{flip} {}
+		, _vflip{vflip} {}
 
 	image operator()(const png_file& file) const {
 		try {
-			return png2dds::png::decode(file.file_index, _paths[file.file_index].first.string(), file.buffer, _flip);
+			return png2dds::png::decode(file.file_index, _paths[file.file_index].first.string(), file.buffer, _vflip);
 		} catch (const std::runtime_error& /*ex*/) {
 			// ToDo error reporting when the verbose option is activated.
 		}
@@ -69,7 +69,7 @@ public:
 
 private:
 	const paths_vector& _paths;
-	bool _flip;
+	bool _vflip;
 };
 
 class get_pixel_blocks final {
@@ -115,13 +115,13 @@ private:
 
 namespace png2dds::pipeline {
 
-void encode_as_dds(std::size_t tokens, unsigned int level, bool flip, const paths_vector& paths) {
+void encode_as_dds(std::size_t tokens, unsigned int level, bool vflip, const paths_vector& paths) {
 	// Variables referenced by the filters.
 	std::atomic<std::size_t> counter;
 
 	const otbb::filter<void, void> filters =
 		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_in_order, load_png_file(paths, counter)) &
-		otbb::make_filter<png_file, image>(otbb::filter_mode::parallel, decode_png_image(paths, flip)) &
+		otbb::make_filter<png_file, image>(otbb::filter_mode::parallel, decode_png_image(paths, vflip)) &
 		otbb::make_filter<image, pixel_block_image>(otbb::filter_mode::parallel, get_pixel_blocks{}) &
 		otbb::make_filter<pixel_block_image, dds_image>(otbb::filter_mode::parallel, encode_dds_image(level)) &
 		otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_dds_file(paths));
