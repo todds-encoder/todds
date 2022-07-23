@@ -7,6 +7,7 @@
 #include "png2dds/dds.hpp"
 #include "png2dds/dds_image.hpp"
 #include "png2dds/image.hpp"
+#include "png2dds/memory.hpp"
 #include "png2dds/pixel_block_image.hpp"
 #include "png2dds/png.hpp"
 
@@ -32,7 +33,7 @@ namespace {
 constexpr std::size_t error_file_index = std::numeric_limits<std::size_t>::max();
 
 struct png_file {
-	std::vector<std::uint8_t> buffer;
+	std::vector<std::uint8_t, png2dds::allocator<std::uint8_t>> buffer;
 	std::size_t file_index;
 };
 

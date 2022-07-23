@@ -60,7 +60,7 @@ dds_image::block_type::value_type* dds_image::block(std::size_t block_x, std::si
 	return _blocks[block_x + block_y * _width].data();
 }
 
-const std::vector<dds_image::block_type>& dds_image::blocks() const noexcept { return _blocks; }
+const dds_image::buffer_type& dds_image::blocks() const noexcept { return _blocks; }
 
 [[nodiscard]] std::size_t dds_image::file_index() const noexcept { return _file_index; }
 

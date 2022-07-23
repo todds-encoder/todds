@@ -39,7 +39,7 @@ private:
 
 namespace png2dds::png {
 
-image decode(std::size_t file_index, const std::string& png, const std::vector<std::uint8_t>& buffer, bool flip) {
+image decode(std::size_t file_index, const std::string& png, std::span<const std::uint8_t> buffer, bool flip) {
 	spng_context context{png, 0};
 
 	/* Ignore chunk CRCs and their calculations. */

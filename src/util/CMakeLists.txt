@@ -5,7 +5,8 @@
 add_library(png2dds_util INTERFACE)
 
 target_sources(png2dds_util INTERFACE
-	${CMAKE_CURRENT_LIST_DIR}/include/png2dds/util.hpp
+	include/png2dds/memory.hpp
+	include/png2dds/util.hpp
 	)
 
 target_include_directories(png2dds_util INTERFACE

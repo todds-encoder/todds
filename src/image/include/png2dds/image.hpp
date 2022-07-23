@@ -6,6 +6,8 @@
 #ifndef PNG2DDS_IMAGE_HPP
 #define PNG2DDS_IMAGE_HPP
 
+#include "png2dds/memory.hpp"
+
 #include <cstdint>
 #include <span>
 #include <vector>
@@ -19,6 +21,8 @@ namespace png2dds {
 class image final {
 public:
 	static constexpr std::uint8_t bytes_per_pixel = 4U;
+
+	using buffer_type = std::vector<std::uint8_t, png2dds::allocator<std::uint8_t>>;
 
 	image(std::size_t index, std::size_t width, std::size_t height);
 	image(const image&) = delete;
@@ -50,7 +54,6 @@ public:
 	 * @return Buffer height in pixels.
 	 */
 	[[nodiscard]] std::size_t padded_height() const noexcept;
-
 
 	/**
 	 * File index of the image in the list of files to load.
@@ -108,7 +111,7 @@ public:
 private:
 	std::size_t _padded_width;
 	std::size_t _padded_height;
-	std::vector<std::uint8_t> _buffer;
+	buffer_type _buffer;
 	std::size_t _width;
 	std::size_t _height;
 	std::size_t _file_index;

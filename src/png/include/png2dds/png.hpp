@@ -8,13 +8,15 @@
 
 #include "png2dds/dds_image.hpp"
 #include "png2dds/image.hpp"
+#include "png2dds/memory.hpp"
 
 #include <cstdint>
 #include <span>
 #include <string>
-#include <vector>
 
 namespace png2dds::png {
+
+
 /**
  * Decodes a PNG file stored in a memory buffer.
  * @param file_index File index of the image in the list of files to load.
@@ -23,7 +25,7 @@ namespace png2dds::png {
  * @param flip Flip source image vertically during decoding.
  * @return Decoded PNG image. Width and height are increased if needed to make their number of pixels divisible by 4.
  */
-image decode(std::size_t file_index, const std::string& png, const std::vector<std::uint8_t>& buffer, bool flip);
+image decode(std::size_t file_index, const std::string& png, std::span<const std::uint8_t> buffer, bool flip);
 
 } // namespace png2dds::png
 

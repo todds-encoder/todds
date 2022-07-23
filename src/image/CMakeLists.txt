@@ -17,7 +17,8 @@ target_include_directories(png2dds_image PUBLIC
 
 target_compile_options(png2dds_image PRIVATE ${PNG2DDS_CPP_WARNING_FLAGS})
 
-target_link_libraries(png2dds_image PRIVATE
+target_link_libraries(png2dds_image PUBLIC
 	png2dds_util
+	PRIVATE
 	bc7enc_dds_defs
 	)
