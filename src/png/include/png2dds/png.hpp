@@ -25,31 +25,6 @@ namespace png2dds::png {
  */
 image decode(std::size_t file_index, const std::string& png, const std::vector<std::uint8_t>& buffer, bool flip);
 
-class encode_buffer final {
-public:
-	encode_buffer(void* memory, std::size_t size);
-
-	encode_buffer(const encode_buffer&) = delete;
-	encode_buffer(encode_buffer&&) = default;
-	encode_buffer& operator=(const encode_buffer&) = delete;
-	encode_buffer& operator=(encode_buffer&&) = default;
-	~encode_buffer();
-
-	[[nodiscard]] std::span<const char> span() const noexcept;
-
-private:
-	void* _memory;
-	std::size_t _size;
-};
-
-/**
- * Encodes an image as a PNG and stores it into a buffer.
- * @param png Path to the destination PNG file, used for reporting errors.
- * @param img Image in memory. Padding is not removed by this function.
- * @return Memory buffer holding the contents of a PNG file.
- */
-encode_buffer encode(const std::string& png, const image& img);
-
 } // namespace png2dds::png
 
 #endif // PNG2DDS_PNG_HPP

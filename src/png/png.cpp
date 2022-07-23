@@ -120,44 +120,4 @@ image decode(std::size_t file_index, const std::string& png, const std::vector<s
 	return result;
 }
 
-encode_buffer::encode_buffer(void* memory, std::size_t size)
-	: _memory{memory}
-	, _size{size} {}
-
-encode_buffer::~encode_buffer() {
-	std::free(_memory); // NOLINT
-}
-
-std::span<const char> encode_buffer::span() const noexcept { return {reinterpret_cast<const char*>(_memory), _size}; }
-
-encode_buffer encode(const std::string& png, const image& img) {
-	spng_context context{png, SPNG_CTX_ENCODER};
-
-	spng_set_option(context.get(), SPNG_ENCODE_TO_BUFFER, 1);
-
-	spng_ihdr ihdr{};
-	ihdr.width = static_cast<std::uint32_t>(img.padded_width());
-	ihdr.height = static_cast<std::uint32_t>(img.padded_height());
-	ihdr.color_type = SPNG_COLOR_TYPE_TRUECOLOR_ALPHA;
-	ihdr.bit_depth = 8;
-
-	spng_set_ihdr(context.get(), &ihdr);
-
-	if (const int ret =
-				spng_encode_image(context.get(), img.buffer().data(), img.buffer().size(), SPNG_FMT_PNG, SPNG_ENCODE_FINALIZE);
-			ret != 0) {
-		throw std::runtime_error{fmt::format("Could not encode PNG file {:s}: {:s}", png, spng_strerror(ret))};
-	}
-
-	std::size_t png_size{};
-	int ret{};
-	void* png_buf = spng_get_png_buffer(context.get(), &png_size, &ret);
-	if (ret != 0 || png_buf == nullptr) {
-		throw std::runtime_error{
-			fmt::format("Could not obtain encoded PNG buffer for {:s}: {:s}", png, spng_strerror(ret))};
-	}
-
-	return encode_buffer{png_buf, png_size};
-}
-
 } // namespace png2dds::png
