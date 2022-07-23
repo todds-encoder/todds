@@ -6,12 +6,12 @@
 #ifndef PNG2DDS_PIPELINE_HPP
 #define PNG2DDS_PIPELINE_HPP
 
+#include "png2dds/vector.hpp"
+
 #include <boost/filesystem/path.hpp>
 
-#include <vector>
-
 namespace png2dds::pipeline {
-using paths_vector = std::vector<std::pair<boost::filesystem::path, boost::filesystem::path>>;
+using paths_vector = png2dds::vector<std::pair<boost::filesystem::path, boost::filesystem::path>>;
 
 /**
  * Encodes a list of PNG files as DDS.

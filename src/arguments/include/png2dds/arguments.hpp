@@ -7,12 +7,12 @@
 #define PNG2DDS_ARGUMENTS_HPP
 
 #include "png2dds/regex.hpp"
+#include "png2dds/vector.hpp"
 
 #include <boost/filesystem.hpp>
 
 #include <optional>
 #include <string_view>
-#include <vector>
 
 namespace png2dds::args {
 
@@ -46,7 +46,7 @@ data get(int argc, char** argv);
  * @param arguments Argument vector.
  * @return Structure containing parsed arguments.
  */
-data get(const std::vector<std::string_view>& arguments);
+data get(const png2dds::vector<std::string_view>& arguments);
 } // namespace png2dds::args
 
 #endif // PNG2DDS_ARGUMENTS_HPP

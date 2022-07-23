@@ -8,6 +8,7 @@
 
 #include "png2dds/image.hpp"
 #include "png2dds/memory.hpp"
+#include "png2dds/vector.hpp"
 
 #include <cstdint>
 #include <span>
@@ -39,7 +40,7 @@ public:
 private:
 	std::size_t _width;
 	std::size_t _height;
-	std::vector<std::uint32_t, png2dds::allocator<std::uint32_t>> _buffer;
+	png2dds::vector<std::uint32_t> _buffer;
 	std::size_t _image_width;
 	std::size_t _image_height;
 	std::size_t _file_index;

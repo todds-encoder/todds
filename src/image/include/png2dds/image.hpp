@@ -7,10 +7,10 @@
 #define PNG2DDS_IMAGE_HPP
 
 #include "png2dds/memory.hpp"
+#include "png2dds/vector.hpp"
 
 #include <cstdint>
 #include <span>
-#include <vector>
 
 namespace png2dds {
 
@@ -22,7 +22,7 @@ class image final {
 public:
 	static constexpr std::uint8_t bytes_per_pixel = 4U;
 
-	using buffer_type = std::vector<std::uint8_t, png2dds::allocator<std::uint8_t>>;
+	using buffer_type = png2dds::vector<std::uint8_t>;
 
 	image(std::size_t index, std::size_t width, std::size_t height);
 	image(const image&) = delete;

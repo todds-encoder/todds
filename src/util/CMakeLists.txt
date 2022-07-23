@@ -7,6 +7,7 @@ add_library(png2dds_util INTERFACE)
 target_sources(png2dds_util INTERFACE
 	include/png2dds/memory.hpp
 	include/png2dds/util.hpp
+	include/png2dds/vector.hpp
 	)
 
 target_include_directories(png2dds_util INTERFACE

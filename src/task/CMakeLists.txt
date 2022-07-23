@@ -22,6 +22,7 @@ target_link_libraries(png2dds_task
 	png2dds_dds
 	png2dds_png
 	png2dds_regex
+	png2dds_util
 	Boost::headers
 	Boost::filesystem
 	fmt

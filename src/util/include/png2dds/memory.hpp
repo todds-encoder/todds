@@ -10,9 +10,7 @@
 
 namespace png2dds {
 
-/**
- * Allocator to use in png2dds types.
- */
+/** Allocator to use in png2dds types. */
 template<typename Type> using allocator = std::allocator<Type>;
 
 } // namespace png2dds

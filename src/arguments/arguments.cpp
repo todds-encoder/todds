@@ -6,6 +6,7 @@
 #include "png2dds/arguments.hpp"
 
 #include "png2dds/project.hpp"
+#include "png2dds/vector.hpp"
 
 #include <boost/nowide/args.hpp>
 #include <fmt/format.h>
@@ -65,6 +66,7 @@ constexpr std::string_view output_name = "output";
 constexpr std::string_view output_help = "Create DDS files in this folder instead of next to their input PNG files.";
 
 consteval std::size_t get_max_argument_size() {
+	// Other implementations may not have constexpr support so std::vector is used explicitly.
 	const std::vector<std::string_view> arg_names{level_arg.name, threads_arg.name, depth_arg.name, overwrite_arg.name,
 		vflip_arg.name, time_arg.name, verbose_arg.name, regex_arg.name, help_arg.name, input_name, output_name};
 	auto iterator = std::max_element(arg_names.cbegin(), arg_names.cend(),
@@ -134,7 +136,7 @@ namespace png2dds::args {
 
 data get(int argc, char** argv) {
 	boost::nowide::args nowide_args(argc, argv);
-	std::vector<std::string_view> arguments;
+	png2dds::vector<std::string_view> arguments;
 	arguments.reserve(static_cast<std::size_t>(argc));
 	for (std::size_t index = 0UL; index < static_cast<std::size_t>(argc); ++index) {
 		arguments.emplace_back(argv[index]);
@@ -143,7 +145,7 @@ data get(int argc, char** argv) {
 	return get(arguments);
 }
 
-data get(const std::vector<std::string_view>& arguments) {
+data get(const png2dds::vector<std::string_view>& arguments) {
 	data parsed_arguments{};
 	// Set default values.
 	parsed_arguments.level = max_level;

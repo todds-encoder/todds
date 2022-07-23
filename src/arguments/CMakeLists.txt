@@ -20,5 +20,6 @@ target_link_libraries(png2dds_arguments PRIVATE
 	TBB::tbb
 	PUBLIC
 	png2dds_regex
+	png2dds_util
 	Boost::filesystem
 	)

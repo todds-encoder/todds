@@ -8,16 +8,16 @@
 
 #include "png2dds/memory.hpp"
 #include "png2dds/pixel_block_image.hpp"
+#include "png2dds/vector.hpp"
 
 #include <array>
-#include <vector>
 
 namespace png2dds {
 
 class dds_image final {
 public:
 	using block_type = std::array<std::uint64_t, 2U>;
-	using buffer_type = std::vector<block_type, png2dds::allocator<block_type>>;
+	using buffer_type = png2dds::vector<block_type>;
 	using header_type = std::array<char, 144U>;
 
 	explicit dds_image(const pixel_block_image& image);
