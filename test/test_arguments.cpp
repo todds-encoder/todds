@@ -36,7 +36,7 @@ TEST_CASE("png2dds::arguments input", "[arguments]") {
 	}
 
 	SECTION("Input is read properly after optional arguments.") {
-		auto arguments = get({binary, "--time", input_path.string()});
+		auto arguments = get({binary, "--verbose", input_path.string()});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.input == input_path.string());
 	}
@@ -67,6 +67,8 @@ TEST_CASE("png2dds::arguments optional arguments", "[arguments]") {
 	SECTION("Invalid positional arguments are reported as errors") {
 		auto arguments = get({binary, "--invalid", "."});
 		REQUIRE(has_error(arguments));
+		auto shorter = get({binary, "-9", "."});
+		REQUIRE(has_error(shorter));
 	}
 
 	SECTION("Optional arguments after positional arguments are not parsed") {
@@ -90,6 +92,8 @@ TEST_CASE("png2dds::arguments help", "[arguments]") {
 
 	SECTION("Show help when called with the help argument") {
 		auto arguments = get({binary, "--help"});
+		REQUIRE(has_help(arguments));
+		const auto shorter = get({binary, "-h"});
 		REQUIRE(has_help(arguments));
 	}
 }
@@ -125,6 +129,9 @@ TEST_CASE("png2dds::arguments level", "[arguments]") {
 		auto arguments = get({binary, "--level", std::to_string(level), "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.level == level);
+		const auto shorter = get({binary, "-l", std::to_string(level), "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(shorter.level == level);
 	}
 }
 
@@ -166,6 +173,9 @@ TEST_CASE("png2dds::arguments threads", "[arguments]") {
 		auto arguments = get({binary, "--threads", std::to_string(max_threads - 1UL), "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.threads == max_threads - 1UL);
+		const auto shorter = get({binary, "-t", std::to_string(max_threads - 1UL), "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(shorter.threads == max_threads - 1UL);
 	}
 }
 
@@ -201,6 +211,9 @@ TEST_CASE("png2dds::arguments depth", "[arguments]") {
 		auto arguments = get({binary, "--depth", std::to_string(depth), "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.depth == depth);
+		const auto shorter = get({binary, "-d", std::to_string(depth), "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(shorter.depth == depth);
 	}
 }
 
@@ -214,6 +227,9 @@ TEST_CASE("png2dds::arguments overwrite", "[arguments]") {
 		auto arguments = get({binary, "--overwrite", "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.overwrite);
+		const auto shorter = get({binary, "-o", "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(shorter.overwrite);
 	}
 }
 
@@ -227,19 +243,25 @@ TEST_CASE("png2dds::arguments flip", "[arguments]") {
 		auto arguments = get({binary, "--flip", "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.flip);
+		const auto shorter = get({binary, "-f", "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(shorter.flip);
 	}
 }
 
-TEST_CASE("png2dds::arguments time", "[arguments]") {
-	SECTION("The default value of time is false") {
+TEST_CASE("png2dds::arguments verbose", "[arguments]") {
+	SECTION("The default value of verbose is false") {
 		auto arguments = get({binary, "."});
-		REQUIRE(!arguments.time);
+		REQUIRE(!arguments.verbose);
 	}
 
-	SECTION("Providing the time parameter sets its value to true") {
-		auto arguments = get({binary, "--time", "."});
+	SECTION("Providing the verbose parameter sets its value to true") {
+		auto arguments = get({binary, "--verbose", "."});
 		REQUIRE(is_valid(arguments));
-		REQUIRE(arguments.time);
+		REQUIRE(arguments.verbose);
+		const auto shorter = get({binary, "-v", "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(shorter.verbose);
 	}
 }
 
@@ -265,5 +287,10 @@ TEST_CASE("png2dds::arguments regex", "[arguments]") {
 		REQUIRE(arguments.regex.error().empty());
 		REQUIRE(arguments.regex.database() != nullptr);
 		REQUIRE(arguments.regex.allocate_scratch().get() != nullptr);
+		const auto shorter = get({binary, "-r", utf_characters, "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(shorter.regex.error().empty());
+		REQUIRE(shorter.regex.database() != nullptr);
+		REQUIRE(shorter.regex.allocate_scratch().get() != nullptr);
 	}
 }

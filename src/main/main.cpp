@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
 		} else if (!data.error) {
 			png2dds::run(data);
 			execution_status = EXIT_SUCCESS;
-			if (data.time) {
+			if (data.verbose) {
 				const auto end_time = oneapi::tbb::tick_count::now();
 				cout << "Total time: " << (end_time - start_time).seconds() << " seconds \n";
 			}
