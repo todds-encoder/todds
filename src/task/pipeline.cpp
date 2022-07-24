@@ -7,7 +7,6 @@
 #include "png2dds/dds.hpp"
 #include "png2dds/dds_image.hpp"
 #include "png2dds/image.hpp"
-#include "png2dds/memory.hpp"
 #include "png2dds/pixel_block_image.hpp"
 #include "png2dds/png.hpp"
 #include "png2dds/vector.hpp"

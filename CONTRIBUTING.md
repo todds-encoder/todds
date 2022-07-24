@@ -12,4 +12,4 @@ The project and its contributions are currently managed using the [GitLab Flow](
 
 Before preparing and submitting a PR for a feature, create an issue on the [tracker](https://gitlab.com/joseasoler/png2dds/-/issues) to allow for discussing and refining the idea before it is implemented.
 
-Source code contributions must follow the [style guide](STYLE_GUIDE.md). The easiest way to comply with it is to setup [clang-format](https://clang.llvm.org/docs/ClangFormat.html) and [clang-tidy](https://clang.llvm.org/extra/clang-tidy/). You should enable the PNG2DDS_CLANG_TIDY CMake option when you build your code and execute clang-format on all files you have modified before submitting your contribution.
+Source code contributions must follow the [style guide](STYLE_GUIDE.md). The easiest way to comply with it is to set up [clang-format](https://clang.llvm.org/docs/ClangFormat.html) and [clang-tidy](https://clang.llvm.org/extra/clang-tidy/). You should enable the PNG2DDS_CLANG_TIDY CMake option when you build your code and execute clang-format on all files you have modified before submitting your contribution.

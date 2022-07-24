@@ -23,7 +23,7 @@ png2dds will retrieve the following dependencies using find_package:
 * [fmt](https://fmt.dev/latest/index.html)
 * [oneTBB](https://github.com/oneapi-src/oneTBB)
 
-The following third party library dependencies are contained as source code in the thirdparty subfolder of the png2dds repository. Each one of these libraries is under its own license which is also included in the repository.
+The following third party library dependencies are contained as source code in the thirdparty folder of the png2dds repository. Each one of these libraries is under its own license which is also included in the repository.
 
 * [bc7enc_rdo](https://github.com/richgel999/bc7enc_rdo)
 * [libspng](https://libspng.org/)

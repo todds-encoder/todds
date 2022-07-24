@@ -9,7 +9,6 @@
 #include <fmt/format.h>
 
 #include <cstddef>
-#include <cstdlib>
 #include <stdexcept>
 
 namespace {
