@@ -25,6 +25,6 @@ target_link_libraries(png2dds_task
 	png2dds_util
 	Boost::headers
 	Boost::filesystem
-	fmt
+	fmt::fmt
 	TBB::tbb
 	)

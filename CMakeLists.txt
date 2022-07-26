@@ -27,10 +27,10 @@ find_package(Boost 1.73 REQUIRED COMPONENTS
 	# Use UTF-8 when converting char*/string to filesystem::path and vice-versa.
 	filesystem
 	)
-find_package(fmt CONFIG REQUIRED)
+find_package(fmt REQUIRED)
 find_package(Hyperscan REQUIRED)
 find_package(Threads REQUIRED)
-find_package(TBB CONFIG REQUIRED)
+find_package(TBB REQUIRED)
 
 add_subdirectory(thirdparty)
 
