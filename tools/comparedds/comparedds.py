@@ -32,12 +32,12 @@ flip_executable = 'flip'
 magick_executable = 'magick'
 
 # Maps tool arguments to their executable and parameters.
-EncoderData = collections.namedtuple('EncoderData', 'executable batch params')
+EncoderData = collections.namedtuple('EncoderData', 'executable batch filepath params')
 encoder_data = {
-    bc7enc_tool: EncoderData('bc7enc', False, ('-q', '-g', '-u6')),
-    nvtt_tool: EncoderData('nvbatchcompress', True, ('-highest', '-bc7', '-silent')),
-    png2dds_tool: EncoderData('png2dds', True, ('-o',)),
-    texconv_tool: EncoderData('texconv', True, ('-y', '-f', 'BC7_UNORM', '-bc', 'x')),
+    bc7enc_tool: EncoderData('bc7enc', False, True, ('-q', '-g', '-u6')),
+    nvtt_tool: EncoderData('nvbatchcompress', True, True, ('-highest', '-bc7', '-silent')),
+    png2dds_tool: EncoderData('png2dds', True, False, ('-o',)),
+    texconv_tool: EncoderData('texconv', True, False, ('-y', '-f', 'BC7_UNORM', '-bc', 'x')),
 }
 
 
@@ -49,6 +49,8 @@ def get_parsed_args():
     parser.add_argument(f'--info', action='store_true', help=f'Generate a CSV with system and tool information')
     parser.add_argument(f'--batch', action='store_true',
                         help=f'Generate a CSV with the time required to process all inputs in batch mode.')
+    parser.add_argument(f'--files', action='store_true',
+                        help=f'Generate a CSV with the encoding time for individual files along with file statistics.')
     parser.add_argument('input', metavar='input', type=str, help='Path containing PNGs to be used for testing')
     parser.add_argument('output', metavar='output', type=str, help='Path in which output PNGs will be created.')
     return parser.parse_args()
@@ -204,6 +206,24 @@ def batch_encode(arguments, input_files):
             csv_out.writerow([tool, batch_time])
 
 
+def files_encode(arguments, input_files):
+    current_module = sys.modules[__name__]
+    csv_out = csv.writer(sys.stdout)
+    csv_out.writerow(['File', 'Tool', 'Time (ns)', 'Size (Bytes)'])
+    for tool, data in encoder_data.items():
+        if getattr(arguments, tool):
+            output_path = os.path.join(args.output, tool)
+            pathlib.Path(output_path).mkdir(parents=True, exist_ok=True)
+
+            execute_func = getattr(current_module, f'{tool}_execute')
+            for input_file in input_files:
+                execute_start = time.perf_counter_ns()
+                output_file = output_file_path(input_file, output_path) + '.dds'
+                execute_func(input_file, output_file if data.filepath else output_path)
+                execute_time = time.perf_counter_ns() - execute_start
+                csv_out.writerow([input_file, tool, execute_time, os.path.getsize(output_file)])
+
+
 if __name__ == '__main__':
     # Argument parsing and validation.
     args = get_parsed_args()
@@ -221,3 +241,6 @@ if __name__ == '__main__':
 
     if args.batch:
         batch_encode(args, input_file_list)
+
+    if args.files:
+        files_encode(args, input_file_list)
