@@ -28,6 +28,7 @@ bc7enc_tool = 'bc7enc'
 nvtt_tool = 'nvtt'
 png2dds_tool = 'png2dds'
 texconv_tool = 'texconv'
+nvdecompress_executable = 'nvdecompress'
 flip_executable = 'flip'
 magick_executable = 'magick'
 
@@ -51,6 +52,8 @@ def get_parsed_args():
                         help=f'Generate a CSV with the time required to process all inputs in batch mode.')
     parser.add_argument(f'--files', action='store_true',
                         help=f'Generate a CSV with the encoding time for individual files along with file statistics.')
+    parser.add_argument(f'--metrics', action='store_true',
+                        help=f'Generate a CSV with metrics for DDS files. Will fail if they have not been generated')
     parser.add_argument('input', metavar='input', type=str, help='Path containing PNGs to be used for testing')
     parser.add_argument('output', metavar='output', type=str, help='Path in which output PNGs will be created.')
     return parser.parse_args()
@@ -224,12 +227,49 @@ def files_encode(arguments, input_files):
                 csv_out.writerow([input_file, tool, execute_time, os.path.getsize(output_file)])
 
 
+def decode_png(dds_file, png_file):
+    subprocess.run([nvdecompress_executable, '-format', 'png', dds_file, png_file], stdout=subprocess.DEVNULL)
+
+
+def calculate_metric(png_input, png_file, metric):
+    arguments = [magick_executable, 'compare', '-metric', metric, png_input, png_file, 'null']
+    output = subprocess.run(arguments, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE).stderr.decode(
+        'utf-8')
+    if metric == 'RMSE':
+        _, output = output.split(' (')
+        output, _ = output.split(')')
+    return output
+
+
+def calculate_metrics(arguments, input_files):
+    current_module = sys.modules[__name__]
+    csv_out = csv.writer(sys.stdout)
+    csv_out.writerow(['File', 'Tool', 'FLIP', 'PSNR', 'RMSE', 'SSIM'])
+    for tool, data in encoder_data.items():
+        if getattr(arguments, tool):
+            output_path = os.path.join(args.output, tool)
+            for input_file in input_files:
+                output_base = output_file_path(input_file, output_path)
+                dds_file = output_base + '.dds'
+                png_file = output_base + '.png'
+                decode_png(dds_file, png_file)
+                psnr = calculate_metric(input_file, png_file, 'PSNR')
+                rmse = calculate_metric(input_file, png_file, 'RMSE')
+                ssim = calculate_metric(input_file, png_file, 'SSIM')
+                csv_out.writerow([input_file, tool, '?', psnr, rmse, ssim])
+
+
 if __name__ == '__main__':
     # Argument parsing and validation.
     args = get_parsed_args()
     args_error = validate_args(args)
     if len(args_error) > 0:
         sys.exit(args_error)
+
+    if args.info or args.metrics:
+        for extra_executable in [nvdecompress_executable, magick_executable, flip_executable]:
+            if shutil.which(extra_executable) is None:
+                sys.exit(f'{extra_executable} must be present in the PATH.')
 
     if args.info:
         generate_info(args)
@@ -244,3 +284,6 @@ if __name__ == '__main__':
 
     if args.files:
         files_encode(args, input_file_list)
+
+    if args.metrics:
+        calculate_metrics(args, input_file_list)
