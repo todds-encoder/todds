@@ -16,12 +16,14 @@ import argparse
 import collections
 import csv
 import os
+import pathlib
 import shutil
 import subprocess
 import sys
+import time
 import winreg
 
-# Tools used by this script
+# Tools used by this script.
 bc7enc_tool = 'bc7enc'
 nvtt_tool = 'nvtt'
 png2dds_tool = 'png2dds'
@@ -29,32 +31,33 @@ texconv_tool = 'texconv'
 flip_executable = 'flip'
 magick_executable = 'magick'
 
-EncoderData = collections.namedtuple('EncoderData', 'executable params')
-
 # Maps tool arguments to their executable and parameters.
+EncoderData = collections.namedtuple('EncoderData', 'executable batch params')
 encoder_data = {
-    bc7enc_tool: EncoderData('bc7enc', ('-q', '-g', '-u6')),
-    nvtt_tool: EncoderData('nvbatchcompress', ('-highest', '-bc7', '-silent')),
-    png2dds_tool: EncoderData('png2dds', ('-o',)),
-    texconv_tool: EncoderData('texconv', ('-y', '-f', 'BC7_UNORM', '-bc', 'x')),
+    bc7enc_tool: EncoderData('bc7enc', False, ('-q', '-g', '-u6')),
+    nvtt_tool: EncoderData('nvbatchcompress', True, ('-highest', '-bc7', '-silent')),
+    png2dds_tool: EncoderData('png2dds', True, ('-o',)),
+    texconv_tool: EncoderData('texconv', True, ('-y', '-f', 'BC7_UNORM', '-bc', 'x')),
 }
 
 
 def get_parsed_args():
     parser = argparse.ArgumentParser(description='Compare DDS encoders.')
-    for tool, (executable, _) in encoder_data.items():
+    for tool, data in encoder_data.items():
         parser.add_argument(f'--{tool}', action='store_true',
-                            help=f'Compare {tool}. The {executable} executable must be in the PATH.')
+                            help=f'Compare {tool}. The {data.executable} executable must be in the PATH.')
     parser.add_argument(f'--info', action='store_true', help=f'Generate a CSV with system and tool information')
+    parser.add_argument(f'--batch', action='store_true',
+                        help=f'Generate a CSV with the time required to process all inputs in batch mode.')
     parser.add_argument('input', metavar='input', type=str, help='Path containing PNGs to be used for testing')
     parser.add_argument('output', metavar='output', type=str, help='Path in which output PNGs will be created.')
     return parser.parse_args()
 
 
 def validate_args(arguments):
-    for tool, (executable, _) in encoder_data.items():
-        if getattr(arguments, tool) and shutil.which(executable) is None:
-            return f'To use {tool}, {executable} must be present in the PATH'
+    for tool, data in encoder_data.items():
+        if getattr(arguments, tool) and shutil.which(data.executable) is None:
+            return f'To use {tool}, {data.executable} must be present in the PATH'
 
     if not os.path.isdir(arguments.input):
         return f'Input directory {arguments.input} is not valid'
@@ -129,7 +132,7 @@ def generate_info(arguments):
     csv_out.writerow(['gpu', gpu_name])
 
     current_module = sys.modules[__name__]
-    for tool, (executable, _) in encoder_data.items():
+    for tool in encoder_data.keys():
         if getattr(arguments, tool):
             version_func = getattr(current_module, f'{tool}_version')
             version = version_func()
@@ -137,6 +140,68 @@ def generate_info(arguments):
             csv_out.writerow([tool, version])
     csv_out.writerow([flip_executable, flip_version()])
     csv_out.writerow([magick_executable, magick_version()])
+
+
+def output_file_path(input_file, output_path):
+    return os.path.join(output_path, pathlib.Path(input_file).stem)
+
+
+def bc7enc_execute(input_file, output_file):
+    bc7enc_data = encoder_data[bc7enc_tool]
+    arguments = [bc7enc_data.executable, ]
+    arguments.extend(bc7enc_data.params)
+    arguments.append(input_file)
+    arguments.append(output_file)
+    subprocess.run(arguments)
+
+
+def nvtt_execute(input_path, output_path):
+    nvtt_data = encoder_data[nvtt_tool]
+    arguments = [nvtt_data.executable, ]
+    arguments.extend(nvtt_data.params)
+    arguments.append(input_path)
+    arguments.append(output_path)
+    subprocess.run(arguments, stdout=subprocess.DEVNULL)
+
+
+def png2dds_execute(input_path, output_path):
+    png2dds_data = encoder_data[png2dds_tool]
+    arguments = [png2dds_data.executable, ]
+    arguments.extend(png2dds_data.params)
+    arguments.append(input_path)
+    arguments.append(output_path)
+    subprocess.run(arguments, stdout=subprocess.DEVNULL)
+
+
+def texconv_execute(input_path, output_path):
+    texconv_data = encoder_data[texconv_tool]
+    arguments = [texconv_data.executable, ]
+    arguments.extend(texconv_data.params)
+    arguments.append(input_path)
+    arguments.append('-o')
+    arguments.append(output_path)
+    subprocess.run(arguments, stdout=subprocess.DEVNULL)
+
+
+def batch_encode(arguments, input_files):
+    current_module = sys.modules[__name__]
+    csv_out = csv.writer(sys.stdout)
+    csv_out.writerow(['Batch conversion', 'Time (ns)'])
+
+    for tool, data in encoder_data.items():
+        if getattr(arguments, tool):
+            output_path = os.path.join(args.output, tool)
+            pathlib.Path(output_path).mkdir(parents=True, exist_ok=True)
+
+            batch_start = time.perf_counter_ns()
+            execute_func = getattr(current_module, f'{tool}_execute')
+            if data.batch:
+                execute_func(arguments.input, output_path)
+            else:
+                for input_file in input_files:
+                    execute_func(input_file, output_file_path(input_file, output_path) + '.dds')
+            batch_time = time.perf_counter_ns() - batch_start
+            csv_out.writerow([tool, batch_time])
 
 
 if __name__ == '__main__':
@@ -148,3 +213,11 @@ if __name__ == '__main__':
 
     if args.info:
         generate_info(args)
+
+    input_file_list = []
+    for file in os.listdir(args.input):
+        if file.endswith('.png'):
+            input_file_list.append(os.path.join(args.input, file))
+
+    if args.batch:
+        batch_encode(args, input_file_list)
