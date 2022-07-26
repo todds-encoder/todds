@@ -182,7 +182,11 @@ def texconv_execute(input_path, output_path):
     texconv_data = encoder_data[texconv_tool]
     arguments = [texconv_data.executable, ]
     arguments.extend(texconv_data.params)
-    arguments.append(input_path)
+    input_string = input_path
+    if os.path.isdir(input_path):
+        arguments.append('-r')
+        input_string = os.path.join(input_path, '*.png')
+    arguments.append(input_string)
     arguments.append('-o')
     arguments.append(output_path)
     return subprocess.Popen(arguments, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
