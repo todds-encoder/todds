@@ -241,10 +241,16 @@ def calculate_metric(png_input, png_file, metric):
     return output
 
 
+def calculate_flip(png_input, png_file):
+    arguments = [flip_executable, '-nexm', '-nerm', '-r', png_input, '-t', png_file]
+    lines = subprocess.check_output(arguments, stderr=subprocess.DEVNULL).decode('utf-8').split('\n')
+    _, mean = lines[4].rsplit(' ', 1)
+    return mean.strip()
+
+
 def calculate_metrics(arguments, input_files):
-    current_module = sys.modules[__name__]
     csv_out = csv.writer(sys.stdout)
-    csv_out.writerow(['File', 'Tool', 'FLIP', 'PSNR', 'RMSE', 'SSIM'])
+    csv_out.writerow(['File', 'Tool', 'FLIP (Mean)', 'PSNR', 'RMSE (%)', 'SSIM'])
     for tool, data in encoder_data.items():
         if getattr(arguments, tool):
             output_path = os.path.join(args.output, tool)
@@ -253,10 +259,11 @@ def calculate_metrics(arguments, input_files):
                 dds_file = output_base + '.dds'
                 png_file = output_base + '.png'
                 decode_png(dds_file, png_file)
+                flip_mean = calculate_flip(input_file, png_file)
                 psnr = calculate_metric(input_file, png_file, 'PSNR')
                 rmse = calculate_metric(input_file, png_file, 'RMSE')
                 ssim = calculate_metric(input_file, png_file, 'SSIM')
-                csv_out.writerow([input_file, tool, '?', psnr, rmse, ssim])
+                csv_out.writerow([input_file, tool, flip_mean, psnr, rmse, ssim])
 
 
 if __name__ == '__main__':
