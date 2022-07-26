@@ -65,6 +65,9 @@ paths_vector get_paths(const png2dds::args::data& arguments) {
 			const fs::path& current_input = itr->path();
 			if (is_valid_source(current_input, regex, scratch)) {
 				fs::path output_current = current_input.parent_path();
+				if (different_output) {
+					current_output = output / fs::relative(current_input.parent_path(), input);
+				}
 				const fs::path dds_path =
 					to_dds_path(current_input, different_output ? current_output : current_input.parent_path());
 				add_files(current_input, dds_path, paths, overwrite);
@@ -72,9 +75,6 @@ paths_vector get_paths(const png2dds::args::data& arguments) {
 					// Create the output folder if necessary.
 					fs::create_directories(current_output);
 				}
-			} else if (different_output && fs::is_directory(current_input)) {
-				// Update current_output to match the relative path of the current input.
-				current_output = output / fs::relative(current_input, input);
 			}
 			if (static_cast<unsigned int>(itr.depth()) >= depth) { itr.disable_recursion_pending(); }
 		}
