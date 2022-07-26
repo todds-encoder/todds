@@ -232,7 +232,7 @@ def decode_png(dds_file, png_file):
 
 
 def calculate_metric(png_input, png_file, metric):
-    arguments = [magick_executable, 'compare', '-metric', metric, png_input, png_file, 'null']
+    arguments = [magick_executable, 'compare', '-metric', metric, png_input, png_file, 'NULL:']
     output = subprocess.run(arguments, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE).stderr.decode(
         'utf-8')
     if metric == 'RMSE':
