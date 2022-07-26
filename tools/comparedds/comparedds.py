@@ -157,7 +157,7 @@ def bc7enc_execute(input_file, output_file):
     arguments.extend(bc7enc_data.params)
     arguments.append(input_file)
     arguments.append(output_file)
-    subprocess.run(arguments)
+    return subprocess.Popen(arguments, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def nvtt_execute(input_path, output_path):
@@ -166,7 +166,7 @@ def nvtt_execute(input_path, output_path):
     arguments.extend(nvtt_data.params)
     arguments.append(input_path)
     arguments.append(output_path)
-    subprocess.run(arguments, stdout=subprocess.DEVNULL)
+    return subprocess.Popen(arguments, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def png2dds_execute(input_path, output_path):
@@ -175,7 +175,7 @@ def png2dds_execute(input_path, output_path):
     arguments.extend(png2dds_data.params)
     arguments.append(input_path)
     arguments.append(output_path)
-    subprocess.run(arguments, stdout=subprocess.DEVNULL)
+    return subprocess.Popen(arguments, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def texconv_execute(input_path, output_path):
@@ -185,7 +185,7 @@ def texconv_execute(input_path, output_path):
     arguments.append(input_path)
     arguments.append('-o')
     arguments.append(output_path)
-    subprocess.run(arguments, stdout=subprocess.DEVNULL)
+    return subprocess.Popen(arguments, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def batch_encode(arguments, input_files):
@@ -198,13 +198,16 @@ def batch_encode(arguments, input_files):
             output_path = os.path.join(args.output, tool)
             pathlib.Path(output_path).mkdir(parents=True, exist_ok=True)
 
-            batch_start = time.perf_counter_ns()
             execute_func = getattr(current_module, f'{tool}_execute')
+            batch_start = time.perf_counter_ns()
             if data.batch:
-                execute_func(arguments.input, output_path)
+                execute_func(arguments.input, output_path).wait()
             else:
-                for input_file in input_files:
-                    execute_func(input_file, output_file_path(input_file, output_path) + '.dds')
+                processes = [execute_func(input_file, output_file_path(input_file, output_path) + '.dds') for input_file
+                             in input_files]
+                for process in processes:
+                    process.wait()
+
             batch_time = time.perf_counter_ns() - batch_start
             csv_out.writerow([tool, batch_time])
 
@@ -220,9 +223,9 @@ def files_encode(arguments, input_files):
 
             execute_func = getattr(current_module, f'{tool}_execute')
             for input_file in input_files:
-                execute_start = time.perf_counter_ns()
                 output_file = output_file_path(input_file, output_path) + '.dds'
-                execute_func(input_file, output_file if data.filepath else output_path)
+                execute_start = time.perf_counter_ns()
+                execute_func(input_file, output_file if data.filepath else output_path).wait()
                 execute_time = time.perf_counter_ns() - execute_start
                 csv_out.writerow([input_file, tool, execute_time, os.path.getsize(output_file)])
 
