@@ -290,7 +290,7 @@ if __name__ == '__main__':
 
     input_file_list = []
     for file in os.listdir(args.input):
-        if file.endswith('.png'):
+        if file.lower().endswith('.png'):
             input_file_list.append(os.path.join(args.input, file))
 
     if args.batch:
