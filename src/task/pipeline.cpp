@@ -91,7 +91,7 @@ public:
 
 	dds_image operator()(const pixel_block_image& pixel_image) const {
 		return pixel_image.file_index() != error_file_index ? png2dds::dds::bc7_encode(_params, pixel_image) :
-																													dds_image{pixel_image};
+																													dds_image{pixel_image, dds_image::block_size::block_16};
 	}
 
 private:
@@ -107,7 +107,7 @@ public:
 		if (dds_img.file_index() == error_file_index) { return; }
 		boost::nowide::ofstream ofs{_paths[dds_img.file_index()].second, std::ios::out | std::ios::binary};
 		ofs << "DDS ";
-		const std::size_t block_size_bytes = dds_img.blocks().size() * sizeof(dds_image::block_type);
+		const std::size_t block_size_bytes = dds_img.blocks().size() * sizeof(std::uint64_t);
 		const auto header = dds_img.header();
 		ofs.write(header.data(), header.size());
 		ofs.write(reinterpret_cast<const char*>(dds_img.blocks().data()), static_cast<std::ptrdiff_t>(block_size_bytes));

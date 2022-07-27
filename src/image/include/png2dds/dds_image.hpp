@@ -14,13 +14,22 @@
 
 namespace png2dds {
 
+/** Image in which each pixel is a block of one or more uint64_t. */
 class dds_image final {
 public:
-	using block_type = std::array<std::uint64_t, 2U>;
-	using buffer_type = png2dds::vector<block_type>;
+	/** Supported block sizes for dds_images. */
+	enum class block_size : std::size_t {
+		/** BC7 image. */
+		block_16 = 2UL,
+	};
+
+	/** Underlying buffer which stores the blocks. */
+	using buffer_type = png2dds::vector<std::uint64_t>;
+
+	/** DDS header for this image. */
 	using header_type = std::array<char, 144U>;
 
-	explicit dds_image(const pixel_block_image& image);
+	explicit dds_image(const pixel_block_image& image, block_size block_t);
 	dds_image(const dds_image&) = delete;
 	dds_image(dds_image&&) = default;
 	dds_image& operator=(const dds_image&) = delete;
@@ -31,11 +40,12 @@ public:
 	[[nodiscard]] const header_type& header() const noexcept;
 	[[nodiscard]] std::size_t width() const noexcept;
 	[[nodiscard]] std::size_t height() const noexcept;
-	[[nodiscard]] block_type::value_type* block(std::size_t block_x, std::size_t block_y) noexcept;
+	[[nodiscard]] std::uint64_t* block(std::size_t block_x, std::size_t block_y) noexcept;
 	[[nodiscard]] const buffer_type& blocks() const noexcept;
 	[[nodiscard]] std::size_t file_index() const noexcept;
 
 private:
+	std::size_t _block_offset;
 	std::size_t _width;
 	std::size_t _height;
 	buffer_type _blocks;

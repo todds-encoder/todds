@@ -43,11 +43,12 @@ png2dds::dds_image::header_type get_header(std::size_t width, std::size_t height
 
 namespace png2dds {
 
-dds_image::dds_image(const pixel_block_image& image)
-	: _width{image.width()}
+dds_image::dds_image(const pixel_block_image& image, block_size block_t)
+	: _block_offset{static_cast<std::size_t>(block_t)}
+	, _width{image.width()}
 	, _height{image.height()}
-	, _blocks(_width * _height)
-	, _header{get_header(image.image_width(), image.image_height(), _blocks.size() * sizeof(dds_image::block_type))}
+	, _blocks(_width * _height * _block_offset)
+	, _header{get_header(image.image_width(), image.image_height(), _blocks.size() * sizeof(std::uint64_t))}
 	, _file_index{image.file_index()} {}
 
 const dds_image::header_type& dds_image::header() const noexcept { return _header; }
@@ -56,8 +57,8 @@ std::size_t dds_image::width() const noexcept { return _width; }
 
 std::size_t dds_image::height() const noexcept { return _height; }
 
-dds_image::block_type::value_type* dds_image::block(std::size_t block_x, std::size_t block_y) noexcept {
-	return _blocks[block_x + block_y * _width].data();
+std::uint64_t* dds_image::block(std::size_t block_x, std::size_t block_y) noexcept {
+	return &_blocks[(block_x + block_y * _width) * _block_offset];
 }
 
 const dds_image::buffer_type& dds_image::blocks() const noexcept { return _blocks; }

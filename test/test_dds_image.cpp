@@ -28,6 +28,5 @@ TEST_CASE("png2dds::dds_image type assumptions", "[dds_image]") {
 	static_assert(sizeof(DDSURFACEDESC2) + sizeof(DDS_HEADER_DXT10) == sizeof(dds_image::header_type));
 
 	// Blocks must meet these constraints.
-	static_assert(std::is_same_v<dds_image::block_type::value_type, std::uint64_t>);
-	static_assert(sizeof(png2dds::dds_image::block_type) == 16U);
+	static_assert(std::is_same_v<dds_image::buffer_type ::value_type, std::uint64_t>);
 }

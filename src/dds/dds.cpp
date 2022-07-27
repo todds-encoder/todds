@@ -38,7 +38,7 @@ ispc::bc7e_compress_block_params bc7_encode_params(unsigned int level) noexcept 
 }
 
 dds_image bc7_encode(const ispc::bc7e_compress_block_params& params, const pixel_block_image& image) {
-	dds_image dds_img(image);
+	dds_image dds_img(image, dds_image::block_size::block_16);
 
 	using blocked_range = oneapi::tbb::blocked_range<size_t>;
 	oneapi::tbb::parallel_for(
