@@ -23,6 +23,7 @@ if (PNG2DDS_CPP_CLANG_ALL_WARNINGS AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		-Weverything                          # Enable every Clang warning except for the following exceptions.
 		-Wno-c++98-compat                     # This project is not compatible with C++98.
 		-Wno-c++98-compat-pedantic            # This project is not compatible with C++98.
+		-Wno-c++20-compat                     # This project is compatible with C++20 only.
 		-Wno-padded                           # Allow the compiler to add any padding it needs.
 		)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
