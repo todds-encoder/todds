@@ -10,6 +10,8 @@ project(png2dds
 	HOMEPAGE_URL "https://gitlab.com/joseasoler/png2dds"
 	)
 
+option(PNG2DDS_UNIT_TESTS "Build png2dds unit tests" OFF)
+
 # Set the C++ standard used by this project.
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -38,4 +40,6 @@ include(cmake/clang_tidy.cmake)
 include(cmake/warnings.cmake)
 
 add_subdirectory(src)
-add_subdirectory(test)
+if (PNG2DDS_UNIT_TESTS)
+	add_subdirectory(test)
+endif ()

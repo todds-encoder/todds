@@ -14,6 +14,11 @@ Support for BC1 encoding is planned for the future.
 
 Compiling png2dds requires a recent C++ compiler version, the [Intel® Implicit SPMD Program Compiler](https://github.com/ispc/ispc) and [CMake](https://cmake.org/).
 
+### CMake options
+```
+PNG2DDS_UNIT_TESTS -> Build png2dds unit tests. Off by default.
+```
+
 ### Dependencies
 
 To compile png2dds, the following dependencies must be available as development libraries.
@@ -21,6 +26,7 @@ To compile png2dds, the following dependencies must be available as development 
 * [Boost.Filesystem](https://www.boost.org/doc/libs/master/libs/filesystem/doc/index.htm)
 * [Boost.NoWide](https://www.boost.org/doc/libs/master/libs/nowide/doc/html/index.html)
 * [Boost.String](https://www.boost.org/doc/libs/1_79_0/doc/html/string_algo.html)
+* [Catch2](https://github.com/catchorg/Catch2): Only required if PNG2DDS_UNIT_TESTS is on
 * [Hyperscan](https://www.hyperscan.io)
 * [fmt](https://fmt.dev/latest/index.html)
 * [oneTBB](https://github.com/oneapi-src/oneTBB)
