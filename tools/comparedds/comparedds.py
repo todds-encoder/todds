@@ -36,7 +36,7 @@ magick_executable = 'magick'
 EncoderData = collections.namedtuple('EncoderData', 'executable batch filepath params')
 encoder_data = {
     bc7enc_tool: EncoderData('bc7enc', False, True, ('-q', '-g', '-u6')),
-    nvtt_tool: EncoderData('nvbatchcompress', True, True, ('-highest', '-bc7', '-silent')),
+    nvtt_tool: EncoderData('nvbatchcompress', True, True, ('-fast', '-bc7', '-silent')),
     png2dds_tool: EncoderData('png2dds', True, False, ('-o',)),
     texconv_tool: EncoderData('texconv', True, False, ('-y', '-f', 'BC7_UNORM', '-bc', 'x')),
 }
