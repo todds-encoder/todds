@@ -131,7 +131,7 @@ def generate_info(arguments):
     except FileNotFoundError:
         pass
 
-    csv_out = csv.writer(sys.stdout)
+    csv_out = csv.writer(sys.stdout, lineterminator='\n')
     csv_out.writerow(['Component', 'Version'])
     csv_out.writerow(['cpu', cpu_name])
     csv_out.writerow(['gpu', gpu_name])
@@ -194,7 +194,7 @@ def texconv_execute(input_path, output_path):
 
 def batch_encode(arguments, input_files):
     current_module = sys.modules[__name__]
-    csv_out = csv.writer(sys.stdout)
+    csv_out = csv.writer(sys.stdout, lineterminator='\n')
     csv_out.writerow(['Batch conversion', 'Time (ns)'])
 
     for tool, data in encoder_data.items():
@@ -218,7 +218,7 @@ def batch_encode(arguments, input_files):
 
 def files_encode(arguments, input_files):
     current_module = sys.modules[__name__]
-    csv_out = csv.writer(sys.stdout)
+    csv_out = csv.writer(sys.stdout, lineterminator='\n')
     csv_out.writerow(['File', 'Tool', 'Time (ns)', 'Size (Bytes)'])
     for tool, data in encoder_data.items():
         if getattr(arguments, tool):
@@ -256,7 +256,7 @@ def calculate_flip(png_input, png_file):
 
 
 def calculate_metrics(arguments, input_files):
-    csv_out = csv.writer(sys.stdout)
+    csv_out = csv.writer(sys.stdout, lineterminator='\n')
     csv_out.writerow(['File', 'Tool', 'FLIP (Mean)', 'PSNR', 'RMSE (%)', 'SSIM'])
     for tool, data in encoder_data.items():
         if getattr(arguments, tool):
