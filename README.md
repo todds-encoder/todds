@@ -4,6 +4,14 @@
 
 A CPU-based DDS encoder optimized for fast batch conversions with high encoding quality.
 
+### Performance
+
+png2dds is really fast when encoding multiple input files at once, without compromising on encoding quality. It also provides great performance when processing single files, but it may fall behind other implementations in some cases.
+
+When using high-end CPU processors or encoding large amounts of relatively small files, png2dds can compete against or even beat GPU encoding implementations.
+
+You can find detailed reports and benchmark results here: https://gitlab.com/joseasoler/png2dds/-/wikis/Performance
+
 ### Supported encoding formats
 
 BC7 support is implemented using the [bc7e.ispc](https://github.com/richgel999/bc7enc_rdo) library. As seen in the [Texture Compression in 2020](https://aras-p.info/blog/2020/12/08/Texture-Compression-in-2020/) blog post, this library provides great encoding quality and performance.
