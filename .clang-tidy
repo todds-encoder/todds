@@ -3,6 +3,7 @@
 #
 # altera-*: Disable FPGA checks.
 # bugprone-easily-swappable-parameters: Allow adjacent parameters of the same type.
+# clang-diagnostic-c++20-compat: png2dds only supports c++20
 # clang-diagnostic-unknown-warning-option: Triggered by GCC-only warnings.
 # clang-diagnostic-unused-command-line-argument: Ignore unused command line arguments.
 # cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers: Required for test cases.
@@ -25,6 +26,7 @@
 
 Checks: '*,
 -altera-*,
+-clang-diagnostic-c++20-compat,
 -bugprone-easily-swappable-parameters,
 -clang-diagnostic-unknown-warning-option,
 -clang-diagnostic-unused-command-line-argument,
