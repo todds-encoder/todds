@@ -16,6 +16,8 @@ Compiling png2dds requires a recent C++ compiler version, the [Intel® Implicit 
 
 ### CMake options
 ```
+PNG2DDS_CLANG_TIDY -> Analyze the project with clang-tidy. Off by default.
+PNG2DDS_CPP_WARNINGS_AS_ERRORS -> Treat warnings as errors. On by default
 PNG2DDS_UNIT_TESTS -> Build png2dds unit tests. Off by default.
 ```
 
@@ -40,6 +42,8 @@ The following third party library dependencies are contained as source code in t
 ## Contributing
 
 png2dds encourages community involvement and contributions. Check the [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) files for details. You can check all contributors in the [contributors list](https://gitlab.com/joseasoler/png2dds/-/graphs/main).
+
+You should enable the PNG2DDS_CLANG_TIDY option to ensure that your contribution will pass static analysis.
 
 ## License
 
