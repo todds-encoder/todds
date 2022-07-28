@@ -216,6 +216,7 @@ otbb::filter<pixel_block_image, dds_image> encoding_filter(png2dds::format::type
 	switch (format_type) {
 	case png2dds::format::type::bc1:
 		return otbb::make_filter<pixel_block_image, dds_image>(otbb::filter_mode::parallel, encode_bc1_image{level});
+	default:
 	case png2dds::format::type::bc7:
 		return otbb::make_filter<pixel_block_image, dds_image>(otbb::filter_mode::parallel, encode_bc7_image{level});
 	case png2dds::format::type::bc1_alpha_bc7:
