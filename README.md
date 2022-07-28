@@ -14,9 +14,11 @@ You can find detailed reports and benchmark results here: https://gitlab.com/jos
 
 ### Supported encoding formats
 
-BC7 support is implemented using the [bc7e.ispc](https://github.com/richgel999/bc7enc_rdo) library. As seen in the [Texture Compression in 2020](https://aras-p.info/blog/2020/12/08/Texture-Compression-in-2020/) blog post, this library provides great encoding quality and performance.
+BC7 support is implemented using the [bc7e.ispc](https://github.com/richgel999/bc7enc_rdo) library. BC1 support has been implemented with the [rgbcx](https://github.com/richgel999/bc7enc_rdo) library.
 
-Support for BC1 encoding is planned for the future.
+As seen in the [Texture Compression in 2020](https://aras-p.info/blog/2020/12/08/Texture-Compression-in-2020/) blog post, these libraries provide great encoding quality and performance.
+
+png2dds also supports a mixed mode called BC1_ALPHA_BC7. When this mode is enabled, PNG files with alpha values will be converted to BC7 while files without alpha will be converted to BC1.
 
 ## Building
 
