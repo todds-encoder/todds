@@ -15,7 +15,8 @@ pixel_block_image::pixel_block_image(const image& png)
 	, _buffer(png.padded_width() * png.padded_height())
 	, _image_width{png.width()}
 	, _image_height{png.height()}
-	, _file_index{png.file_index()} {
+	, _file_index{png.file_index()}
+	, _encode_as_alpha{png.encode_as_alpha()} {
 	assert(png.padded_width() % block_side == 0);
 	assert(png.padded_height() % block_side == 0);
 	assert(png.buffer().size() == _buffer.size() * image::bytes_per_pixel);
@@ -47,6 +48,8 @@ std::size_t pixel_block_image::image_width() const noexcept { return _image_widt
 std::size_t pixel_block_image::image_height() const noexcept { return _image_height; }
 
 std::size_t pixel_block_image::file_index() const noexcept { return _file_index; }
+
+bool pixel_block_image::encode_as_alpha() const noexcept { return _encode_as_alpha; }
 
 pixel_block_image::block pixel_block_image::get_block(std::size_t block_x, std::size_t block_y) const noexcept {
 	auto index =

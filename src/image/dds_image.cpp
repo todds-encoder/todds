@@ -6,15 +6,17 @@
 
 #include <dds_defs.h>
 
+#include <cassert>
 #include <limits>
 
 namespace {
 
 constexpr std::size_t format_block_size(png2dds::format::type format_type) {
-	std::size_t block_size{};
+	std::size_t block_size{1UL};
 	switch (format_type) {
 	case png2dds::format::type::bc1: block_size = 1UL; break;
 	case png2dds::format::type::bc7: block_size = 2UL; break;
+	case png2dds::format::type::bc1_alpha_bc7: assert(false); break;
 	}
 	return block_size;
 }
@@ -24,6 +26,7 @@ constexpr std::uint32_t format_fourcc(png2dds::format::type format_type) {
 	switch (format_type) {
 	case png2dds::format::type::bc1: fourcc = PIXEL_FMT_FOURCC('D', 'X', 'T', '1'); break;
 	case png2dds::format::type::bc7: fourcc = PIXEL_FMT_FOURCC('D', 'X', '1', '0'); break;
+	case png2dds::format::type::bc1_alpha_bc7: assert(false); break;
 	}
 	return fourcc;
 }
@@ -67,15 +70,17 @@ dds_image::dds_image()
 	, _height{0UL}
 	, _blocks{}
 	, _header{}
-	, _file_index{std::numeric_limits<std::size_t>::max()} {}
+	, _file_index{std::numeric_limits<std::size_t>::max()}
+	, _format{} {}
 
 dds_image::dds_image(const pixel_block_image& image, format::type format_type)
-	: _block_offset{static_cast<std::size_t>(format_block_size(format_type))}
+	: _block_offset{format_block_size(format_type)}
 	, _width{image.width()}
 	, _height{image.height()}
 	, _blocks(_width * _height * _block_offset)
 	, _header{get_header(format_type, image.image_width(), image.image_height(), _blocks.size() * sizeof(std::uint64_t))}
-	, _file_index{image.file_index()} {}
+	, _file_index{image.file_index()}
+	, _format{format_type} {}
 
 const dds_image::header_type& dds_image::header() const noexcept { return _header; }
 
@@ -89,6 +94,8 @@ std::uint64_t* dds_image::block(std::size_t block_x, std::size_t block_y) noexce
 
 const dds_image::buffer_type& dds_image::blocks() const noexcept { return _blocks; }
 
-[[nodiscard]] std::size_t dds_image::file_index() const noexcept { return _file_index; }
+std::size_t dds_image::file_index() const noexcept { return _file_index; }
+
+format::type dds_image::format() const noexcept { return _format; }
 
 } // namespace png2dds

@@ -129,6 +129,9 @@ std::string get_help(std::size_t max_threads) {
 	print_optional_argument(ostream, format_arg);
 	print_format_information(ostream, png2dds::format::type::bc1);
 	print_format_information(ostream, png2dds::format::type::bc7);
+	std::fill_n(std::ostream_iterator<char>(ostream), argument_name_total_space() + 6UL, ' ');
+	ostream << fmt::format("{:s}: Files with alpha are encoded as BC7. Others are encoded as BC1.\n",
+		png2dds::format::name(png2dds::format::type::bc1_alpha_bc7));
 
 	print_optional_argument(ostream, level_arg);
 	const std::string threads_help = fmt::format(threads_arg.help, max_threads);
@@ -150,6 +153,8 @@ void format_from_str(std::string_view argument, png2dds::args::data& parsed_argu
 		parsed_arguments.format = png2dds::format::type::bc1;
 	} else if (argument_upper == png2dds::format::name(png2dds::format::type::bc7)) {
 		parsed_arguments.format = png2dds::format::type::bc7;
+	} else if (argument_upper == png2dds::format::name(png2dds::format::type::bc1_alpha_bc7)) {
+		parsed_arguments.format = png2dds::format::type::bc1_alpha_bc7;
 	} else {
 		parsed_arguments.error = true;
 		parsed_arguments.text = fmt::format("Unsupported format: {:s}", argument);

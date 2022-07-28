@@ -14,6 +14,7 @@
 # cppcoreguidelines-pro-type-union-access: Some third party libraries feature unions.
 # cppcoreguidelines-pro-type-reinterpret-cast: Writing objects to ofstream requires a reinterpret_cast.
 # fuchsia-default-arguments-calls: Allow calling functions with default arguments.
+# fuchsia-default-arguments-declarations: Allow declaring functions with default arguments.
 # fuchsia-overloaded-operator: Allow overloading operators.
 # fuchsia-statically-constructed-objects, cert-err58-cpp: Allow statically constructed objects, sparingly.
 # google-runtime-int: Types requested by third party APIs cannot be changed.
@@ -38,6 +39,7 @@ Checks: '*,
 -cppcoreguidelines-pro-type-union-access,
 -cppcoreguidelines-pro-type-reinterpret-cast,
 -fuchsia-default-arguments-calls,
+-fuchsia-default-arguments-declarations,
 -fuchsia-overloaded-operator,
 -fuchsia-statically-constructed-objects,-cert-err58-cpp,
 -google-runtime-int,

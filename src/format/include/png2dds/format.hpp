@@ -10,13 +10,14 @@
 
 namespace png2dds::format {
 
-enum class type : std::uint8_t { bc1, bc7 };
+enum class type : std::uint8_t { bc1, bc7, bc1_alpha_bc7 };
 
 [[nodiscard]] constexpr std::string_view name(type fmt) noexcept {
 	std::string_view name_str{};
 	switch (fmt) {
 	case type::bc1: name_str = "BC1"; break;
 	case type::bc7: name_str = "BC7"; break;
+	case type::bc1_alpha_bc7: name_str = "BC1_ALPHA_BC7"; break;
 	}
 	return name_str;
 }
@@ -25,6 +26,7 @@ enum class type : std::uint8_t { bc1, bc7 };
 	unsigned int maximum{};
 	switch (fmt) {
 	case type::bc1: maximum = 18U; break;
+	case type::bc1_alpha_bc7:
 	case type::bc7: maximum = 6U; break;
 	}
 	return maximum;

@@ -39,6 +39,7 @@ public:
 	[[nodiscard]] std::uint64_t* block(std::size_t block_x, std::size_t block_y) noexcept;
 	[[nodiscard]] const buffer_type& blocks() const noexcept;
 	[[nodiscard]] std::size_t file_index() const noexcept;
+	[[nodiscard]] format::type format() const noexcept;
 
 private:
 	std::size_t _block_offset;
@@ -47,6 +48,7 @@ private:
 	buffer_type _blocks;
 	header_type _header;
 	std::size_t _file_index;
+	format::type _format;
 };
 
 } // namespace png2dds

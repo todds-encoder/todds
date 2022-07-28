@@ -21,7 +21,8 @@ image::image(std::size_t index, std::size_t width, std::size_t height)
 	, _buffer(_padded_width * _padded_height * bytes_per_pixel)
 	, _width{width}
 	, _height{height}
-	, _file_index{index} {}
+	, _file_index{index}
+	, _encode_as_alpha{false} {}
 
 std::size_t image::width() const noexcept { return _width; }
 
@@ -30,6 +31,10 @@ std::size_t image::height() const noexcept { return _height; }
 std::size_t image::padded_width() const noexcept { return _padded_width; }
 
 std::size_t image::padded_height() const noexcept { return _padded_height; }
+
+bool image::encode_as_alpha() const noexcept { return _encode_as_alpha; }
+
+void image::set_encode_as_alpha() noexcept { _encode_as_alpha = true; }
 
 std::size_t image::file_index() const noexcept { return _file_index; }
 
