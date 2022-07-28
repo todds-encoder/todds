@@ -41,10 +41,10 @@ dds_image bc1_encode(unsigned int level, const pixel_block_image& image) {
 
 void initialize_bc7_encoding() { ispc::bc7e_compress_block_init(); }
 
-ispc::bc7e_compress_block_params bc7_encode_params(unsigned int level) noexcept {
+bc7_params bc7_encode_params(unsigned int level) noexcept {
 	// Perceptual is currently not supported.
 	constexpr bool perceptual = false;
-	ispc::bc7e_compress_block_params params{};
+	bc7_params params{};
 	switch (level) {
 	case 0U: ispc::bc7e_compress_block_params_init_ultrafast(&params, perceptual); break;
 	case 1U: ispc::bc7e_compress_block_params_init_veryfast(&params, perceptual); break;

@@ -116,7 +116,7 @@ public:
 	}
 
 private:
-	ispc::bc7e_compress_block_params _params;
+	png2dds::dds::bc7_params _params;
 };
 
 class save_bc1_file final {

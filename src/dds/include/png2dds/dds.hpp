@@ -15,6 +15,8 @@
 
 namespace png2dds::dds {
 
+using bc7_params = ispc::bc7e_compress_block_params;
+
 /**
  * Initialize the BC1 DDS encoder.
  * This function is not thread safe and it should be called only once.
@@ -40,7 +42,7 @@ void initialize_bc7_encoding();
  * @param level Encoder quality level.
  * @return Parameters for the given quality level.
  */
-ispc::bc7e_compress_block_params bc7_encode_params(unsigned int level) noexcept;
+[[nodiscard]] bc7_params bc7_encode_params(unsigned int level) noexcept;
 
 /**
  * Encode an image to BC7.
