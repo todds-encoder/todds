@@ -101,6 +101,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 		/w14928      # Illegal copy-initialization; applied more than one user-defined conversion.
 		/analyze     # Code analysis.
 		/wd6239      # Triggered by code inside of fmt.
+		/wd6297      # Triggered by code inside of rgbcx.
 		)
 endif ()
 
