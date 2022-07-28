@@ -245,8 +245,8 @@ data get(const png2dds::vector<std::string_view>& arguments) {
 			parsed_arguments.level = format_max_level;
 		} else if (parsed_arguments.level > format_max_level) {
 			parsed_arguments.error = true;
-			parsed_arguments.text =
-				fmt::format("Argument error: Unsupported encode quality level {:d} .", parsed_arguments.level);
+			parsed_arguments.text = fmt::format("Argument error: Unsupported encode quality level {:d} for format {:s}.",
+				parsed_arguments.level, png2dds::format::name(parsed_arguments.format));
 		}
 	}
 
