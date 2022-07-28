@@ -31,19 +31,19 @@ TEST_CASE("png2dds::arguments input", "[arguments]") {
 	boost::filesystem::create_directories(input_path);
 
 	SECTION("Parse a UTF-8 path") {
-		auto arguments = get({binary, input_path.string()});
+		const auto arguments = get({binary, input_path.string()});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.input == input_path.string());
 	}
 
 	SECTION("Input is read properly after optional arguments.") {
-		auto arguments = get({binary, "--verbose", input_path.string()});
+		const auto arguments = get({binary, "--verbose", input_path.string()});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.input == input_path.string());
 	}
 
 	SECTION("Input is read properly after --.") {
-		auto arguments = get({binary, "--overwrite", "--", input_path.string()});
+		const auto arguments = get({binary, "--overwrite", "--", input_path.string()});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.input == input_path.string());
 	}
@@ -51,13 +51,13 @@ TEST_CASE("png2dds::arguments input", "[arguments]") {
 
 TEST_CASE("png2dds::arguments output", "[arguments]") {
 	SECTION("By default, output is not assigned") {
-		auto arguments = get({binary, "."});
+		const auto arguments = get({binary, "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(!arguments.output);
 	}
 
 	SECTION("Assigning output works as intended.") {
-		auto arguments = get({binary, ".", utf_characters});
+		const auto arguments = get({binary, ".", utf_characters});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.output);
 		REQUIRE(arguments.output->string() == utf_characters);
@@ -66,20 +66,20 @@ TEST_CASE("png2dds::arguments output", "[arguments]") {
 
 TEST_CASE("png2dds::arguments optional arguments", "[arguments]") {
 	SECTION("Invalid positional arguments are reported as errors") {
-		auto arguments = get({binary, "--invalid", "."});
+		const auto arguments = get({binary, "--invalid", "."});
 		REQUIRE(has_error(arguments));
-		auto shorter = get({binary, "-9", "."});
+		const auto shorter = get({binary, "-9", "."});
 		REQUIRE(has_error(shorter));
 	}
 
 	SECTION("Optional arguments after positional arguments are not parsed") {
-		auto arguments = get({binary, ".", "--overwrite"});
+		const auto arguments = get({binary, ".", "--overwrite"});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(!arguments.overwrite);
 	}
 
 	SECTION("Optional arguments after -- are ignored") {
-		auto arguments = get({binary, "--", ".", "--overwrite"});
+		const auto arguments = get({binary, "--", ".", "--overwrite"});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(!arguments.overwrite);
 	}
@@ -92,7 +92,7 @@ TEST_CASE("png2dds::arguments help", "[arguments]") {
 	}
 
 	SECTION("Show help when called with the help argument") {
-		auto arguments = get({binary, "--help"});
+		const auto arguments = get({binary, "--help"});
 		REQUIRE(has_help(arguments));
 		const auto shorter = get({binary, "-h"});
 		REQUIRE(has_help(arguments));
@@ -101,34 +101,34 @@ TEST_CASE("png2dds::arguments help", "[arguments]") {
 
 TEST_CASE("png2dds::arguments format", "[arguments]") {
 	SECTION("The default value of format is bc7.") {
-		auto arguments = get({binary, "."});
+		const auto arguments = get({binary, "."});
 		REQUIRE(arguments.format == png2dds::format::type::bc7);
 	}
 
 	SECTION("Parsing bc1.") {
-		auto arguments = get({binary, "--format", "bc1", "."});
+		const auto arguments = get({binary, "--format", "bc1", "."});
 		REQUIRE(arguments.format == png2dds::format::type::bc1);
 	}
 
 	SECTION("Parsing bc1 with alternate case.") {
-		auto arguments = get({binary, "-f", "Bc1", "."});
+		const auto arguments = get({binary, "-f", "Bc1", "."});
 		REQUIRE(arguments.format == png2dds::format::type::bc1);
 	}
 
 	SECTION("Parsing bc7.") {
-		auto arguments = get({binary, "-f", "bc7", "."});
+		const auto arguments = get({binary, "-f", "bc7", "."});
 		REQUIRE(arguments.format == png2dds::format::type::bc7);
 	}
 
 	SECTION("Parsing bc1 with alternate case.") {
-		auto arguments = get({binary, "--format", "bC7", "."});
+		const auto arguments = get({binary, "--format", "bC7", "."});
 		REQUIRE(arguments.format == png2dds::format::type::bc7);
 	}
 }
 
 TEST_CASE("png2dds::arguments level", "[arguments]") {
 	SECTION("The default value of level is 6.") {
-		auto arguments = get({binary, "."});
+		const auto arguments = get({binary, "."});
 		REQUIRE(arguments.level == png2dds::format::max_level(png2dds::format::type::bc7));
 	}
 
@@ -140,28 +140,28 @@ TEST_CASE("png2dds::arguments level", "[arguments]") {
 	}
 
 	SECTION("Level is not a number") {
-		auto arguments = get({binary, "--level", "not_a_number", "."});
+		const auto arguments = get({binary, "--level", "not_a_number", "."});
 		REQUIRE(has_error(arguments));
 	}
 
 	SECTION("Level is negative") {
-		auto arguments = get({binary, "--level", "-4", "."});
+		const auto arguments = get({binary, "--level", "-4", "."});
 		REQUIRE(has_error(arguments));
 	}
 
 	SECTION("Level is out of bounds") {
-		auto arguments = get({binary, "--level", "8", "."});
+		const auto arguments = get({binary, "--level", "8", "."});
 		REQUIRE(has_error(arguments));
 	}
 
 	SECTION("Level is too large to be parsed.") {
-		auto arguments = get({binary, "--level", "4444444444444444444444444444444444444444444444444444444444444", "."});
+		const auto arguments = get({binary, "--level", "4444444444444444444444444444444444444444444444444444444444444", "."});
 		REQUIRE(has_error(arguments));
 	}
 
 	SECTION("Valid level") {
 		constexpr unsigned int level = 5U;
-		auto arguments = get({binary, "--level", std::to_string(level), "."});
+		const auto arguments = get({binary, "--level", std::to_string(level), "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.level == level);
 		const auto shorter = get({binary, "-l", std::to_string(level), "."});
@@ -180,39 +180,39 @@ TEST_CASE("png2dds::arguments level", "[arguments]") {
 TEST_CASE("png2dds::arguments threads", "[arguments]") {
 	const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
 	SECTION("The default value of threads is determined by the oneTBB library.") {
-		auto arguments = get({binary, "."});
+		const auto arguments = get({binary, "."});
 		REQUIRE(arguments.threads == max_threads);
 	}
 
 	SECTION("Threads is not a number") {
-		auto arguments = get({binary, "--threads", "not_a_number", "."});
+		const auto arguments = get({binary, "--threads", "not_a_number", "."});
 		REQUIRE(has_error(arguments));
 	}
 
 	SECTION("Threads is negative") {
-		auto arguments = get({binary, "--threads", "-4", "."});
+		const auto arguments = get({binary, "--threads", "-4", "."});
 		REQUIRE(has_error(arguments));
 	}
 
 	SECTION("Threads is zero") {
-		auto arguments = get({binary, "--threads", "0", "."});
+		const auto arguments = get({binary, "--threads", "0", "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.threads == 1UL);
 	}
 
 	SECTION("Threads is larger than the maximum number of threads") {
-		auto arguments = get({binary, "--threads", std::to_string(max_threads + 1UL), "."});
+		const auto arguments = get({binary, "--threads", std::to_string(max_threads + 1UL), "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.threads == max_threads);
 	}
 
 	SECTION("Threads is too large to be parsed") {
-		auto arguments = get({binary, "--threads", "4444444444444444444444444444444444444444444444444444444444444", "."});
+		const auto arguments = get({binary, "--threads", "4444444444444444444444444444444444444444444444444444444444444", "."});
 		REQUIRE(has_error(arguments));
 	}
 
 	SECTION("Valid number of threads") {
-		auto arguments = get({binary, "--threads", std::to_string(max_threads - 1UL), "."});
+		const auto arguments = get({binary, "--threads", std::to_string(max_threads - 1UL), "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.threads == max_threads - 1UL);
 		const auto shorter = get({binary, "-th", std::to_string(max_threads - 1UL), "."});
@@ -223,34 +223,34 @@ TEST_CASE("png2dds::arguments threads", "[arguments]") {
 
 TEST_CASE("png2dds::arguments depth", "[arguments]") {
 	SECTION("The default value of threads is the maximum possible value") {
-		auto arguments = get({binary, "."});
+		const auto arguments = get({binary, "."});
 		REQUIRE(arguments.depth == std::numeric_limits<std::size_t>::max());
 	}
 
 	SECTION("Depth is not a number") {
-		auto arguments = get({binary, "--depth", "not_a_number", "."});
+		const auto arguments = get({binary, "--depth", "not_a_number", "."});
 		REQUIRE(has_error(arguments));
 	}
 
 	SECTION("Depth is negative") {
-		auto arguments = get({binary, "--depth", "-4", "."});
+		const auto arguments = get({binary, "--depth", "-4", "."});
 		REQUIRE(has_error(arguments));
 	}
 
 	SECTION("Depth is too large to be parsed.") {
-		auto arguments = get({binary, "--depth", "4444444444444444444444444444444444444444444444444444444444444", "."});
+		const auto arguments = get({binary, "--depth", "4444444444444444444444444444444444444444444444444444444444444", "."});
 		REQUIRE(has_error(arguments));
 	}
 
 	SECTION("A depth of zero implies the maximum possible value.") {
-		auto arguments = get({binary, "--depth", "0", "."});
+		const auto arguments = get({binary, "--depth", "0", "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.depth == std::numeric_limits<std::size_t>::max());
 	}
 
 	SECTION("Valid depth") {
 		constexpr unsigned int depth = 5U;
-		auto arguments = get({binary, "--depth", std::to_string(depth), "."});
+		const auto arguments = get({binary, "--depth", std::to_string(depth), "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.depth == depth);
 		const auto shorter = get({binary, "-d", std::to_string(depth), "."});
@@ -261,12 +261,12 @@ TEST_CASE("png2dds::arguments depth", "[arguments]") {
 
 TEST_CASE("png2dds::arguments overwrite", "[arguments]") {
 	SECTION("The default value of overwrite is false") {
-		auto arguments = get({binary, "."});
+		const auto arguments = get({binary, "."});
 		REQUIRE(!arguments.overwrite);
 	}
 
 	SECTION("Providing the overwrite parameter sets its value to true") {
-		auto arguments = get({binary, "--overwrite", "."});
+		const auto arguments = get({binary, "--overwrite", "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.overwrite);
 		const auto shorter = get({binary, "-o", "."});
@@ -277,12 +277,12 @@ TEST_CASE("png2dds::arguments overwrite", "[arguments]") {
 
 TEST_CASE("png2dds::arguments vflip", "[arguments]") {
 	SECTION("The default value of vflip is false") {
-		auto arguments = get({binary, "."});
+		const auto arguments = get({binary, "."});
 		REQUIRE(!arguments.vflip);
 	}
 
 	SECTION("Providing the vflip parameter sets its value to true") {
-		auto arguments = get({binary, "--vflip", "."});
+		const auto arguments = get({binary, "--vflip", "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.vflip);
 		const auto shorter = get({binary, "-vf", "."});
@@ -293,12 +293,12 @@ TEST_CASE("png2dds::arguments vflip", "[arguments]") {
 
 TEST_CASE("png2dds::arguments time", "[arguments]") {
 	SECTION("The default value of time is false") {
-		auto arguments = get({binary, "."});
+		const auto arguments = get({binary, "."});
 		REQUIRE(!arguments.time);
 	}
 
 	SECTION("Providing the time parameter sets its value to true") {
-		auto arguments = get({binary, "--time", "."});
+		const auto arguments = get({binary, "--time", "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.time);
 		const auto shorter = get({binary, "-t", "."});
@@ -309,12 +309,12 @@ TEST_CASE("png2dds::arguments time", "[arguments]") {
 
 TEST_CASE("png2dds::arguments verbose", "[arguments]") {
 	SECTION("The default value of verbose is false") {
-		auto arguments = get({binary, "."});
+		const auto arguments = get({binary, "."});
 		REQUIRE(!arguments.verbose);
 	}
 
 	SECTION("Providing the verbose parameter sets its value to true") {
-		auto arguments = get({binary, "--verbose", "."});
+		const auto arguments = get({binary, "--verbose", "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.verbose);
 		const auto shorter = get({binary, "-v", "."});
@@ -325,14 +325,14 @@ TEST_CASE("png2dds::arguments verbose", "[arguments]") {
 
 TEST_CASE("png2dds::arguments regex", "[arguments]") {
 	SECTION("By default regex is empty") {
-		auto arguments = get({binary, "."});
+		const auto arguments = get({binary, "."});
 		REQUIRE(arguments.regex.error().empty());
 		REQUIRE(arguments.regex.database() == nullptr);
 		REQUIRE(arguments.regex.allocate_scratch().get() == nullptr);
 	}
 
 	SECTION("Compilation errors are reported. The regex is empty") {
-		auto arguments = get({binary, "--regex", "(()", "."});
+		const auto arguments = get({binary, "--regex", "(()", "."});
 		REQUIRE(has_error(arguments));
 		REQUIRE(!arguments.regex.error().empty());
 		REQUIRE(arguments.regex.database() == nullptr);
@@ -340,7 +340,7 @@ TEST_CASE("png2dds::arguments regex", "[arguments]") {
 	}
 
 	SECTION("Compiled regular expression") {
-		auto arguments = get({binary, "--regex", utf_characters, "."});
+		const auto arguments = get({binary, "--regex", utf_characters, "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.regex.error().empty());
 		REQUIRE(arguments.regex.database() != nullptr);
