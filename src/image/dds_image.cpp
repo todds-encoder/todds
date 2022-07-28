@@ -6,9 +6,29 @@
 
 #include <dds_defs.h>
 
+#include <limits>
+
 namespace {
 
-// dwWidth, dwHeight and dwLinearSize must be filled in later by the caller.
+constexpr std::size_t format_block_size(png2dds::format::type format_type) {
+	std::size_t block_size{};
+	switch (format_type) {
+	case png2dds::format::type::bc1: block_size = 1UL; break;
+	case png2dds::format::type::bc7: block_size = 2UL; break;
+	}
+	return block_size;
+}
+
+constexpr std::uint32_t format_fourcc(png2dds::format::type format_type) {
+	std::uint32_t fourcc{};
+	switch (format_type) {
+	case png2dds::format::type::bc1: fourcc = PIXEL_FMT_FOURCC('D', 'X', 'T', '1'); break;
+	case png2dds::format::type::bc7: fourcc = PIXEL_FMT_FOURCC('D', 'X', '1', '0'); break;
+	}
+	return fourcc;
+}
+
+// dwWidth, dwHeight, dwLinearSize and ddpfPixelFormat.dwFourCC must be filled in later by the caller.
 constexpr DDSURFACEDESC2 get_surface_description() noexcept {
 	DDSURFACEDESC2 desc{};
 	desc.dwSize = sizeof(desc);
@@ -20,22 +40,20 @@ constexpr DDSURFACEDESC2 get_surface_description() noexcept {
 
 	desc.dwFlags |= DDSD_LINEARSIZE;
 	desc.ddpfPixelFormat.dwRGBBitCount = 0;
-	desc.ddpfPixelFormat.dwFourCC = PIXEL_FMT_FOURCC('D', 'X', '1', '0'); // NOLINT
 
 	return desc;
 }
 
-constexpr DDS_HEADER_DXT10 header_extension{DXGI_FORMAT_BC7_UNORM, D3D10_RESOURCE_DIMENSION_TEXTURE2D, 0U, 1U, 0U};
-
-png2dds::dds_image::header_type get_header(std::size_t width, std::size_t height, std::size_t block_size_bytes) {
+png2dds::dds_image::header_type get_header(
+	png2dds::format::type format_type, std::size_t width, std::size_t height, std::size_t block_size_bytes) {
 	png2dds::dds_image::header_type header;
 	// Construct the surface description object directly into the header array memory.
 	auto* desc = new (header.data()) DDSURFACEDESC2(get_surface_description());
 	desc->dwWidth = static_cast<std::uint32_t>(width);
 	desc->dwHeight = static_cast<std::uint32_t>(height);
 	desc->dwLinearSize = static_cast<std::uint32_t>(block_size_bytes);
-	// Construct the header extension object right after the previous object.
-	new (&header[sizeof(DDSURFACEDESC2)]) DDS_HEADER_DXT10(header_extension);
+	desc->ddpfPixelFormat.dwFourCC = format_fourcc(format_type);
+
 	return header;
 }
 
@@ -43,12 +61,20 @@ png2dds::dds_image::header_type get_header(std::size_t width, std::size_t height
 
 namespace png2dds {
 
-dds_image::dds_image(const pixel_block_image& image, block_size block_t)
-	: _block_offset{static_cast<std::size_t>(block_t)}
+dds_image::dds_image()
+	: _block_offset{1U}
+	, _width{0UL}
+	, _height{0UL}
+	, _blocks{}
+	, _header{}
+	, _file_index{std::numeric_limits<std::size_t>::max()} {}
+
+dds_image::dds_image(const pixel_block_image& image, format::type format_type)
+	: _block_offset{static_cast<std::size_t>(format_block_size(format_type))}
 	, _width{image.width()}
 	, _height{image.height()}
 	, _blocks(_width * _height * _block_offset)
-	, _header{get_header(image.image_width(), image.image_height(), _blocks.size() * sizeof(std::uint64_t))}
+	, _header{get_header(format_type, image.image_width(), image.image_height(), _blocks.size() * sizeof(std::uint64_t))}
 	, _file_index{image.file_index()} {}
 
 const dds_image::header_type& dds_image::header() const noexcept { return _header; }

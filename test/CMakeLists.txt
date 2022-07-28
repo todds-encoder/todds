@@ -8,6 +8,7 @@ add_executable(png2dds_test
 	test_main.cpp
 	test_arguments.cpp
 	test_dds_image.cpp
+	test_format.cpp
 	test_image.cpp
 	test_pixel_block_image.cpp
 	test_project.cpp
@@ -19,8 +20,10 @@ target_link_libraries(png2dds_test PRIVATE
 	Boost::nowide
 	Boost::filesystem
 	Catch2::Catch2
+	rgbcx
 	TBB::tbb
 	png2dds_arguments
+	png2dds_format
 	png2dds_image
 	png2dds_project
 	png2dds_util

@@ -18,11 +18,13 @@ target_compile_options(png2dds_task PRIVATE ${PNG2DDS_CPP_WARNING_FLAGS})
 target_link_libraries(png2dds_task
 	PUBLIC
 	png2dds_arguments
+	png2dds_format
 	PRIVATE
 	png2dds_dds
 	png2dds_png
 	png2dds_regex
 	png2dds_util
+	bc7enc_dds_defs
 	Boost::headers
 	Boost::filesystem
 	fmt::fmt

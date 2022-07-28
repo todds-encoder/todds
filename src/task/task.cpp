@@ -106,7 +106,7 @@ void run(const args::data& arguments) {
 	dds::initialize_bc7_encoding();
 
 	// Launch the parallel pipeline.
-	pipeline::encode_as_dds(num_tokens, arguments.level, arguments.vflip, arguments.verbose, paths);
+	pipeline::encode_as_dds(num_tokens, arguments, paths);
 }
 
 } // namespace png2dds

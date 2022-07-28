@@ -57,6 +57,8 @@ IncludeCategories:
     Priority: 20
   - Regex: '^<oneapi.*'
     Priority: 20
+  - Regex: '^<rgbcx.*'
+    Priority: 20
   - Regex: '^"spng.*'
     Priority: 20
   - Regex: '^<catch2.*'

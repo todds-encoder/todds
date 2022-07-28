@@ -4,6 +4,7 @@
  */
 
 #include "png2dds/arguments.hpp"
+#include "png2dds/format.hpp"
 #include "png2dds/project.hpp"
 
 #include <boost/filesystem/operations.hpp>
@@ -98,10 +99,44 @@ TEST_CASE("png2dds::arguments help", "[arguments]") {
 	}
 }
 
+TEST_CASE("png2dds::arguments format", "[arguments]") {
+	SECTION("The default value of format is bc7.") {
+		auto arguments = get({binary, "."});
+		REQUIRE(arguments.format == png2dds::format::type::bc7);
+	}
+
+	SECTION("Parsing bc1.") {
+		auto arguments = get({binary, "--format", "bc1", "."});
+		REQUIRE(arguments.format == png2dds::format::type::bc1);
+	}
+
+	SECTION("Parsing bc1 with alternate case.") {
+		auto arguments = get({binary, "-f", "Bc1", "."});
+		REQUIRE(arguments.format == png2dds::format::type::bc1);
+	}
+
+	SECTION("Parsing bc7.") {
+		auto arguments = get({binary, "-f", "bc7", "."});
+		REQUIRE(arguments.format == png2dds::format::type::bc7);
+	}
+
+	SECTION("Parsing bc1 with alternate case.") {
+		auto arguments = get({binary, "--format", "bC7", "."});
+		REQUIRE(arguments.format == png2dds::format::type::bc7);
+	}
+}
+
 TEST_CASE("png2dds::arguments level", "[arguments]") {
 	SECTION("The default value of level is 6.") {
 		auto arguments = get({binary, "."});
-		REQUIRE(arguments.level == 6U);
+		REQUIRE(arguments.level == png2dds::format::max_level(png2dds::format::type::bc7));
+	}
+
+	SECTION("The default value of level when the format is set depends on the format.") {
+		const auto arguments_bc1 = get({binary, "-f", png2dds::format::name(png2dds::format::type::bc1), "."});
+		REQUIRE(arguments_bc1.level == png2dds::format::max_level(png2dds::format::type::bc1));
+		const auto arguments_bc7 = get({binary, "-f", png2dds::format::name(png2dds::format::type::bc7), "."});
+		REQUIRE(arguments_bc7.level == png2dds::format::max_level(png2dds::format::type::bc7));
 	}
 
 	SECTION("Level is not a number") {
@@ -132,6 +167,13 @@ TEST_CASE("png2dds::arguments level", "[arguments]") {
 		const auto shorter = get({binary, "-l", std::to_string(level), "."});
 		REQUIRE(is_valid(shorter));
 		REQUIRE(shorter.level == level);
+	}
+
+	SECTION("Level is larger than the maximum") {
+		constexpr auto format_type = png2dds::format::type::bc1;
+		const auto arguments = get({binary, "-f", png2dds::format::name(format_type), "-l",
+			std::to_string(png2dds::format::max_level(format_type) + 1U), "."});
+		REQUIRE(has_error(arguments));
 	}
 }
 

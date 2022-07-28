@@ -6,6 +6,7 @@
 #ifndef PNG2DDS_DDS_IMAGE_HPP
 #define PNG2DDS_DDS_IMAGE_HPP
 
+#include "png2dds/format.hpp"
 #include "png2dds/memory.hpp"
 #include "png2dds/pixel_block_image.hpp"
 #include "png2dds/vector.hpp"
@@ -17,19 +18,14 @@ namespace png2dds {
 /** Image in which each pixel is a block of one or more uint64_t. */
 class dds_image final {
 public:
-	/** Supported block sizes for dds_images. */
-	enum class block_size : std::size_t {
-		/** BC7 image. */
-		block_16 = 2UL,
-	};
-
 	/** Underlying buffer which stores the blocks. */
 	using buffer_type = png2dds::vector<std::uint64_t>;
 
-	/** DDS header for this image. */
-	using header_type = std::array<char, 144U>;
+	/** DDS header for this image. Does not include header extensions, if any. */
+	using header_type = std::array<char, 124>;
 
-	explicit dds_image(const pixel_block_image& image, block_size block_t);
+	dds_image();
+	explicit dds_image(const pixel_block_image& image, format::type format_type);
 	dds_image(const dds_image&) = delete;
 	dds_image(dds_image&&) = default;
 	dds_image& operator=(const dds_image&) = delete;

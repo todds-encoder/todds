@@ -16,6 +16,20 @@
 namespace png2dds::dds {
 
 /**
+ * Initialize the BC1 DDS encoder.
+ * This function is not thread safe and it should be called only once.
+ */
+void initialize_bc1_encoding();
+
+/**
+ * Encode an image to BC1.
+ * @param level DDS encoding level.
+ * @param image Source block image.
+ * @return BC1 encoded image.
+ */
+[[nodiscard]] dds_image bc1_encode(unsigned int level, const pixel_block_image& image);
+
+/**
  * Initialize the BC7 DDS encoder.
  * This function is not thread safe and it should be called only once.
  */
@@ -28,6 +42,12 @@ void initialize_bc7_encoding();
  */
 ispc::bc7e_compress_block_params bc7_encode_params(unsigned int level) noexcept;
 
+/**
+ * Encode an image to BC7.
+ * @param params BC7 block encoding parameters.
+ * @param image Source block image.
+ * @return BC7 encoded image.
+ */
 [[nodiscard]] dds_image bc7_encode(const ispc::bc7e_compress_block_params& params, const pixel_block_image& image);
 
 } // namespace png2dds::dds

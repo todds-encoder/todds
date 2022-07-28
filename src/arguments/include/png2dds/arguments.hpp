@@ -6,6 +6,7 @@
 #ifndef PNG2DDS_ARGUMENTS_HPP
 #define PNG2DDS_ARGUMENTS_HPP
 
+#include "png2dds/format.hpp"
 #include "png2dds/regex.hpp"
 #include "png2dds/vector.hpp"
 
@@ -21,6 +22,7 @@ struct data {
 	std::string text;
 	boost::filesystem::path input;
 	std::optional<boost::filesystem::path> output;
+	png2dds::format::type format;
 	unsigned int level;
 	std::size_t threads;
 	std::size_t depth;

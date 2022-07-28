@@ -13,6 +13,7 @@
 
 #include <boost/nowide/fstream.hpp>
 #include <boost/nowide/iostream.hpp>
+#include <dds_defs.h>
 #include <fmt/format.h>
 #include <oneapi/tbb/concurrent_queue.h>
 #include <oneapi/tbb/parallel_pipeline.h>
@@ -31,6 +32,8 @@ using png2dds::pipeline::paths_vector;
 namespace {
 
 constexpr std::size_t error_file_index = std::numeric_limits<std::size_t>::max();
+
+constexpr DDS_HEADER_DXT10 header_extension{DXGI_FORMAT_BC7_UNORM, D3D10_RESOURCE_DIMENSION_TEXTURE2D, 0U, 1U, 0U};
 
 struct png_file {
 	png2dds::vector<std::uint8_t> buffer;
@@ -84,32 +87,72 @@ public:
 	pixel_block_image operator()(const image& image) const { return pixel_block_image{image}; }
 };
 
-class encode_dds_image final {
+class encode_bc1_image final {
 public:
-	explicit encode_dds_image(unsigned int level) noexcept
+	explicit encode_bc1_image(unsigned int level) noexcept
+		: _level{level} {}
+
+	dds_image operator()(const pixel_block_image& pixel_image) const {
+		if (pixel_image.file_index() != error_file_index) [[likely]] {
+			return png2dds::dds::bc1_encode(_level, pixel_image);
+		}
+		return dds_image{};
+	}
+
+private:
+	unsigned int _level;
+};
+
+class encode_bc7_image final {
+public:
+	explicit encode_bc7_image(unsigned int level) noexcept
 		: _params{png2dds::dds::bc7_encode_params(level)} {}
 
 	dds_image operator()(const pixel_block_image& pixel_image) const {
-		return pixel_image.file_index() != error_file_index ? png2dds::dds::bc7_encode(_params, pixel_image) :
-																													dds_image{pixel_image, dds_image::block_size::block_16};
+		if (pixel_image.file_index() != error_file_index) [[likely]] {
+			return png2dds::dds::bc7_encode(_params, pixel_image);
+		}
+		return dds_image{};
 	}
 
 private:
 	ispc::bc7e_compress_block_params _params;
 };
 
-class save_dds_file final {
+class save_bc1_file final {
 public:
-	explicit save_dds_file(const paths_vector& paths) noexcept
+	explicit save_bc1_file(const paths_vector& paths) noexcept
 		: _paths{paths} {}
 
 	void operator()(const dds_image& dds_img) const {
-		if (dds_img.file_index() == error_file_index) { return; }
+		if (dds_img.file_index() == error_file_index) [[unlikely]] { return; }
 		boost::nowide::ofstream ofs{_paths[dds_img.file_index()].second, std::ios::out | std::ios::binary};
 		ofs << "DDS ";
 		const std::size_t block_size_bytes = dds_img.blocks().size() * sizeof(std::uint64_t);
 		const auto header = dds_img.header();
 		ofs.write(header.data(), header.size());
+		ofs.write(reinterpret_cast<const char*>(dds_img.blocks().data()), static_cast<std::ptrdiff_t>(block_size_bytes));
+		ofs.close();
+	}
+
+private:
+	const paths_vector& _paths;
+};
+
+/** Takes into account BC7's header extension. */
+class save_bc7_file final {
+public:
+	explicit save_bc7_file(const paths_vector& paths) noexcept
+		: _paths{paths} {}
+
+	void operator()(const dds_image& dds_img) const {
+		if (dds_img.file_index() == error_file_index) [[unlikely]] { return; }
+		boost::nowide::ofstream ofs{_paths[dds_img.file_index()].second, std::ios::out | std::ios::binary};
+		ofs << "DDS ";
+		const std::size_t block_size_bytes = dds_img.blocks().size() * sizeof(std::uint64_t);
+		const auto header = dds_img.header();
+		ofs.write(header.data(), header.size());
+		ofs.write(reinterpret_cast<const char*>(&header_extension), sizeof(header_extension));
 		ofs.write(reinterpret_cast<const char*>(dds_img.blocks().data()), static_cast<std::ptrdiff_t>(block_size_bytes));
 		ofs.close();
 	}
@@ -149,25 +192,43 @@ void error_reporting(
 	boost::nowide::cout.flush();
 }
 
+otbb::filter<pixel_block_image, dds_image> encoding_filter(png2dds::format::type format_type, unsigned int level) {
+	switch (format_type) {
+	case png2dds::format::type::bc1:
+		return otbb::make_filter<pixel_block_image, dds_image>(otbb::filter_mode::parallel, encode_bc1_image{level});
+	case png2dds::format::type::bc7:
+		return otbb::make_filter<pixel_block_image, dds_image>(otbb::filter_mode::parallel, encode_bc7_image{level});
+	}
+}
+
+otbb::filter<dds_image, void> save_filter(png2dds::format::type format_type, const paths_vector& paths) {
+	switch (format_type) {
+	case png2dds::format::type::bc1:
+		return otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_bc1_file{paths});
+	case png2dds::format::type::bc7:
+		return otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_bc7_file{paths});
+	}
+}
+
 } // Anonymous namespace
 
 namespace png2dds::pipeline {
 
-void encode_as_dds(std::size_t tokens, unsigned int level, bool vflip, bool verbose, const paths_vector& paths) {
+void encode_as_dds(std::size_t tokens, const args::data& arguments, const paths_vector& paths) {
 	// Variables referenced by the filters.
 	std::atomic<std::size_t> counter;
 	otbb::concurrent_queue<std::string> error_log;
 
-	auto error_report =
-		verbose ? std::async(std::launch::async, error_reporting, std::ref(counter), paths.size(), std::ref(error_log)) :
-							std::future<void>{};
+	auto error_report = arguments.verbose ? std::async(std::launch::async, error_reporting, std::ref(counter),
+																						paths.size(), std::ref(error_log)) :
+																					std::future<void>{};
 
 	const otbb::filter<void, void> filters =
 		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_in_order, load_png_file(paths, counter)) &
-		otbb::make_filter<png_file, image>(otbb::filter_mode::parallel, decode_png_image(paths, vflip, error_log)) &
+		otbb::make_filter<png_file, image>(
+			otbb::filter_mode::parallel, decode_png_image(paths, arguments.vflip, error_log)) &
 		otbb::make_filter<image, pixel_block_image>(otbb::filter_mode::parallel, get_pixel_blocks{}) &
-		otbb::make_filter<pixel_block_image, dds_image>(otbb::filter_mode::parallel, encode_dds_image(level)) &
-		otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_dds_file(paths));
+		encoding_filter(arguments.format, arguments.level) & save_filter(arguments.format, paths);
 
 	otbb::parallel_pipeline(tokens, filters);
 

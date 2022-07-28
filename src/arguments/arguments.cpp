@@ -5,9 +5,11 @@
 
 #include "png2dds/arguments.hpp"
 
+#include "png2dds/format.hpp"
 #include "png2dds/project.hpp"
 #include "png2dds/vector.hpp"
 
+#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/nowide/args.hpp>
 #include <fmt/format.h>
 #include <oneapi/tbb/info.h>
@@ -35,9 +37,10 @@ constexpr bool matches(std::string_view argument, const optional_arg& optional_a
 	return argument == optional_arg.shorter || argument == optional_arg.name;
 }
 
-constexpr unsigned int max_level = 6U; // Maximum BC7 encoding quality level.
-constexpr auto level_arg =
-	optional_argument("--level", "Encoder quality level [0, 6]. Higher values provide better quality but take longer.");
+constexpr auto format_arg =
+	optional_argument("--format", "DDS encoding format. BC7 is used if this parameter is not used.");
+
+constexpr auto level_arg = optional_argument("--level", "Encoder quality level. Higher values take more time.");
 
 constexpr auto threads_arg =
 	optional_arg{"--threads", "-th", "Number of threads used by the parallel pipeline [1, {:d}]."};
@@ -74,17 +77,6 @@ consteval std::size_t get_max_argument_size() {
 
 	return iterator->size();
 }
-
-template<typename Type>
-void argument_from_str(
-	std::string_view argument_name, std::string_view argument, Type& value, png2dds::args::data& parsed_arguments) {
-	const auto [_, error] = std::from_chars(argument.data(), argument.data() + argument.size(), value);
-	if (error == std::errc::invalid_argument || error == std::errc::result_out_of_range) {
-		parsed_arguments.error = true;
-		parsed_arguments.text = fmt::format("Argument error: {:s} must be a positive number.", argument_name);
-	}
-}
-
 void print_argument_impl(
 	std::ostringstream& ostream, std::string_view arg_shorter, std::string_view arg_name, std::string_view arg_help) {
 	constexpr std::size_t argument_table_size = get_max_argument_size() + 2UL;
@@ -103,6 +95,13 @@ void print_optional_argument(std::ostringstream& ostream, const optional_arg& ar
 	print_argument_impl(ostream, argument.shorter, argument.name, argument.help);
 }
 
+void print_format_information(std::ostringstream& ostream, png2dds::format::type format_type) {
+	constexpr std::size_t argument_space = get_max_argument_size() + 4UL;
+	std::fill_n(std::ostream_iterator<char>(ostream), argument_space, ' ');
+	ostream << fmt::format("{:s}: Encoder quality level [0, {:d}]\n", png2dds::format::name(format_type),
+		png2dds::format::max_level(format_type));
+}
+
 std::string get_help(std::size_t max_threads) {
 	std::ostringstream ostream;
 	ostream << png2dds::project::name() << ' ' << png2dds::project::version() << "\n\n"
@@ -116,6 +115,10 @@ std::string get_help(std::size_t max_threads) {
 	print_positional_argument(ostream, output_name, output_help);
 
 	ostream << "\nOPTIONS:\n";
+	print_optional_argument(ostream, format_arg);
+	print_format_information(ostream, png2dds::format::type::bc1);
+	print_format_information(ostream, png2dds::format::type::bc7);
+
 	print_optional_argument(ostream, level_arg);
 	const std::string threads_help = fmt::format(threads_arg.help, max_threads);
 	print_argument_impl(ostream, threads_arg.shorter, threads_arg.name, threads_help);
@@ -128,6 +131,28 @@ std::string get_help(std::size_t max_threads) {
 	print_optional_argument(ostream, help_arg);
 
 	return std::move(ostream).str();
+}
+
+void format_from_str(std::string_view argument, png2dds::args::data& parsed_arguments) {
+	const std::string argument_upper = boost::to_upper_copy(std::string{argument});
+	if (argument_upper == png2dds::format::name(png2dds::format::type::bc1)) {
+		parsed_arguments.format = png2dds::format::type::bc1;
+	} else if (argument_upper == png2dds::format::name(png2dds::format::type::bc7)) {
+		parsed_arguments.format = png2dds::format::type::bc7;
+	} else {
+		parsed_arguments.error = true;
+		parsed_arguments.text = fmt::format("Unsupported format: {:s}", argument);
+	}
+}
+
+template<typename Type>
+void argument_from_str(
+	std::string_view argument_name, std::string_view argument, Type& value, png2dds::args::data& parsed_arguments) {
+	const auto [_, error] = std::from_chars(argument.data(), argument.data() + argument.size(), value);
+	if (error == std::errc::invalid_argument || error == std::errc::result_out_of_range) {
+		parsed_arguments.error = true;
+		parsed_arguments.text = fmt::format("Argument error: {:s} must be a positive number.", argument_name);
+	}
 }
 
 } // anonymous namespace
@@ -147,13 +172,15 @@ data get(int argc, char** argv) {
 
 data get(const png2dds::vector<std::string_view>& arguments) {
 	data parsed_arguments{};
-	// Set default values.
-	parsed_arguments.level = max_level;
+	// Set default values. The default value of level is set after parsing format.
+	parsed_arguments.format = format::type::bc7;
 	const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
 	parsed_arguments.threads = max_threads;
 	parsed_arguments.depth = max_depth;
 
 	std::size_t index = 1UL;
+
+	bool level_is_set = false;
 
 	// Parse all positional arguments.
 	while (!parsed_arguments.error && index < arguments.size()) {
@@ -172,14 +199,13 @@ data get(const png2dds::vector<std::string_view>& arguments) {
 		}
 
 		const std::string_view next_argument = (index < arguments.size() - 1UL) ? arguments[index + 1UL] : "";
-		if (matches(argument, level_arg)) {
+		if (matches(argument, format_arg)) {
+			++index;
+			format_from_str(next_argument, parsed_arguments);
+		} else if (matches(argument, level_arg)) {
+			level_is_set = true;
 			++index;
 			argument_from_str(level_arg.name, next_argument, parsed_arguments.level, parsed_arguments);
-			if (!parsed_arguments.error && parsed_arguments.level > max_level) {
-				parsed_arguments.error = true;
-				parsed_arguments.text =
-					fmt::format("Argument error: Unsupported encode quality level {:d}.", parsed_arguments.level);
-			}
 		} else if (matches(argument, threads_arg)) {
 			++index;
 			argument_from_str(threads_arg.name, next_argument, parsed_arguments.threads, parsed_arguments);
@@ -211,6 +237,17 @@ data get(const png2dds::vector<std::string_view>& arguments) {
 		}
 
 		++index;
+	}
+
+	if (!parsed_arguments.error) {
+		const auto format_max_level = max_level(parsed_arguments.format);
+		if (!level_is_set) {
+			parsed_arguments.level = format_max_level;
+		} else if (parsed_arguments.level > format_max_level) {
+			parsed_arguments.error = true;
+			parsed_arguments.text =
+				fmt::format("Argument error: Unsupported encode quality level {:d} .", parsed_arguments.level);
+		}
 	}
 
 	if (parsed_arguments.text.empty()) {

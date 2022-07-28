@@ -24,9 +24,8 @@ TEST_CASE("png2dds::dds_image type trait checks", "[dds_image]") {
 }
 
 TEST_CASE("png2dds::dds_image type assumptions", "[dds_image]") {
-	// The header must have exactly enough memory to store all data from these two types.
-	static_assert(sizeof(DDSURFACEDESC2) + sizeof(DDS_HEADER_DXT10) == sizeof(dds_image::header_type));
+	REQUIRE(sizeof(DDSURFACEDESC2) == sizeof(dds_image::header_type));
 
 	// Blocks must meet these constraints.
-	static_assert(std::is_same_v<dds_image::buffer_type ::value_type, std::uint64_t>);
+	STATIC_REQUIRE(std::is_same_v<dds_image::buffer_type ::value_type, std::uint64_t>);
 }
