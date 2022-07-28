@@ -68,22 +68,33 @@ constexpr std::string_view input_help =
 constexpr std::string_view output_name = "output";
 constexpr std::string_view output_help = "Create DDS files in this folder instead of next to their input PNG files.";
 
-consteval std::size_t get_max_argument_size() {
+consteval std::size_t argument_name_total_space() {
 	// Other implementations may not have constexpr support so std::vector is used explicitly.
-	const std::vector<std::string_view> arg_names{level_arg.name, threads_arg.name, depth_arg.name, overwrite_arg.name,
-		vflip_arg.name, time_arg.name, verbose_arg.name, regex_arg.name, help_arg.name, input_name, output_name};
-	auto iterator = std::max_element(arg_names.cbegin(), arg_names.cend(),
-		[](std::string_view lhs, std::string_view rhs) -> bool { return lhs.size() < rhs.size(); });
+	std::size_t max_space{};
+	max_space = std::max(max_space, format_arg.name.size() + format_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, level_arg.name.size() + level_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, threads_arg.name.size() + threads_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, threads_arg.name.size() + threads_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, depth_arg.name.size() + depth_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, overwrite_arg.name.size() + overwrite_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, vflip_arg.name.size() + vflip_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, time_arg.name.size() + time_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, verbose_arg.name.size() + verbose_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, regex_arg.name.size() + regex_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, help_arg.name.size() + help_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, input_name.size());
+	max_space = std::max(max_space, output_name.size());
 
-	return iterator->size();
+	return max_space + 2UL;
 }
 void print_argument_impl(
 	std::ostringstream& ostream, std::string_view arg_shorter, std::string_view arg_name, std::string_view arg_help) {
-	constexpr std::size_t argument_table_size = get_max_argument_size() + 2UL;
+	constexpr std::size_t argument_table_size = argument_name_total_space();
 	ostream << "  ";
 	if (!arg_shorter.empty()) { ostream << arg_shorter << ", "; }
 	ostream << arg_name;
-	std::fill_n(std::ostream_iterator<char>(ostream), argument_table_size - arg_name.size(), ' ');
+	const auto num_spaces = argument_table_size - arg_name.size() - (arg_shorter.empty() ? 0U : arg_shorter.size() + 2UL);
+	std::fill_n(std::ostream_iterator<char>(ostream), num_spaces, ' ');
 	ostream << arg_help << '\n';
 }
 
@@ -96,7 +107,7 @@ void print_optional_argument(std::ostringstream& ostream, const optional_arg& ar
 }
 
 void print_format_information(std::ostringstream& ostream, png2dds::format::type format_type) {
-	constexpr std::size_t argument_space = get_max_argument_size() + 4UL;
+	constexpr std::size_t argument_space = argument_name_total_space() + 6UL;
 	std::fill_n(std::ostream_iterator<char>(ostream), argument_space, ' ');
 	ostream << fmt::format("{:s}: Encoder quality level [0, {:d}]\n", png2dds::format::name(format_type),
 		png2dds::format::max_level(format_type));
