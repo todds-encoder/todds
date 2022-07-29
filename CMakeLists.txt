@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.22)
 project(png2dds
 	VERSION 0.1.0
 	DESCRIPTION "A DDS encoder optimized for fast batch conversions with high encoding quality"
-	HOMEPAGE_URL "https://gitlab.com/joseasoler/png2dds"
+	HOMEPAGE_URL "https://github.com/joseasoler/png2dds"
 	)
 
 option(PNG2DDS_UNIT_TESTS "Build png2dds unit tests" OFF)

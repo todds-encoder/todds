@@ -10,7 +10,7 @@ png2dds is really fast when encoding multiple input files at once, without compr
 
 When using high-end CPU processors or encoding large amounts of relatively small files, png2dds can compete against or even beat GPU encoding implementations.
 
-You can find detailed reports and benchmark results here: https://gitlab.com/joseasoler/png2dds/-/wikis/Performance
+You can find detailed reports and benchmark results here: https://github.com/joseasoler/png2dds/wiki/Performance
 
 ### Supported encoding formats
 
@@ -51,7 +51,7 @@ The following third party library dependencies are contained as source code in t
 
 ## Contributing
 
-png2dds encourages community involvement and contributions. Check the [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) files for details. You can check all contributors in the [contributors list](https://gitlab.com/joseasoler/png2dds/-/graphs/main).
+png2dds encourages community involvement and contributions. Check the [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) files for details. You can check all contributors in the [contributors list](https://github.com/joseasoler/png2dds/graphs/contributors).
 
 You should enable the PNG2DDS_CLANG_TIDY option to ensure that your contribution will pass static analysis.
 
