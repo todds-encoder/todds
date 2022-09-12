@@ -38,6 +38,7 @@ add_subdirectory(thirdparty)
 
 include(cmake/clang_tidy.cmake)
 include(cmake/warnings.cmake)
+include(cmake/sanitizer.cmake)
 
 add_subdirectory(src)
 if (PNG2DDS_UNIT_TESTS)
