@@ -222,6 +222,8 @@ otbb::filter<pixel_block_image, dds_image> encoding_filter(png2dds::format::type
 		return otbb::make_filter<pixel_block_image, dds_image>(
 			otbb::filter_mode::parallel, encode_bc1_alpha_bc7_image{level});
 	}
+	assert(false);
+	return {};
 }
 
 } // Anonymous namespace
