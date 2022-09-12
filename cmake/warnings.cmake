@@ -71,7 +71,6 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "
 			-Wsuggest-final-methods     # Virtual methods that could be declared as final or in an anonymous namespace.
 			-Wsuggest-final-types       # Types with virtual methods that could be declared as final or in an anonymous namespace.
 			-Wsuggest-override          # Overriding virtual functions that are not marked with the override keyword.
-			-Wswitch-default            # A switch statement does not have a default case.
 			-Wunsafe-loop-optimizations # The loop cannot be optimized because the compiler cannot assume anything.
 			-Wuseless-cast              # Useless casts.
 			)
