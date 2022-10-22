@@ -206,10 +206,6 @@ void error_reporting(
 			std::this_thread::sleep_for(50ms);
 		}
 	}
-
-	while (error_log.try_pop(error_str)) { boost::nowide::cerr << error_str << '\n'; }
-	boost::nowide::cout << fmt::format("\rProgress: {:d}/{:d}\n", total, total);
-	boost::nowide::cout.flush();
 }
 
 otbb::filter<pixel_block_image, dds_image> encoding_filter(png2dds::format::type format_type, unsigned int level) {
@@ -252,8 +248,13 @@ void encode_as_dds(std::size_t tokens, const args::data& arguments, const paths_
 	otbb::parallel_pipeline(tokens, filters);
 
 	if (error_report.valid()) {
-		// Wait until the error report is done.
+		// Wait until the error report task is done before finishing the error log report.
 		error_report.get();
+		std::string error_str;
+		while (error_log.try_pop(error_str)) { boost::nowide::cerr << error_str << '\n'; }
+		boost::nowide::cerr.flush();
+		boost::nowide::cout << fmt::format("\rProgress: {:d}/{:d}\n", paths.size(), paths.size());
+		boost::nowide::cout.flush();
 	}
 }
 
