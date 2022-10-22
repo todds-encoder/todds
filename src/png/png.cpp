@@ -39,6 +39,8 @@ private:
 namespace png2dds::png {
 
 image decode(std::size_t file_index, const std::string& png, std::span<const std::uint8_t> buffer, bool flip) {
+	// Ideally we would want to use SPNG_CTX_IGNORE_ADLER32 here, but unfortunately libspng ignores this value when using
+	// miniz.
 	spng_context context{png, 0};
 
 	/* Ignore chunk CRCs and their calculations. */
@@ -90,7 +92,8 @@ image decode(std::size_t file_index, const std::string& png, std::span<const std
 
 	} while (ret == 0);
 
-	if (ret != SPNG_EOI) {
+	// Since SPNG_CTX_IGNORE_ADLER32 is not supported for miniz, the SPNG_EIDAT_STREAM raised in this case is ignored.
+	if (ret != SPNG_EOI && ret != SPNG_EIDAT_STREAM) {
 		throw std::runtime_error{fmt::format("Progressive decode error in {:s}: {:s}", png, spng_strerror(ret))};
 	}
 
