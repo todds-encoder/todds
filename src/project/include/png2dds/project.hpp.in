@@ -3,9 +3,7 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#ifndef PNG2DDS_PROJECT_HPP
-#define PNG2DDS_PROJECT_HPP
-
+#pragma once
 #include <string_view>
 
 namespace png2dds::project {
@@ -17,5 +15,3 @@ namespace png2dds::project {
 [[nodiscard]] constexpr std::string_view version() noexcept { return {"@CMAKE_PROJECT_VERSION@"}; }
 
 } // namespace png2dds::project
-
-#endif // PNG2DDS_PROJECT_HPP

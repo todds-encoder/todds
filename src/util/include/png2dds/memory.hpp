@@ -3,8 +3,7 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#ifndef PNG2DDS_MEMORY_HPP
-#define PNG2DDS_MEMORY_HPP
+#pragma once
 
 #include <memory>
 
@@ -14,5 +13,3 @@ namespace png2dds {
 template<typename Type> using allocator = std::allocator<Type>;
 
 } // namespace png2dds
-
-#endif // PNG2DDS_MEMORY_HPP

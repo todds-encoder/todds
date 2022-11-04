@@ -3,8 +3,7 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#ifndef PNG2DDS_IMAGE_HPP
-#define PNG2DDS_IMAGE_HPP
+#pragma once
 
 #include "png2dds/memory.hpp"
 #include "png2dds/vector.hpp"
@@ -131,5 +130,3 @@ private:
 };
 
 } // namespace png2dds
-
-#endif // PNG2DDS_IMAGE_HPP

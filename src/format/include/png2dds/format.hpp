@@ -3,8 +3,7 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#ifndef PNG2DDS_FORMAT_HPP
-#define PNG2DDS_FORMAT_HPP
+#pragma once
 
 #include <string_view>
 
@@ -33,5 +32,3 @@ enum class type : std::uint8_t { bc1, bc7, bc1_alpha_bc7 };
 }
 
 } // namespace png2dds::format
-
-#endif // PNG2DDS_FORMAT_HPP

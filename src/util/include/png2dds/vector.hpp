@@ -3,8 +3,7 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#ifndef PNG2DDS_VECTOR_HPP
-#define PNG2DDS_VECTOR_HPP
+#pragma once
 
 #include <vector>
 
@@ -16,5 +15,3 @@ namespace png2dds {
 template<typename Type, typename Allocator = png2dds::allocator<Type>> using vector = std::vector<Type, Allocator>;
 
 } // namespace png2dds
-
-#endif // PNG2DDS_VECTOR_HPP

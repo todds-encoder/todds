@@ -3,8 +3,7 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#ifndef PNG2DDS_PIPELINE_HPP
-#define PNG2DDS_PIPELINE_HPP
+#pragma once
 
 #include "png2dds/arguments.hpp"
 #include "png2dds/vector.hpp"
@@ -23,5 +22,3 @@ using paths_vector = png2dds::vector<std::pair<boost::filesystem::path, boost::f
 void encode_as_dds(std::size_t tokens, const args::data& arguments, const paths_vector& paths);
 
 } // namespace png2dds::pipeline
-
-#endif // PNG2DDS_PIPELINE_HPP

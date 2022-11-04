@@ -3,8 +3,7 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#ifndef PNG2DDS_ARGUMENTS_HPP
-#define PNG2DDS_ARGUMENTS_HPP
+#pragma once
 
 #include "png2dds/format.hpp"
 #include "png2dds/regex.hpp"
@@ -50,5 +49,3 @@ data get(int argc, char** argv);
  */
 data get(const png2dds::vector<std::string_view>& arguments);
 } // namespace png2dds::args
-
-#endif // PNG2DDS_ARGUMENTS_HPP

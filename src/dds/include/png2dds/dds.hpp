@@ -3,8 +3,7 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#ifndef PNG2DDS_DDS_HPP
-#define PNG2DDS_DDS_HPP
+#pragma once
 
 #include "png2dds/dds_image.hpp"
 #include "png2dds/pixel_block_image.hpp"
@@ -53,5 +52,3 @@ void initialize_bc7_encoding();
 [[nodiscard]] dds_image bc7_encode(const ispc::bc7e_compress_block_params& params, const pixel_block_image& image);
 
 } // namespace png2dds::dds
-
-#endif // PNG2DDS_DDS_HPP

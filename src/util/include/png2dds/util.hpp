@@ -3,8 +3,7 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#ifndef PNG2DDS_UTIL_HPP
-#define PNG2DDS_UTIL_HPP
+#pragma once
 
 #include <cstddef>
 
@@ -16,5 +15,3 @@ namespace png2dds::util {
  */
 [[nodiscard]] constexpr std::size_t next_divisible_by_4(std::size_t value) noexcept { return (value + 0b11U) & ~0b11U; }
 } // namespace png2dds::util
-
-#endif // PNG2DDS_UTIL_HPP

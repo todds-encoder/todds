@@ -19,6 +19,7 @@
 # fuchsia-statically-constructed-objects, cert-err58-cpp: Allow statically constructed objects, sparingly.
 # google-runtime-int: Types requested by third party APIs cannot be changed.
 # google-runtime-references: Allow non-const reference parameters.
+# llvm-header-guard: Allow use of #pragma once
 # llvm-qualified-auto,readability-qualified-auto: Tries to treat array iterators as pointers on Linux.
 # llvmlibc-*: Disable all llvm libc specific checks.
 # modernize-use-trailing-return-type: Allow declarations without trailing return types.
@@ -44,6 +45,7 @@ Checks: '*,
 -fuchsia-statically-constructed-objects,-cert-err58-cpp,
 -google-runtime-int,
 -google-runtime-references,
+-llvm-header-guard,
 -llvm-qualified-auto,-readability-qualified-auto,
 -llvmlibc-*,
 -modernize-use-trailing-return-type,

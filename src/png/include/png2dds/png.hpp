@@ -3,8 +3,7 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#ifndef PNG2DDS_PNG_HPP
-#define PNG2DDS_PNG_HPP
+#pragma once
 
 #include "png2dds/dds_image.hpp"
 #include "png2dds/image.hpp"
@@ -28,5 +27,3 @@ namespace png2dds::png {
 image decode(std::size_t file_index, const std::string& png, std::span<const std::uint8_t> buffer, bool flip);
 
 } // namespace png2dds::png
-
-#endif // PNG2DDS_PNG_HPP
