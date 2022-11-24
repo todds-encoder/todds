@@ -13,7 +13,6 @@
 #include <oneapi/tbb/global_control.h>
 
 #include <algorithm>
-#include <optional>
 #include <string_view>
 
 namespace fs = boost::filesystem;

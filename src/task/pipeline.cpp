@@ -13,6 +13,7 @@
 
 #include <boost/nowide/fstream.hpp>
 #include <boost/nowide/iostream.hpp>
+#include <boost/predef.h>
 #include <dds_defs.h>
 #include <fmt/format.h>
 #include <oneapi/tbb/concurrent_queue.h>
@@ -42,9 +43,11 @@ struct png_file {
 
 class load_png_file final {
 public:
-	explicit load_png_file(const paths_vector& paths, std::atomic<std::size_t>& counter) noexcept
+	explicit load_png_file(const paths_vector& paths, std::atomic<std::size_t>& counter,
+		otbb::concurrent_queue<std::string>& error_log) noexcept
 		: _paths{paths}
-		, _counter{counter} {}
+		, _counter{counter}
+		, _error_log{error_log} {}
 
 	png_file operator()(otbb::flow_control& flow) const {
 		std::size_t index = _counter++;
@@ -52,13 +55,25 @@ public:
 			flow.stop();
 			return {};
 		}
-		boost::nowide::ifstream ifs{_paths[index].first, std::ios::in | std::ios::binary};
+
+#if BOOST_OS_WINDOWS
+		const boost::filesystem::path input{R"(\\?\)" + _paths[index].first.string()};
+#else
+		const boost::filesystem::path& input{_paths[index].first};
+#endif
+		boost::nowide::ifstream ifs{input, std::ios::in | std::ios::binary};
+
+		if (!ifs.is_open()) [[unlikely]] {
+			_error_log.push(fmt::format("Load PNG file error in {:s} ", _paths[index].first.string()));
+		}
+
 		return {{std::istreambuf_iterator<char>{ifs}, {}}, index};
 	}
 
 private:
 	const paths_vector& _paths;
 	std::atomic<std::size_t>& _counter;
+	otbb::concurrent_queue<std::string>& _error_log;
 };
 
 class decode_png_image final {
@@ -72,9 +87,16 @@ public:
 
 	image operator()(const png_file& file) const {
 		image result{error_file_index, 0U, 0U};
-		try {
-			result = png2dds::png::decode(file.file_index, _paths[file.file_index].first.string(), file.buffer, _vflip);
-		} catch (const std::runtime_error& exc) { _error_log.push(fmt::format("PNG Decoding error -> {:s}", exc.what())); }
+
+		// If the buffer is empty, assume that load_png_file already reported an error.
+		if (!file.buffer.empty()) {
+			const std::string& path = _paths[file.file_index].first.string();
+			try {
+				result = png2dds::png::decode(file.file_index, path, file.buffer, _vflip);
+			} catch (const std::runtime_error& exc) {
+				_error_log.push(fmt::format("PNG Decoding error {:s} -> {:s}", path, exc.what()));
+			}
+		}
 
 		if (result.file_index() != error_file_index && _calculate_alpha) [[unlikely]] {
 			bool alpha = false;
@@ -164,7 +186,15 @@ public:
 
 	void operator()(const dds_image& dds_img) const {
 		if (dds_img.file_index() == error_file_index) [[unlikely]] { return; }
-		boost::nowide::ofstream ofs{_paths[dds_img.file_index()].second, std::ios::out | std::ios::binary};
+
+#if BOOST_OS_WINDOWS
+		const boost::filesystem::path output{R"(\\?\)" + _paths[dds_img.file_index()].second.string()};
+#else
+		const boost::filesystem::path& output{_paths[dds_img.file_index()].second.string()};
+#endif
+
+		boost::nowide::ofstream ofs{output, std::ios::out | std::ios::binary};
+
 		ofs << "DDS ";
 		const std::size_t block_size_bytes = dds_img.blocks().size() * sizeof(std::uint64_t);
 		const auto header = dds_img.header();
@@ -238,7 +268,7 @@ void encode_as_dds(std::size_t tokens, const args::data& arguments, const paths_
 	}
 
 	const otbb::filter<void, void> filters =
-		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_in_order, load_png_file(paths, counter)) &
+		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_in_order, load_png_file(paths, counter, error_log)) &
 		otbb::make_filter<png_file, image>(otbb::filter_mode::parallel,
 			decode_png_image(paths, arguments.vflip, error_log, arguments.format == format::type::bc1_alpha_bc7)) &
 		otbb::make_filter<image, pixel_block_image>(otbb::filter_mode::parallel, get_pixel_blocks{}) &
