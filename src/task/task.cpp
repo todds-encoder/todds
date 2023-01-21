@@ -63,7 +63,7 @@ paths_vector get_paths(const png2dds::args::data& arguments) {
 		for (fs::recursive_directory_iterator itr{dir}; itr != fs::recursive_directory_iterator{}; ++itr) {
 			const fs::path& current_input = itr->path();
 			if (is_valid_source(current_input, regex, scratch)) {
-				fs::path output_current = current_input.parent_path();
+				const fs::path output_current = current_input.parent_path();
 				if (different_output) { current_output = output / fs::relative(current_input.parent_path(), input); }
 				const fs::path dds_path =
 					to_dds_path(current_input, different_output ? current_output : current_input.parent_path());
@@ -96,7 +96,7 @@ void run(const args::data& arguments) {
 	if (paths.empty()) { return; }
 
 	// Configure the maximum parallelism allowed for tbb.
-	otbb::global_control control(otbb::global_control::max_allowed_parallelism, arguments.threads);
+	const otbb::global_control control(otbb::global_control::max_allowed_parallelism, arguments.threads);
 	const std::size_t num_tokens = arguments.threads * 4UL;
 
 	switch (arguments.format) {

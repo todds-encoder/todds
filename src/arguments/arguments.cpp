@@ -176,7 +176,7 @@ void argument_from_str(
 namespace png2dds::args {
 
 data get(int argc, char** argv) {
-	boost::nowide::args nowide_args(argc, argv);
+	const boost::nowide::args nowide_args(argc, argv);
 	png2dds::vector<std::string_view> arguments;
 	arguments.reserve(static_cast<std::size_t>(argc));
 	for (std::size_t index = 0UL; index < static_cast<std::size_t>(argc); ++index) {

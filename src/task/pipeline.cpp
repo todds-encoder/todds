@@ -50,7 +50,7 @@ public:
 		, _error_log{error_log} {}
 
 	png_file operator()(otbb::flow_control& flow) const {
-		std::size_t index = _counter++;
+		const std::size_t index = _counter++;
 		if (index >= _paths.size()) {
 			flow.stop();
 			return {};
