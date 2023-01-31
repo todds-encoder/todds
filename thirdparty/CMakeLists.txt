@@ -5,3 +5,6 @@
 add_subdirectory(miniz)
 add_subdirectory(libspng)
 add_subdirectory(bc7enc_rdo)
+if (PNG2DDS_UI)
+	add_subdirectory(imgui)
+endif ()
