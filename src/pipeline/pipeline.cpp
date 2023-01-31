@@ -33,13 +33,6 @@ using png2dds::pipeline::paths_vector;
 
 namespace {
 
-// Maximum number of files that the pipeline can process at the same time.
-std::size_t& num_tokens()
-{
-	static std::size_t tokens{};
-	return tokens;
-}
-
 constexpr std::size_t error_file_index = std::numeric_limits<std::size_t>::max();
 
 constexpr DDS_HEADER_DXT10 header_extension{DXGI_FORMAT_BC7_UNORM, D3D10_RESOURCE_DIMENSION_TEXTURE2D, 0U, 1U, 0U};
@@ -264,31 +257,33 @@ otbb::filter<pixel_block_image, dds_image> encoding_filter(png2dds::format::type
 
 namespace png2dds::pipeline {
 
-void setup(std::size_t parallelism) {
-	const otbb::global_control control(otbb::global_control::max_allowed_parallelism, parallelism);
-	num_tokens() = parallelism * 4UL;
-}
+void encode_as_dds(const input& input_data) {
+	// Setup the pipeline.
+	const otbb::global_control control(otbb::global_control::max_allowed_parallelism, input_data.parallelism);
+	// Maximum number of files that the pipeline can process at the same time.
+	const std::size_t tokens = input_data.parallelism * 4UL;
 
-void encode_as_dds(const args::data& arguments, const paths_vector& paths) {
 	// Variables referenced by the filters.
 	std::atomic<std::size_t> counter;
 	otbb::concurrent_queue<std::string> error_log;
 
 	std::future<void> error_report{};
-	if (arguments.verbose) {
+	if (input_data.verbose) {
 		error_report =
-			std::async(std::launch::async, error_reporting, std::ref(counter), paths.size(), std::ref(error_log));
+			std::async(std::launch::async, error_reporting, std::ref(counter), input_data.paths.size(), std::ref(error_log));
 	}
 
 	const otbb::filter<void, void> filters =
-		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_in_order, load_png_file(paths, counter, error_log)) &
-		otbb::make_filter<png_file, image>(otbb::filter_mode::parallel,
-			decode_png_image(paths, arguments.vflip, error_log, arguments.format == format::type::bc1_alpha_bc7)) &
+		otbb::make_filter<void, png_file>(
+			otbb::filter_mode::serial_in_order, load_png_file(input_data.paths, counter, error_log)) &
+		otbb::make_filter<png_file, image>(
+			otbb::filter_mode::parallel, decode_png_image(input_data.paths, input_data.vflip, error_log,
+																		 input_data.format == format::type::bc1_alpha_bc7)) &
 		otbb::make_filter<image, pixel_block_image>(otbb::filter_mode::parallel, get_pixel_blocks{}) &
-		encoding_filter(arguments.format, arguments.level) &
-		otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_dds_file{paths});
+		encoding_filter(input_data.format, input_data.quality_level) &
+		otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_dds_file{input_data.paths});
 
-	otbb::parallel_pipeline(num_tokens(), filters);
+	otbb::parallel_pipeline(tokens, filters);
 
 	if (error_report.valid()) {
 		// Wait until the error report task is done before finishing the error log report.
@@ -296,7 +291,7 @@ void encode_as_dds(const args::data& arguments, const paths_vector& paths) {
 		std::string error_str;
 		while (error_log.try_pop(error_str)) { boost::nowide::cerr << error_str << '\n'; }
 		boost::nowide::cerr.flush();
-		boost::nowide::cout << fmt::format("\rProgress: {:d}/{:d}\n", paths.size(), paths.size());
+		boost::nowide::cout << fmt::format("\rProgress: {:d}/{:d}\n", input_data.paths.size(), input_data.paths.size());
 		boost::nowide::cout.flush();
 	}
 }

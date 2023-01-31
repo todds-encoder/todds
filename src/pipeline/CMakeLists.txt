@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 add_library(png2dds_pipeline STATIC
+	include/png2dds/input.hpp
 	include/png2dds/pipeline.hpp
 	pipeline.cpp
 	)

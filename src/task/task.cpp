@@ -90,11 +90,16 @@ paths_vector get_paths(const png2dds::args::data& arguments) {
 namespace png2dds {
 
 void run(const args::data& arguments) {
-	const paths_vector paths = get_paths(arguments);
-	if (paths.empty()) { return; }
+	pipeline::input input_data;
+	input_data.paths = get_paths(arguments);
+	if (input_data.paths.empty()) { return; }
+	input_data.parallelism = arguments.threads;
+	input_data.format = arguments.format;
+	input_data.quality_level = arguments.level;
+	input_data.vflip = arguments.vflip;
+	input_data.verbose = arguments.verbose;
 
-	pipeline::setup(arguments.threads);
-
+	// ToDo Move to pipeline.
 	switch (arguments.format) {
 	case format::type::bc1: dds::initialize_bc1_encoding(); break;
 	case format::type::bc7: dds::initialize_bc7_encoding(); break;
@@ -105,7 +110,7 @@ void run(const args::data& arguments) {
 	}
 
 	// Launch the parallel pipeline.
-	pipeline::encode_as_dds(arguments, paths);
+	pipeline::encode_as_dds(input_data);
 }
 
 } // namespace png2dds
