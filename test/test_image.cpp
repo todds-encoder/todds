@@ -57,14 +57,14 @@ image iota_image() {
 
 TEST_CASE("png2dds::image const buffer access", "[image]") {
 	image img = iota_image();
-	std::span<const std::uint8_t> buffer = img.buffer();
+	const std::span<const std::uint8_t> buffer = img.buffer();
 	REQUIRE(buffer.front() == 0U);
 	REQUIRE(buffer.back() == std::numeric_limits<std::uint8_t>::max());
 }
 
 TEST_CASE("png2dds::image buffer access", "[image]") {
 	image img = iota_image();
-	std::span<std::uint8_t> buffer = img.buffer();
+	const std::span<std::uint8_t> buffer = img.buffer();
 	buffer.back() = 0U;
 	REQUIRE(buffer.front() == 0U);
 	REQUIRE(buffer.back() == 0U);

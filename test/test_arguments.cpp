@@ -59,8 +59,9 @@ TEST_CASE("png2dds::arguments output", "[arguments]") {
 	SECTION("Assigning output works as intended.") {
 		const auto arguments = get({binary, ".", utf_characters});
 		REQUIRE(is_valid(arguments));
-		REQUIRE(arguments.output);
-		REQUIRE(arguments.output->string() == utf_characters);
+		REQUIRE(arguments.output.has_value());
+		const bool assignment_working = arguments.output.has_value() && arguments.output->string() == utf_characters;
+		REQUIRE(assignment_working);
 	}
 }
 
