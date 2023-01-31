@@ -14,11 +14,16 @@ namespace png2dds::pipeline {
 using paths_vector = png2dds::vector<std::pair<boost::filesystem::path, boost::filesystem::path>>;
 
 /**
+ * Setup the pipeline before enqueueing new work. This operation is NOT thread safe.
+ * @param parallelism Maximum parallelism allowed for the internal TBB pipeline.
+ */
+void setup(std::size_t parallelism);
+
+/**
  * Encodes a list of PNG files as DDS.
- * @param tokens Maximum number of files that the pipeline can process at the same time.
  * @param arguments Program arguments to use.
  * @param paths List of files to encode, along with their corresponding desired dds paths.
  */
-void encode_as_dds(std::size_t tokens, const args::data& arguments, const paths_vector& paths);
+void encode_as_dds(const args::data& arguments, const paths_vector& paths);
 
 } // namespace png2dds::pipeline

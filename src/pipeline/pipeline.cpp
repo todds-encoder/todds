@@ -17,6 +17,7 @@
 #include <dds_defs.h>
 #include <fmt/format.h>
 #include <oneapi/tbb/concurrent_queue.h>
+#include <oneapi/tbb/global_control.h>
 #include <oneapi/tbb/parallel_pipeline.h>
 
 #include <atomic>
@@ -31,6 +32,13 @@ using png2dds::pixel_block_image;
 using png2dds::pipeline::paths_vector;
 
 namespace {
+
+// Maximum number of files that the pipeline can process at the same time.
+std::size_t& num_tokens()
+{
+	static std::size_t tokens{};
+	return tokens;
+}
 
 constexpr std::size_t error_file_index = std::numeric_limits<std::size_t>::max();
 
@@ -256,7 +264,12 @@ otbb::filter<pixel_block_image, dds_image> encoding_filter(png2dds::format::type
 
 namespace png2dds::pipeline {
 
-void encode_as_dds(std::size_t tokens, const args::data& arguments, const paths_vector& paths) {
+void setup(std::size_t parallelism) {
+	const otbb::global_control control(otbb::global_control::max_allowed_parallelism, parallelism);
+	num_tokens() = parallelism * 4UL;
+}
+
+void encode_as_dds(const args::data& arguments, const paths_vector& paths) {
 	// Variables referenced by the filters.
 	std::atomic<std::size_t> counter;
 	otbb::concurrent_queue<std::string> error_log;
@@ -275,7 +288,7 @@ void encode_as_dds(std::size_t tokens, const args::data& arguments, const paths_
 		encoding_filter(arguments.format, arguments.level) &
 		otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_dds_file{paths});
 
-	otbb::parallel_pipeline(tokens, filters);
+	otbb::parallel_pipeline(num_tokens(), filters);
 
 	if (error_report.valid()) {
 		// Wait until the error report task is done before finishing the error log report.

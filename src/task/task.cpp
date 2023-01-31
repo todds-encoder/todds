@@ -10,13 +10,11 @@
 
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/filesystem.hpp>
-#include <oneapi/tbb/global_control.h>
 
 #include <algorithm>
 #include <string_view>
 
 namespace fs = boost::filesystem;
-namespace otbb = oneapi::tbb;
 using png2dds::pipeline::paths_vector;
 
 namespace {
@@ -95,9 +93,7 @@ void run(const args::data& arguments) {
 	const paths_vector paths = get_paths(arguments);
 	if (paths.empty()) { return; }
 
-	// Configure the maximum parallelism allowed for tbb.
-	const otbb::global_control control(otbb::global_control::max_allowed_parallelism, arguments.threads);
-	const std::size_t num_tokens = arguments.threads * 4UL;
+	pipeline::setup(arguments.threads);
 
 	switch (arguments.format) {
 	case format::type::bc1: dds::initialize_bc1_encoding(); break;
@@ -109,7 +105,7 @@ void run(const args::data& arguments) {
 	}
 
 	// Launch the parallel pipeline.
-	pipeline::encode_as_dds(num_tokens, arguments, paths);
+	pipeline::encode_as_dds(arguments, paths);
 }
 
 } // namespace png2dds
