@@ -35,6 +35,7 @@ find_package(Hyperscan REQUIRED)
 find_package(Threads REQUIRED)
 find_package(TBB REQUIRED)
 if (PNG2DDS_UI)
+	find_package(Freetype REQUIRED)
 	find_package(SDL2 REQUIRED)
 endif ()
 

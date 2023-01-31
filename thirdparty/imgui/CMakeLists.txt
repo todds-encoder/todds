@@ -13,7 +13,11 @@ add_library(imgui
 	${CMAKE_CURRENT_LIST_DIR}/backends/imgui_impl_sdl.h
 	${CMAKE_CURRENT_LIST_DIR}/backends/imgui_impl_sdl.cpp
 	${CMAKE_CURRENT_LIST_DIR}/backends/imgui_impl_sdlrenderer.h
-	${CMAKE_CURRENT_LIST_DIR}/backends/imgui_impl_sdlrenderer.cpp)
+	${CMAKE_CURRENT_LIST_DIR}/backends/imgui_impl_sdlrenderer.cpp
+	${CMAKE_CURRENT_LIST_DIR}/misc/freetype/imgui_freetype.h
+	${CMAKE_CURRENT_LIST_DIR}/misc/freetype/imgui_freetype.cpp
+	)
 
-target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-target_link_libraries(imgui PUBLIC SDL2::SDL2)
+target_include_directories(imgui SYSTEM PUBLIC ${CMAKE_CURRENT_LIST_DIR} PRIVATE ${FREETYPE_INCLUDE_DIRS})
+
+target_link_libraries(imgui PUBLIC SDL2::SDL2 ${FREETYPE_LIBRARIES})
