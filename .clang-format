@@ -53,12 +53,18 @@ IncludeCategories:
     Priority: 20
   - Regex: '^<fmt.*'
     Priority: 20
+  - Regex: '^<imgui.*'
+    Priority: 20
+  - Regex: '^<backends.*'
+    Priority: 20
   - Regex: '^<hs.*'
     Priority: 20
   - Regex: '^<oneapi.*'
     Priority: 20
   - Regex: '^<rgbcx.*'
     Priority: 20
+  - Regex: '^<SDL.*'
+    Priority: 15
   - Regex: '^"spng.*'
     Priority: 20
   - Regex: '^<catch2.*'
