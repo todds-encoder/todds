@@ -13,6 +13,7 @@
 # cppcoreguidelines-pro-bounds-pointer-arithmetic: Allow using pointer arithmetic.
 # cppcoreguidelines-pro-type-union-access: Some third party libraries feature unions.
 # cppcoreguidelines-pro-type-reinterpret-cast: Writing objects to ofstream requires a reinterpret_cast.
+# cppcoreguidelines-pro-type-vararg,hicpp-vararg: Dear ImGui Text calls.
 # fuchsia-default-arguments-calls: Allow calling functions with default arguments.
 # fuchsia-default-arguments-declarations: Allow declaring functions with default arguments.
 # fuchsia-overloaded-operator: Allow overloading operators.
@@ -39,6 +40,7 @@ Checks: '*,
 -cppcoreguidelines-pro-bounds-pointer-arithmetic,
 -cppcoreguidelines-pro-type-union-access,
 -cppcoreguidelines-pro-type-reinterpret-cast,
+-cppcoreguidelines-pro-type-vararg,-hicpp-vararg,
 -fuchsia-default-arguments-calls,
 -fuchsia-default-arguments-declarations,
 -fuchsia-overloaded-operator,
