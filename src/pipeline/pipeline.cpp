@@ -258,6 +258,16 @@ otbb::filter<pixel_block_image, dds_image> encoding_filter(png2dds::format::type
 namespace png2dds::pipeline {
 
 void encode_as_dds(const input& input_data) {
+	// Initialize encoders.
+	switch (input_data.format) {
+	case format::type::bc1: dds::initialize_bc1_encoding(); break;
+	case format::type::bc7: dds::initialize_bc7_encoding(); break;
+	case format::type::bc1_alpha_bc7:
+		dds::initialize_bc1_encoding();
+		dds::initialize_bc7_encoding();
+		break;
+	}
+
 	// Setup the pipeline.
 	const otbb::global_control control(otbb::global_control::max_allowed_parallelism, input_data.parallelism);
 	// Maximum number of files that the pipeline can process at the same time.

@@ -17,7 +17,6 @@ target_link_libraries(png2dds_task
 	PUBLIC
 	png2dds_arguments
 	PRIVATE
-	png2dds_dds
 	png2dds_format
 	png2dds_pipeline
 	)

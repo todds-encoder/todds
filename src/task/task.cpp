@@ -4,7 +4,6 @@
  */
 #include "png2dds/task.hpp"
 
-#include "png2dds/dds.hpp"
 #include "png2dds/pipeline.hpp"
 #include "png2dds/regex.hpp"
 
@@ -54,7 +53,7 @@ paths_vector get_paths(const png2dds::args::data& arguments) {
 	const auto& regex = arguments.regex;
 	png2dds::regex::scratch_type scratch = regex.allocate_scratch();
 
-	paths_vector paths;
+	paths_vector paths{};
 	if (fs::is_directory(input)) {
 		fs::path current_output = output;
 		const fs::directory_entry dir{input};
@@ -98,16 +97,6 @@ void run(const args::data& arguments) {
 	input_data.quality_level = arguments.level;
 	input_data.vflip = arguments.vflip;
 	input_data.verbose = arguments.verbose;
-
-	// ToDo Move to pipeline.
-	switch (arguments.format) {
-	case format::type::bc1: dds::initialize_bc1_encoding(); break;
-	case format::type::bc7: dds::initialize_bc7_encoding(); break;
-	case format::type::bc1_alpha_bc7:
-		dds::initialize_bc1_encoding();
-		dds::initialize_bc7_encoding();
-		break;
-	}
 
 	// Launch the parallel pipeline.
 	pipeline::encode_as_dds(input_data);
