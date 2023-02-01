@@ -19,6 +19,7 @@ configure_file(${PROJECT_SOURCE_DIR}/thirdparty/manrope/Manrope-Regular.ttf ${CM
 target_link_libraries(png2dds_ui PRIVATE
 	png2dds_project
 	Boost::filesystem
+	Boost::nowide
 	fmt::fmt
 	imgui
 	)
