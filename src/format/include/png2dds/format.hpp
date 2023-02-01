@@ -10,6 +10,17 @@
 namespace png2dds::format {
 
 enum class type : std::uint8_t { bc1, bc7, bc1_alpha_bc7 };
+enum class quality : std::uint8_t {
+	ultra_fast = 0U,
+	minimum = 0U,
+	very_fast = 1U,
+	fast = 2U,
+	basic = 3U,
+	slow = 4U,
+	very_slow = 5U,
+	slowest = 6U,
+	maximum = 6U
+};
 
 [[nodiscard]] constexpr std::string_view name(type fmt) noexcept {
 	std::string_view name_str{};
@@ -19,16 +30,6 @@ enum class type : std::uint8_t { bc1, bc7, bc1_alpha_bc7 };
 	case type::bc1_alpha_bc7: name_str = "BC1_ALPHA_BC7"; break;
 	}
 	return name_str;
-}
-
-[[nodiscard]] constexpr unsigned int max_level(type fmt) noexcept {
-	unsigned int maximum{};
-	switch (fmt) {
-	case type::bc1: maximum = 18U; break;
-	case type::bc1_alpha_bc7:
-	case type::bc7: maximum = 6U; break;
-	}
-	return maximum;
 }
 
 } // namespace png2dds::format

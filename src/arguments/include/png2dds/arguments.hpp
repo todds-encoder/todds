@@ -22,7 +22,7 @@ struct data {
 	boost::filesystem::path input;
 	std::optional<boost::filesystem::path> output;
 	png2dds::format::type format;
-	unsigned int level;
+	png2dds::format::quality quality;
 	std::size_t threads;
 	std::size_t depth;
 	bool overwrite;

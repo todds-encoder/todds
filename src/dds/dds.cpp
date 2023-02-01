@@ -21,8 +21,10 @@ namespace png2dds::dds {
 
 void initialize_bc1_encoding() { rgbcx::init(rgbcx::bc1_approx_mode::cBC1Ideal); }
 
-dds_image bc1_encode(unsigned int level, const pixel_block_image& image) {
+dds_image bc1_encode(png2dds::format::quality quality, const pixel_block_image& image) {
 	dds_image dds_img(image, png2dds::format::type::bc1);
+	// Since it allows quality between [0, 18], multiply png2dds's [0, 6] range by 3.
+	const auto level = static_cast<unsigned int>(quality) * 3U;
 
 	using blocked_range = oneapi::tbb::blocked_range<size_t>;
 	oneapi::tbb::parallel_for(
@@ -41,20 +43,20 @@ dds_image bc1_encode(unsigned int level, const pixel_block_image& image) {
 
 void initialize_bc7_encoding() { ispc::bc7e_compress_block_init(); }
 
-bc7_params bc7_encode_params(unsigned int level) noexcept {
+bc7_params bc7_encode_params(png2dds::format::quality quality) noexcept {
 	// Perceptual is currently not supported.
 	constexpr bool perceptual = false;
 	bc7_params params{};
-	switch (level) {
-	case 0U: ispc::bc7e_compress_block_params_init_ultrafast(&params, perceptual); break;
-	case 1U: ispc::bc7e_compress_block_params_init_veryfast(&params, perceptual); break;
-	case 2U: ispc::bc7e_compress_block_params_init_fast(&params, perceptual); break;
-	case 3U: ispc::bc7e_compress_block_params_init_basic(&params, perceptual); break;
-	case 4U: ispc::bc7e_compress_block_params_init_slow(&params, perceptual); break;
-	case 5U: ispc::bc7e_compress_block_params_init_veryslow(&params, perceptual); break;
-	default:
-	case 6U: ispc::bc7e_compress_block_params_init_slowest(&params, perceptual); break;
+	switch (quality) {
+	case format::quality::ultra_fast: ispc::bc7e_compress_block_params_init_ultrafast(&params, perceptual); break;
+	case format::quality::very_fast: ispc::bc7e_compress_block_params_init_veryfast(&params, perceptual); break;
+	case format::quality::fast: ispc::bc7e_compress_block_params_init_fast(&params, perceptual); break;
+	case format::quality::basic: ispc::bc7e_compress_block_params_init_basic(&params, perceptual); break;
+	case format::quality::slow: ispc::bc7e_compress_block_params_init_slow(&params, perceptual); break;
+	case format::quality::very_slow: ispc::bc7e_compress_block_params_init_veryslow(&params, perceptual); break;
+	case format::quality::slowest: ispc::bc7e_compress_block_params_init_slowest(&params, perceptual); break;
 	}
+
 	return params;
 }
 

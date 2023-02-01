@@ -24,11 +24,11 @@ void initialize_bc1_encoding();
 
 /**
  * Encode an image to BC1.
- * @param level DDS encoding level.
+ * @param quality DDS encoding quality level.
  * @param image Source block image.
  * @return BC1 encoded image.
  */
-[[nodiscard]] dds_image bc1_encode(unsigned int level, const pixel_block_image& image);
+[[nodiscard]] dds_image bc1_encode(png2dds::format::quality quality, const pixel_block_image& image);
 
 /**
  * Initialize the BC7 DDS encoder.
@@ -38,10 +38,10 @@ void initialize_bc7_encoding();
 
 /**
  * Generate the parameters to use for BC7 DDS encoding.
- * @param level Encoder quality level.
+ * @param quality DDS encoding quality level.
  * @return Parameters for the given quality level.
  */
-[[nodiscard]] bc7_params bc7_encode_params(unsigned int level) noexcept;
+[[nodiscard]] bc7_params bc7_encode_params(png2dds::format::quality quality) noexcept;
 
 /**
  * Encode an image to BC7.

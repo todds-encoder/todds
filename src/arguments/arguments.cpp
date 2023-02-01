@@ -38,9 +38,9 @@ constexpr bool matches(std::string_view argument, const optional_arg& optional_a
 }
 
 constexpr auto format_arg =
-	optional_argument("--format", "DDS encoding format. BC7 is used if this parameter is not used.");
+	optional_argument("--format", "DDS encoding format. BC7 is used by default.");
 
-constexpr auto level_arg = optional_argument("--level", "Encoder quality level. Higher values take more time.");
+constexpr auto quality_arg = optional_argument("--quality", "Encoder quality level. Higher values take more time.");
 
 constexpr auto threads_arg =
 	optional_arg{"--threads", "-th", "Number of threads used by the parallel pipeline [1, {:d}]."};
@@ -72,7 +72,7 @@ consteval std::size_t argument_name_total_space() {
 	// Other implementations may not have constexpr support so std::vector is used explicitly.
 	std::size_t max_space{};
 	max_space = std::max(max_space, format_arg.name.size() + format_arg.shorter.size() + 2UL);
-	max_space = std::max(max_space, level_arg.name.size() + level_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, quality_arg.name.size() + quality_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, threads_arg.name.size() + threads_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, threads_arg.name.size() + threads_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, depth_arg.name.size() + depth_arg.shorter.size() + 2UL);
@@ -109,8 +109,9 @@ void print_optional_argument(std::ostringstream& ostream, const optional_arg& ar
 void print_format_information(std::ostringstream& ostream, png2dds::format::type format_type) {
 	constexpr std::size_t argument_space = argument_name_total_space() + 6UL;
 	std::fill_n(std::ostream_iterator<char>(ostream), argument_space, ' ');
-	ostream << fmt::format("{:s}: Encoder quality level [0, {:d}]\n", png2dds::format::name(format_type),
-		png2dds::format::max_level(format_type));
+	ostream << fmt::format("{:s}: Encoder quality level [{:d}, {:d}]\n", png2dds::format::name(format_type),
+		static_cast<unsigned int>(png2dds::format::quality::minimum),
+		static_cast<unsigned int>(png2dds::format::quality::maximum));
 }
 
 std::string get_help(std::size_t max_threads) {
@@ -133,7 +134,7 @@ std::string get_help(std::size_t max_threads) {
 	ostream << fmt::format("{:s}: Files with alpha are encoded as BC7. Others are encoded as BC1.\n",
 		png2dds::format::name(png2dds::format::type::bc1_alpha_bc7));
 
-	print_optional_argument(ostream, level_arg);
+	print_optional_argument(ostream, quality_arg);
 	const std::string threads_help = fmt::format(threads_arg.help, max_threads);
 	print_argument_impl(ostream, threads_arg.shorter, threads_arg.name, threads_help);
 	print_optional_argument(ostream, depth_arg);
@@ -188,15 +189,14 @@ data get(int argc, char** argv) {
 
 data get(const png2dds::vector<std::string_view>& arguments) {
 	data parsed_arguments{};
-	// Set default values. The default value of level is set after parsing format.
+	// Set default values.
 	parsed_arguments.format = format::type::bc7;
 	const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
 	parsed_arguments.threads = max_threads;
 	parsed_arguments.depth = max_depth;
+	parsed_arguments.quality = png2dds::format::quality::maximum;
 
 	std::size_t index = 1UL;
-
-	bool level_is_set = false;
 
 	// Parse all positional arguments.
 	while (!parsed_arguments.error && index < arguments.size()) {
@@ -218,10 +218,16 @@ data get(const png2dds::vector<std::string_view>& arguments) {
 		if (matches(argument, format_arg)) {
 			++index;
 			format_from_str(next_argument, parsed_arguments);
-		} else if (matches(argument, level_arg)) {
-			level_is_set = true;
+		} else if (matches(argument, quality_arg)) {
 			++index;
-			argument_from_str(level_arg.name, next_argument, parsed_arguments.level, parsed_arguments);
+			unsigned int value{};
+			argument_from_str(quality_arg.name, next_argument, value, parsed_arguments);
+			parsed_arguments.quality = static_cast<format::quality>(value);
+			if (parsed_arguments.quality > png2dds::format::quality::maximum) {
+				parsed_arguments.error = true;
+				parsed_arguments.text = fmt::format("Argument error: Unsupported encode quality level {:d} for format {:s}.",
+					static_cast<unsigned int>(parsed_arguments.quality), png2dds::format::name(parsed_arguments.format));
+			}
 		} else if (matches(argument, threads_arg)) {
 			++index;
 			argument_from_str(threads_arg.name, next_argument, parsed_arguments.threads, parsed_arguments);
@@ -253,17 +259,6 @@ data get(const png2dds::vector<std::string_view>& arguments) {
 		}
 
 		++index;
-	}
-
-	if (!parsed_arguments.error) {
-		const auto format_max_level = max_level(parsed_arguments.format);
-		if (!level_is_set) {
-			parsed_arguments.level = format_max_level;
-		} else if (parsed_arguments.level > format_max_level) {
-			parsed_arguments.error = true;
-			parsed_arguments.text = fmt::format("Argument error: Unsupported encode quality level {:d} for format {:s}.",
-				parsed_arguments.level, png2dds::format::name(parsed_arguments.format));
-		}
 	}
 
 	if (parsed_arguments.text.empty()) {

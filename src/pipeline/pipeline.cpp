@@ -132,24 +132,24 @@ public:
 
 class encode_bc1_image final {
 public:
-	explicit encode_bc1_image(unsigned int level) noexcept
-		: _level{level} {}
+	explicit encode_bc1_image(png2dds::format::quality quality) noexcept
+		: _quality{quality} {}
 
 	dds_image operator()(const pixel_block_image& pixel_image) const {
 		if (pixel_image.file_index() != error_file_index) [[likely]] {
-			return png2dds::dds::bc1_encode(_level, pixel_image);
+			return png2dds::dds::bc1_encode(_quality, pixel_image);
 		}
 		return dds_image{};
 	}
 
 private:
-	unsigned int _level;
+	png2dds::format::quality _quality;
 };
 
 class encode_bc7_image final {
 public:
-	explicit encode_bc7_image(unsigned int level) noexcept
-		: _params{png2dds::dds::bc7_encode_params(level)} {}
+	explicit encode_bc7_image(png2dds::format::quality quality) noexcept
+		: _params{png2dds::dds::bc7_encode_params(quality)} {}
 
 	dds_image operator()(const pixel_block_image& pixel_image) const {
 		if (pixel_image.file_index() != error_file_index) [[likely]] {
@@ -164,20 +164,21 @@ private:
 
 class encode_bc1_alpha_bc7_image final {
 public:
-	explicit encode_bc1_alpha_bc7_image(unsigned int level) noexcept
-		: _params{png2dds::dds::bc7_encode_params(level)} {}
+	explicit encode_bc1_alpha_bc7_image(png2dds::format::quality quality) noexcept
+		: _params{png2dds::dds::bc7_encode_params(quality)}
+		, _quality{quality} {}
 
 	dds_image operator()(const pixel_block_image& pixel_image) const {
 		if (pixel_image.file_index() != error_file_index) [[likely]] {
-			return pixel_image.encode_as_alpha() ?
-							 png2dds::dds::bc7_encode(_params, pixel_image) :
-							 png2dds::dds::bc1_encode(png2dds::format::max_level(png2dds::format::type::bc1), pixel_image);
+			return pixel_image.encode_as_alpha() ? png2dds::dds::bc7_encode(_params, pixel_image) :
+																						 png2dds::dds::bc1_encode(_quality, pixel_image);
 		}
 		return dds_image{};
 	}
 
 private:
 	png2dds::dds::bc7_params _params;
+	png2dds::format::quality _quality;
 };
 
 class save_dds_file final {
@@ -239,15 +240,16 @@ void error_reporting(
 	}
 }
 
-otbb::filter<pixel_block_image, dds_image> encoding_filter(png2dds::format::type format_type, unsigned int level) {
+otbb::filter<pixel_block_image, dds_image> encoding_filter(
+	png2dds::format::type format_type, png2dds::format::quality quality) {
 	switch (format_type) {
 	case png2dds::format::type::bc1:
-		return otbb::make_filter<pixel_block_image, dds_image>(otbb::filter_mode::parallel, encode_bc1_image{level});
+		return otbb::make_filter<pixel_block_image, dds_image>(otbb::filter_mode::parallel, encode_bc1_image{quality});
 	case png2dds::format::type::bc7:
-		return otbb::make_filter<pixel_block_image, dds_image>(otbb::filter_mode::parallel, encode_bc7_image{level});
+		return otbb::make_filter<pixel_block_image, dds_image>(otbb::filter_mode::parallel, encode_bc7_image{quality});
 	case png2dds::format::type::bc1_alpha_bc7:
 		return otbb::make_filter<pixel_block_image, dds_image>(
-			otbb::filter_mode::parallel, encode_bc1_alpha_bc7_image{level});
+			otbb::filter_mode::parallel, encode_bc1_alpha_bc7_image{quality});
 	}
 	assert(false);
 	return {};
@@ -290,7 +292,7 @@ void encode_as_dds(const input& input_data) {
 			otbb::filter_mode::parallel, decode_png_image(input_data.paths, input_data.vflip, error_log,
 																		 input_data.format == format::type::bc1_alpha_bc7)) &
 		otbb::make_filter<image, pixel_block_image>(otbb::filter_mode::parallel, get_pixel_blocks{}) &
-		encoding_filter(input_data.format, input_data.quality_level) &
+		encoding_filter(input_data.format, input_data.quality) &
 		otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_dds_file{input_data.paths});
 
 	otbb::parallel_pipeline(tokens, filters);

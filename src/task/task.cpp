@@ -94,7 +94,7 @@ void run(const args::data& arguments) {
 	if (input_data.paths.empty()) { return; }
 	input_data.parallelism = arguments.threads;
 	input_data.format = arguments.format;
-	input_data.quality_level = arguments.level;
+	input_data.quality = arguments.quality;
 	input_data.vflip = arguments.vflip;
 	input_data.verbose = arguments.verbose;
 

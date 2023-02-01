@@ -27,7 +27,7 @@ struct input {
 	png2dds::format::type format{};
 
 	/** Quality level to use in this encoding. */
-	unsigned int quality_level{};
+	png2dds::format::quality quality{};
 
 	/** Flip source images vertically before encoding. */
 	bool vflip{};

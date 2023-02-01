@@ -127,53 +127,51 @@ TEST_CASE("png2dds::arguments format", "[arguments]") {
 	}
 }
 
-TEST_CASE("png2dds::arguments level", "[arguments]") {
-	SECTION("The default value of level is 6.") {
+TEST_CASE("png2dds::arguments quality", "[arguments]") {
+	SECTION("The default quality is set to maximum.") {
 		const auto arguments = get({binary, "."});
-		REQUIRE(arguments.level == png2dds::format::max_level(png2dds::format::type::bc7));
-	}
-
-	SECTION("The default value of level when the format is set depends on the format.") {
+		REQUIRE(arguments.quality == png2dds::format::quality::maximum);
 		const auto arguments_bc1 = get({binary, "-f", png2dds::format::name(png2dds::format::type::bc1), "."});
-		REQUIRE(arguments_bc1.level == png2dds::format::max_level(png2dds::format::type::bc1));
+		REQUIRE(arguments_bc1.quality == png2dds::format::quality::maximum);
 		const auto arguments_bc7 = get({binary, "-f", png2dds::format::name(png2dds::format::type::bc7), "."});
-		REQUIRE(arguments_bc7.level == png2dds::format::max_level(png2dds::format::type::bc7));
+		REQUIRE(arguments_bc7.quality == png2dds::format::quality::maximum);
 	}
 
-	SECTION("Level is not a number") {
-		const auto arguments = get({binary, "--level", "not_a_number", "."});
+	SECTION("Error when the quality is not a number") {
+		const auto arguments = get({binary, "--quality", "not_a_number", "."});
 		REQUIRE(has_error(arguments));
 	}
 
-	SECTION("Level is negative") {
-		const auto arguments = get({binary, "--level", "-4", "."});
+	SECTION("Error when the quality is negative") {
+		const auto arguments = get({binary, "--quality", "-4", "."});
 		REQUIRE(has_error(arguments));
 	}
 
-	SECTION("Level is out of bounds") {
-		const auto arguments = get({binary, "--level", "8", "."});
+	SECTION("Quality is out of bounds") {
+		const auto arguments = get({binary, "--quality", "8", "."});
 		REQUIRE(has_error(arguments));
 	}
 
 	SECTION("Level is too large to be parsed.") {
-		const auto arguments = get({binary, "--level", "4444444444444444444444444444444444444444444444444444444444444", "."});
+		const auto arguments = get({binary, "--quality", "4444444444444444444444444444444444444444444444444444444444444", "."});
 		REQUIRE(has_error(arguments));
 	}
 
 	SECTION("Valid level") {
 		constexpr unsigned int level = 5U;
-		const auto arguments = get({binary, "--level", std::to_string(level), "."});
+		const auto arguments = get({binary, "--quality", std::to_string(level), "."});
 		REQUIRE(is_valid(arguments));
-		REQUIRE(arguments.level == level);
-		const auto shorter = get({binary, "-l", std::to_string(level), "."});
+		REQUIRE(static_cast<unsigned int>(arguments.quality) == level);
+		const auto shorter = get({binary, "-q", std::to_string(level), "."});
 		REQUIRE(is_valid(shorter));
-		REQUIRE(shorter.level == level);
+		REQUIRE(static_cast<unsigned int>(shorter.quality) == level);
 	}
 
-	SECTION("Level is larger than the maximum") {
+	SECTION("Quality level is larger than the maximum") {
 		constexpr auto format_type = png2dds::format::type::bc1;
-		const auto arguments = get({binary, "-f", png2dds::format::name(format_type), "-l",
-			std::to_string(png2dds::format::max_level(format_type) + 1U), "."});
+		constexpr auto too_large_quality = static_cast<unsigned int>(png2dds::format::quality::maximum) + 1U;
+		const auto arguments = get({binary, "-f", png2dds::format::name(format_type), "-q",
+			std::to_string(too_large_quality), "."});
 		REQUIRE(has_error(arguments));
 	}
 }
