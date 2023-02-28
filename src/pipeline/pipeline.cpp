@@ -42,10 +42,8 @@ std::atomic<bool> force_finish = false;
 otbb::concurrent_queue<std::string> error_log;
 
 #if BOOST_OS_WINDOWS
-BOOL WINAPI ctrl_c_signal(DWORD ctrl_type)
-{
-	if (ctrl_type == CTRL_C_EVENT)
-	{
+BOOL WINAPI ctrl_c_signal(DWORD ctrl_type) {
+	if (ctrl_type == CTRL_C_EVENT) {
 		// If force_finish was already true, it means that Ctrl+C has been pressed a second time.
 		error_log.push("Cancelling encoding...");
 		const bool should_stop = force_finish.exchange(true);
@@ -55,12 +53,25 @@ BOOL WINAPI ctrl_c_signal(DWORD ctrl_type)
 	return FALSE;
 }
 
-void handle_ctrl_c_signal()
-{
-	SetConsoleCtrlHandler(ctrl_c_signal, TRUE);
-}
+void handle_ctrl_c_signal() { SetConsoleCtrlHandler(ctrl_c_signal, TRUE); }
 #else
-// ToDo
+struct sigaction act;
+struct sigaction oldact;
+
+void ctrl_c_signal(int signum) {
+	if (signum == SIGINT) {
+		// If force_finish was already true, it means that Ctrl+C has been pressed a second time.
+		error_log.push("Cancelling encoding...");
+		force_finish = true;
+	}
+}
+
+void handle_ctrl_c_signal() {
+	act.sa_handler = ctrl_c_signal;
+	sigemptyset(&act.sa_mask);
+	act.sa_flags = 0;
+	sigaction(SIGINT, &act, &oldact);
+}
 #endif
 
 constexpr std::size_t error_file_index = std::numeric_limits<std::size_t>::max();
@@ -305,18 +316,15 @@ void encode_as_dds(const input& input_data) {
 
 	std::future<void> error_report{};
 	if (input_data.verbose) {
-		error_report =
-			std::async(std::launch::async, error_reporting, std::ref(counter), input_data.paths.size());
+		error_report = std::async(std::launch::async, error_reporting, std::ref(counter), input_data.paths.size());
 	}
 
 	const otbb::filter<void, void> filters =
 		// Load PNG files into memory, one by one.
-		otbb::make_filter<void, png_file>(
-			otbb::filter_mode::serial_in_order, load_png_file(input_data.paths, counter)) &
+		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_in_order, load_png_file(input_data.paths, counter)) &
 		// Decode PNG files into images loaded in memory.
-		otbb::make_filter<png_file, image>(
-			otbb::filter_mode::parallel, decode_png_image(input_data.paths, input_data.vflip,
-																		 input_data.format == format::type::bc1_alpha_bc7)) &
+		otbb::make_filter<png_file, image>(otbb::filter_mode::parallel,
+			decode_png_image(input_data.paths, input_data.vflip, input_data.format == format::type::bc1_alpha_bc7)) &
 		// Convert images into pixel block images. The pixels of these images are rearranged into 4x4 blocks,
 		// ready for the DDS encoding stage.
 		otbb::make_filter<image, pixel_block_image>(otbb::filter_mode::parallel, get_pixel_blocks{}) &
@@ -335,7 +343,8 @@ void encode_as_dds(const input& input_data) {
 		std::string error_str;
 		while (error_log.try_pop(error_str)) { boost::nowide::cerr << error_str << '\n'; }
 		boost::nowide::cerr.flush();
-		boost::nowide::cout << fmt::format("\rProgress: {:d}/{:d}\n", counter, input_data.paths.size());
+		const auto paths_size = input_data.paths.size();
+		boost::nowide::cout << fmt::format("\rProgress: {:d}/{:d}\n", std::min(counter.load(), paths_size), paths_size);
 		boost::nowide::cout.flush();
 	}
 }

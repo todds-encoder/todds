@@ -7,6 +7,7 @@
 # clang-diagnostic-unknown-warning-option: Triggered by GCC-only warnings.
 # clang-diagnostic-unused-command-line-argument: Ignore unused command line arguments.
 # cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers: Required for test cases.
+# cppcoreguidelines-avoid-non-const-global-variables: Global variables for SIGINT handling.
 # cppcoreguidelines-owning-memory: Allow using non-owner pointers without requiring gsl types.
 # cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay: Allow using the standard assert macro.
 # cppcoreguidelines-pro-bounds-constant-array-index: Do not force bounds checking.
@@ -34,6 +35,7 @@ Checks: '*,
 -clang-diagnostic-unknown-warning-option,
 -clang-diagnostic-unused-command-line-argument,
 -cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,
+-cppcoreguidelines-avoid-non-const-global-variables,
 -cppcoreguidelines-owning-memory,
 -cppcoreguidelines-pro-bounds-array-to-pointer-decay,-hicpp-no-array-decay,
 -cppcoreguidelines-pro-bounds-constant-array-index,
