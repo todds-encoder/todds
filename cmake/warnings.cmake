@@ -101,6 +101,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 		/analyze     # Code analysis.
 		/wd6239      # Triggered by code inside of fmt.
 		/wd6297      # Triggered by code inside of rgbcx.
+		/wd28301     # Triggered by Windows API.
 		)
 endif ()
 

@@ -23,6 +23,11 @@
 #include <atomic>
 #include <chrono>
 #include <future>
+#if BOOST_OS_WINDOWS
+#include <windows.h>
+#else
+#include <csignal>
+#endif
 
 namespace otbb = oneapi::tbb;
 
@@ -32,6 +37,31 @@ using png2dds::pixel_block_image;
 using png2dds::pipeline::paths_vector;
 
 namespace {
+
+std::atomic<bool> force_finish = false;
+otbb::concurrent_queue<std::string> error_log;
+
+#if BOOST_OS_WINDOWS
+BOOL WINAPI ctrl_c_signal(DWORD ctrl_type)
+{
+	if (ctrl_type == CTRL_C_EVENT)
+	{
+		// If force_finish was already true, it means that Ctrl+C has been pressed a second time.
+		error_log.push("Cancelling encoding...");
+		const bool should_stop = force_finish.exchange(true);
+		return should_stop ? FALSE : TRUE;
+	}
+
+	return FALSE;
+}
+
+void handle_ctrl_c_signal()
+{
+	SetConsoleCtrlHandler(ctrl_c_signal, TRUE);
+}
+#else
+// ToDo
+#endif
 
 constexpr std::size_t error_file_index = std::numeric_limits<std::size_t>::max();
 
@@ -44,15 +74,13 @@ struct png_file {
 
 class load_png_file final {
 public:
-	explicit load_png_file(const paths_vector& paths, std::atomic<std::size_t>& counter,
-		otbb::concurrent_queue<std::string>& error_log) noexcept
+	explicit load_png_file(const paths_vector& paths, std::atomic<std::size_t>& counter) noexcept
 		: _paths{paths}
-		, _counter{counter}
-		, _error_log{error_log} {}
+		, _counter{counter} {}
 
 	png_file operator()(otbb::flow_control& flow) const {
 		const std::size_t index = _counter++;
-		if (index >= _paths.size()) {
+		if (index >= _paths.size() || force_finish) [[unlikely]] {
 			flow.stop();
 			return {};
 		}
@@ -65,7 +93,7 @@ public:
 		boost::nowide::ifstream ifs{input, std::ios::in | std::ios::binary};
 
 		if (!ifs.is_open()) [[unlikely]] {
-			_error_log.push(fmt::format("Load PNG file error in {:s} ", _paths[index].first.string()));
+			error_log.push(fmt::format("Load PNG file error in {:s} ", _paths[index].first.string()));
 		}
 
 		return {{std::istreambuf_iterator<char>{ifs}, {}}, index};
@@ -74,16 +102,13 @@ public:
 private:
 	const paths_vector& _paths;
 	std::atomic<std::size_t>& _counter;
-	otbb::concurrent_queue<std::string>& _error_log;
 };
 
 class decode_png_image final {
 public:
-	explicit decode_png_image(const paths_vector& paths, bool vflip, otbb::concurrent_queue<std::string>& error_log,
-		bool calculate_alpha) noexcept
+	explicit decode_png_image(const paths_vector& paths, bool vflip, bool calculate_alpha) noexcept
 		: _paths{paths}
 		, _vflip{vflip}
-		, _error_log{error_log}
 		, _calculate_alpha{calculate_alpha} {}
 
 	image operator()(const png_file& file) const {
@@ -95,7 +120,7 @@ public:
 			try {
 				result = png2dds::png::decode(file.file_index, path, file.buffer, _vflip);
 			} catch (const std::runtime_error& exc) {
-				_error_log.push(fmt::format("PNG Decoding error {:s} -> {:s}", path, exc.what()));
+				error_log.push(fmt::format("PNG Decoding error {:s} -> {:s}", path, exc.what()));
 			}
 		}
 
@@ -121,7 +146,6 @@ public:
 private:
 	const paths_vector& _paths;
 	bool _vflip;
-	otbb::concurrent_queue<std::string>& _error_log;
 	bool _calculate_alpha;
 };
 
@@ -213,20 +237,21 @@ private:
 	const paths_vector& _paths;
 };
 
-void error_reporting(
-	std::atomic<std::size_t>& progress, std::size_t total, otbb::concurrent_queue<std::string>& error_log) {
+void error_reporting(std::atomic<std::size_t>& progress, std::size_t total) {
 	using namespace std::chrono_literals;
 	std::size_t last_progress{};
 	std::string error_str;
-	bool requires_newline = false;
+	bool requires_newline = true;
 
-	while (progress < total) {
+	while (progress < total && !force_finish) {
 		while (error_log.try_pop(error_str)) {
 			if (requires_newline) {
 				boost::nowide::cerr << '\n';
 				requires_newline = false;
 			}
+			boost::nowide::cout.flush();
 			boost::nowide::cerr << error_str << '\n';
+			boost::nowide::cerr.flush();
 		}
 		const std::size_t current_progress = progress;
 
@@ -277,21 +302,20 @@ void encode_as_dds(const input& input_data) {
 
 	// Variables referenced by the filters.
 	std::atomic<std::size_t> counter;
-	otbb::concurrent_queue<std::string> error_log;
 
 	std::future<void> error_report{};
 	if (input_data.verbose) {
 		error_report =
-			std::async(std::launch::async, error_reporting, std::ref(counter), input_data.paths.size(), std::ref(error_log));
+			std::async(std::launch::async, error_reporting, std::ref(counter), input_data.paths.size());
 	}
 
 	const otbb::filter<void, void> filters =
 		// Load PNG files into memory, one by one.
 		otbb::make_filter<void, png_file>(
-			otbb::filter_mode::serial_in_order, load_png_file(input_data.paths, counter, error_log)) &
+			otbb::filter_mode::serial_in_order, load_png_file(input_data.paths, counter)) &
 		// Decode PNG files into images loaded in memory.
 		otbb::make_filter<png_file, image>(
-			otbb::filter_mode::parallel, decode_png_image(input_data.paths, input_data.vflip, error_log,
+			otbb::filter_mode::parallel, decode_png_image(input_data.paths, input_data.vflip,
 																		 input_data.format == format::type::bc1_alpha_bc7)) &
 		// Convert images into pixel block images. The pixels of these images are rearranged into 4x4 blocks,
 		// ready for the DDS encoding stage.
@@ -301,6 +325,8 @@ void encode_as_dds(const input& input_data) {
 		// Save DDS files back into the file system, one by one.
 		otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_dds_file{input_data.paths});
 
+	// Sending the Ctrl+C signal will stop loading new files, but files being currently processed will carry on.
+	handle_ctrl_c_signal();
 	otbb::parallel_pipeline(tokens, filters);
 
 	if (error_report.valid()) {
@@ -309,7 +335,7 @@ void encode_as_dds(const input& input_data) {
 		std::string error_str;
 		while (error_log.try_pop(error_str)) { boost::nowide::cerr << error_str << '\n'; }
 		boost::nowide::cerr.flush();
-		boost::nowide::cout << fmt::format("\rProgress: {:d}/{:d}\n", input_data.paths.size(), input_data.paths.size());
+		boost::nowide::cout << fmt::format("\rProgress: {:d}/{:d}\n", counter, input_data.paths.size());
 		boost::nowide::cout.flush();
 	}
 }
