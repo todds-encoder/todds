@@ -11,7 +11,6 @@ project(png2dds
 	)
 
 option(PNG2DDS_UNIT_TESTS "Build png2dds unit tests" OFF)
-option(PNG2DDS_UI "Build png2dds_ui" ON)
 
 # Set the C++ standard used by this project.
 set(CMAKE_CXX_STANDARD 20)
@@ -34,10 +33,6 @@ find_package(fmt REQUIRED)
 find_package(Hyperscan REQUIRED)
 find_package(Threads REQUIRED)
 find_package(TBB REQUIRED)
-if (PNG2DDS_UI)
-	find_package(Freetype REQUIRED)
-	find_package(SDL2 REQUIRED)
-endif ()
 
 add_subdirectory(thirdparty)
 

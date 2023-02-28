@@ -20,6 +20,12 @@ struct input {
 	/** Maximum parallelism allowed for the internal TBB pipeline. */
 	std::size_t parallelism{};
 
+	/** Maximum number of mipmaps to generate.
+	 * With 1, only the main image is generated.
+	 * Mipmap generation will stop when one of the sides of the image reaches 4.
+	 */
+	std::size_t mipmaps{};
+
 	/** PNG files to convert, and their destination paths. */
 	paths_vector paths{};
 

@@ -176,6 +176,44 @@ TEST_CASE("png2dds::arguments quality", "[arguments]") {
 	}
 }
 
+TEST_CASE("png2dds::arguments mipmaps", "[arguments]") {
+	SECTION("The default value of mipmaps is to generate very possible mipmap.") {
+		const auto arguments = get({binary, "."});
+		REQUIRE(arguments.mipmaps == std::numeric_limits<std::size_t>::max());
+	}
+
+	SECTION("Mipmaps value is not a number") {
+		const auto arguments = get({binary, "--mipmaps", "not_a_number", "."});
+		REQUIRE(has_error(arguments));
+	}
+
+	SECTION("Mipmaps value is negative") {
+		const auto arguments = get({binary, "--mipmaps", "-4", "."});
+		REQUIRE(has_error(arguments));
+	}
+
+	SECTION("Mipmap value is too large to be parsed.") {
+		const auto arguments = get({binary, "--mipmaps", "4444444444444444444444444444444444444444444444444444444444444", "."});
+		REQUIRE(has_error(arguments));
+	}
+
+	SECTION("Setting mipmaps to zero implies generating all possible mipmaps.") {
+		const auto arguments = get({binary, "--mipmaps", "0", "."});
+		REQUIRE(is_valid(arguments));
+		REQUIRE(arguments.mipmaps == std::numeric_limits<std::size_t>::max());
+	}
+
+	SECTION("Valid mipmaps value") {
+		constexpr unsigned int mipmaps = 5U;
+		const auto arguments = get({binary, "--mipmaps", std::to_string(mipmaps), "."});
+		REQUIRE(is_valid(arguments));
+		REQUIRE(arguments.mipmaps == mipmaps);
+		const auto shorter = get({binary, "-m", std::to_string(mipmaps), "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(shorter.mipmaps == mipmaps);
+	}
+}
+
 TEST_CASE("png2dds::arguments threads", "[arguments]") {
 	const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
 	SECTION("The default value of threads is determined by the oneTBB library.") {

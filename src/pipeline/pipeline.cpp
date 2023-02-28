@@ -286,13 +286,19 @@ void encode_as_dds(const input& input_data) {
 	}
 
 	const otbb::filter<void, void> filters =
+		// Load PNG files into memory, one by one.
 		otbb::make_filter<void, png_file>(
 			otbb::filter_mode::serial_in_order, load_png_file(input_data.paths, counter, error_log)) &
+		// Decode PNG files into images loaded in memory.
 		otbb::make_filter<png_file, image>(
 			otbb::filter_mode::parallel, decode_png_image(input_data.paths, input_data.vflip, error_log,
 																		 input_data.format == format::type::bc1_alpha_bc7)) &
+		// Convert images into pixel block images. The pixels of these images are rearranged into 4x4 blocks,
+		// ready for the DDS encoding stage.
 		otbb::make_filter<image, pixel_block_image>(otbb::filter_mode::parallel, get_pixel_blocks{}) &
+		// Encode pixel block images as DDS files.
 		encoding_filter(input_data.format, input_data.quality) &
+		// Save DDS files back into the file system, one by one.
 		otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_dds_file{input_data.paths});
 
 	otbb::parallel_pipeline(tokens, filters);

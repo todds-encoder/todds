@@ -56,7 +56,7 @@ public:
 
 	/**
 	 * File index of the image in the list of files to load.
-	 * @return Index of the file
+	 * @return Index of the file.
 	 */
 	[[nodiscard]] std::size_t file_index() const noexcept;
 

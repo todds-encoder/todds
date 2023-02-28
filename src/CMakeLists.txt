@@ -16,6 +16,3 @@ add_subdirectory(regex)
 add_subdirectory(task)
 # Application module
 add_subdirectory(main)
-if (PNG2DDS_UI)
-	add_subdirectory(ui_main)
-endif ()
