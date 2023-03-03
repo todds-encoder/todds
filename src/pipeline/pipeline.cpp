@@ -74,6 +74,7 @@ void handle_ctrl_c_signal() {
 }
 #endif
 
+// When using BC1_ALPHA_BC7, this function determines if a file should be encoded as BC7.
 bool has_alpha(const image& img) {
 	const auto buffer = img.buffer();
 	for (std::size_t alpha_index = image::bytes_per_pixel - 1UL; alpha_index < buffer.size();
@@ -83,8 +84,10 @@ bool has_alpha(const image& img) {
 	return false;
 }
 
+// Files using this file index have triggered errors and should not be processed.
 constexpr std::size_t error_file_index = std::numeric_limits<std::size_t>::max();
 
+// Header extension for BC7 files.
 constexpr DDS_HEADER_DXT10 header_extension{DXGI_FORMAT_BC7_UNORM, D3D10_RESOURCE_DIMENSION_TEXTURE2D, 0U, 1U, 0U};
 
 struct file_data {
