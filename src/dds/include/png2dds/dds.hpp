@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "png2dds/dds_image.hpp"
-#include "png2dds/pixel_block_image.hpp"
+#include "png2dds/format.hpp"
+#include "png2dds/image_types.hpp"
 
 #include <bc7e_ispc.h>
 
@@ -25,7 +25,7 @@ void initialize_bc1_encoding();
 /**
  * Encode an image to BC1.
  * @param quality DDS encoding quality level.
- * @param image Source block image.
+ * @param image Source pixel block image.
  * @return BC1 encoded image.
  */
 [[nodiscard]] dds_image bc1_encode(png2dds::format::quality quality, const pixel_block_image& image);
@@ -46,9 +46,22 @@ void initialize_bc7_encoding();
 /**
  * Encode an image to BC7.
  * @param params BC7 block encoding parameters.
- * @param image Source block image.
+ * @param image Source pixel block image.
  * @return BC7 encoded image.
  */
-[[nodiscard]] dds_image bc7_encode(const ispc::bc7e_compress_block_params& params, const pixel_block_image& image);
+[[nodiscard]] dds_image bc7_encode(
+	const ispc::bc7e_compress_block_params& params, const pixel_block_image& image);
+
+
+/**
+ * Construct a DDS header.
+ * @param format_type Format of the file.
+ * @param width Original width of the image.
+ * @param height Original height of the image.
+ * @param block_size_bytes Size of the blocks vector in bytes.
+ * @return Array containing the DDS header information.
+ */
+std::array<char, 124> dds_header(
+	png2dds::format::type format_type, std::size_t width, std::size_t height, std::size_t block_size_bytes);
 
 } // namespace png2dds::dds

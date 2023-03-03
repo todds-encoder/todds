@@ -16,6 +16,7 @@ target_compile_options(png2dds_dds PRIVATE ${PNG2DDS_CPP_WARNING_FLAGS})
 target_compile_definitions(png2dds_dds PRIVATE RGBCX_IMPLEMENTATION)
 
 target_link_libraries(png2dds_dds PRIVATE
+	bc7enc_dds_defs
 	rgbcx
 	TBB::tbb
 	PUBLIC

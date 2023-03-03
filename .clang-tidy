@@ -27,6 +27,7 @@
 # modernize-use-trailing-return-type: Allow declarations without trailing return types.
 # readability-function-cognitive-complexity: Triggered by catch2 tests.
 # readability-redundant-member-init: Conflicts with -Weffc++
+# readability-use-anyofallof: Demands using std::ranges::any_of even for really simple loops.
 
 Checks: '*,
 -altera-*,
@@ -55,6 +56,7 @@ Checks: '*,
 -modernize-use-trailing-return-type,
 -readability-function-cognitive-complexity,
 -readability-redundant-member-init,
+-readability-use-anyofallof,
 '
 
 AnalyzeTemporaryDtors: true

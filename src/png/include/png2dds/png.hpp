@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "png2dds/dds_image.hpp"
 #include "png2dds/image.hpp"
 #include "png2dds/memory.hpp"
 

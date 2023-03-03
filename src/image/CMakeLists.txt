@@ -3,12 +3,10 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 add_library(png2dds_image STATIC
-	include/png2dds/dds_image.hpp
 	include/png2dds/image.hpp
-	include/png2dds/pixel_block_image.hpp
-	dds_image.cpp
+	include/png2dds/image_types.hpp
 	image.cpp
-	pixel_block_image.cpp
+	image_types.cpp
 	)
 
 target_include_directories(png2dds_image PUBLIC

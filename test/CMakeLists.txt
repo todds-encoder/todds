@@ -7,10 +7,8 @@ find_package(Catch2 REQUIRED)
 add_executable(png2dds_test
 	test_main.cpp
 	test_arguments.cpp
-	test_dds_image.cpp
 	test_format.cpp
 	test_image.cpp
-	test_pixel_block_image.cpp
 	test_project.cpp
 	test_util.cpp
 	)

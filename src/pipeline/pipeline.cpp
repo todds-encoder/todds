@@ -5,9 +5,7 @@
 #include "png2dds/pipeline.hpp"
 
 #include "png2dds/dds.hpp"
-#include "png2dds/dds_image.hpp"
 #include "png2dds/image.hpp"
-#include "png2dds/pixel_block_image.hpp"
 #include "png2dds/png.hpp"
 #include "png2dds/vector.hpp"
 
@@ -75,12 +73,11 @@ void handle_ctrl_c_signal() {
 #endif
 
 // When using BC1_ALPHA_BC7, this function determines if a file should be encoded as BC7.
-bool has_alpha(const image& img) {
-	const auto buffer = img.buffer();
-	for (std::size_t alpha_index = image::bytes_per_pixel - 1UL; alpha_index < buffer.size();
-			 alpha_index += image::bytes_per_pixel) {
-		if (buffer[alpha_index] < 255) { return true; }
+bool has_alpha(const pixel_block_image& img) {
+	for (const std::uint32_t pixel : img) {
+		if ((pixel % 256) < 255) { return true; }
 	}
+
 	return false;
 }
 
@@ -91,13 +88,12 @@ constexpr std::size_t error_file_index = std::numeric_limits<std::size_t>::max()
 constexpr DDS_HEADER_DXT10 header_extension{DXGI_FORMAT_BC7_UNORM, D3D10_RESOURCE_DIMENSION_TEXTURE2D, 0U, 1U, 0U};
 
 struct file_data {
-	// Width of the image excluding extra columns.
+	// Width of the image excluding extra columns. Set during the decode PNG stage.
 	std::size_t width{};
-	// Height of the image excluding extra rows.
+	// Height of the image excluding extra rows. Set during the decode PNG stage.
 	std::size_t height{};
-	// True if the file has alpha and the current pipeline is interested in knowing this value.
-	// Will always be false for pipelines which do not require this information.
-	bool encode_as_alpha{};
+	// DDS format of the image. Set during the encode DDS stage.
+	png2dds::format::type format{};
 };
 
 struct png_file {
@@ -139,12 +135,10 @@ private:
 
 class decode_png_image final {
 public:
-	explicit decode_png_image(
-		std::vector<file_data>& files_data, const paths_vector& paths, bool vflip, bool calculate_alpha) noexcept
+	explicit decode_png_image(std::vector<file_data>& files_data, const paths_vector& paths, bool vflip) noexcept
 		: _files_data{files_data}
 		, _paths{paths}
-		, _vflip{vflip}
-		, _calculate_alpha{calculate_alpha} {}
+		, _vflip{vflip} {}
 
 	image operator()(const png_file& file) const {
 		image result{error_file_index, 0U, 0U};
@@ -157,7 +151,6 @@ public:
 				// ToDo these values are currently still stored in the image type, store them in a struct instead.
 				_files_data[file.file_index].width = result.width();
 				_files_data[file.file_index].height = result.height();
-				_files_data[file.file_index].encode_as_alpha = _calculate_alpha && has_alpha(result);
 			} catch (const std::runtime_error& exc) {
 				error_log.push(fmt::format("PNG Decoding error {:s} -> {:s}", path, exc.what()));
 			}
@@ -170,98 +163,119 @@ private:
 	std::vector<file_data>& _files_data;
 	const paths_vector& _paths;
 	bool _vflip;
-	bool _calculate_alpha;
+};
+
+struct pixel_block_data {
+	pixel_block_image image;
+	std::size_t file_index;
 };
 
 class get_pixel_blocks final {
 public:
-	pixel_block_image operator()(const image& image) const { return pixel_block_image{image}; }
+	explicit get_pixel_blocks(std::vector<file_data>& files_data) noexcept
+		: _files_data{files_data} {}
+
+	pixel_block_data operator()(const image& image) const {
+		const auto& file_data = _files_data[image.file_index()];
+		return pixel_block_data{png2dds::to_pixel_blocks(image, file_data.width, file_data.height), image.file_index()};
+	}
+
+private:
+	std::vector<file_data>& _files_data;
+};
+
+struct dds_data {
+	dds_image image;
+	std::size_t file_index;
 };
 
 class encode_bc1_image final {
 public:
-	explicit encode_bc1_image(png2dds::format::quality quality) noexcept
-		: _quality{quality} {}
+	encode_bc1_image(std::vector<file_data>& files_data, png2dds::format::quality quality) noexcept
+		: _files_data{files_data}
+		, _quality{quality} {}
 
-	dds_image operator()(const pixel_block_image& pixel_image) const {
-		if (pixel_image.file_index() != error_file_index) [[likely]] {
-			return png2dds::dds::bc1_encode(_quality, pixel_image);
-		}
-		return dds_image{};
+	dds_data operator()(const pixel_block_data& pixel_data) const {
+		_files_data[pixel_data.file_index].format = png2dds::format::type::bc1;
+		return {png2dds::dds::bc1_encode(_quality, pixel_data.image), pixel_data.file_index};
 	}
 
 private:
+	std::vector<file_data>& _files_data;
 	png2dds::format::quality _quality;
 };
 
 class encode_bc7_image final {
 public:
-	explicit encode_bc7_image(png2dds::format::quality quality) noexcept
-		: _params{png2dds::dds::bc7_encode_params(quality)} {}
+	encode_bc7_image(std::vector<file_data>& files_data, png2dds::format::quality quality) noexcept
+		: _files_data{files_data}
+		, _params{png2dds::dds::bc7_encode_params(quality)} {}
 
-	dds_image operator()(const pixel_block_image& pixel_image) const {
-		if (pixel_image.file_index() != error_file_index) [[likely]] {
-			return png2dds::dds::bc7_encode(_params, pixel_image);
-		}
-		return dds_image{};
+	dds_data operator()(const pixel_block_data& pixel_data) const {
+		_files_data[pixel_data.file_index].format = png2dds::format::type::bc7;
+		return {png2dds::dds::bc7_encode(_params, pixel_data.image), pixel_data.file_index};
 	}
 
 private:
+	std::vector<file_data>& _files_data;
 	png2dds::dds::bc7_params _params;
 };
 
 class encode_bc1_alpha_bc7_image final {
 public:
-	explicit encode_bc1_alpha_bc7_image(
-		const std::vector<file_data>& files_data, png2dds::format::quality quality) noexcept
+	explicit encode_bc1_alpha_bc7_image(std::vector<file_data>& files_data, png2dds::format::quality quality) noexcept
 		: _files_data{files_data}
 		, _params{png2dds::dds::bc7_encode_params(quality)}
 		, _quality{quality} {}
 
-	dds_image operator()(const pixel_block_image& pixel_image) const {
-		if (pixel_image.file_index() != error_file_index) [[likely]] {
-			return _files_data[pixel_image.file_index()].encode_as_alpha ? png2dds::dds::bc7_encode(_params, pixel_image) :
-																																		 png2dds::dds::bc1_encode(_quality, pixel_image);
-		}
-		return dds_image{};
+	dds_data operator()(const pixel_block_data& pixel_data) const {
+		const auto format = has_alpha(pixel_data.image) ? png2dds::format::type::bc7 : png2dds::format::type::bc1;
+		_files_data[pixel_data.file_index].format = format;
+
+		return {format == png2dds::format::type::bc7 ? png2dds::dds::bc7_encode(_params, pixel_data.image) :
+																									 png2dds::dds::bc1_encode(_quality, pixel_data.image),
+			pixel_data.file_index};
 	}
 
 private:
-	const std::vector<file_data>& _files_data;
+	std::vector<file_data>& _files_data;
 	png2dds::dds::bc7_params _params;
 	png2dds::format::quality _quality;
 };
 
 class save_dds_file final {
 public:
-	explicit save_dds_file(const paths_vector& paths) noexcept
-		: _paths{paths} {}
+	explicit save_dds_file(const std::vector<file_data>& files_data, const paths_vector& paths) noexcept
+		: _files_data{files_data}
+		, _paths{paths} {}
 
-	void operator()(const dds_image& dds_img) const {
-		if (dds_img.file_index() == error_file_index) [[unlikely]] { return; }
+	void operator()(const dds_data& dds_img) const {
+		const std::size_t file_index = dds_img.file_index;
+		if (dds_img.file_index == error_file_index) [[unlikely]] { return; }
 
 #if BOOST_OS_WINDOWS
-		const boost::filesystem::path output{R"(\\?\)" + _paths[dds_img.file_index()].second.string()};
+		const boost::filesystem::path output{R"(\\?\)" + _paths[file_index].second.string()};
 #else
-		const boost::filesystem::path& output{_paths[dds_img.file_index()].second.string()};
+		const boost::filesystem::path& output{_paths[file_index].second.string()};
 #endif
 
 		boost::nowide::ofstream ofs{output, std::ios::out | std::ios::binary};
 
 		ofs << "DDS ";
-		const std::size_t block_size_bytes = dds_img.blocks().size() * sizeof(std::uint64_t);
-		// ToDo write header using the width and height values from the files_data vector.
-		const auto header = dds_img.header();
+		const std::size_t block_size_bytes = dds_img.image.size() * sizeof(std::uint64_t);
+		const auto& file_data = _files_data[file_index];
+		const auto header = png2dds::dds::dds_header(file_data.format, file_data.width, file_data.height, block_size_bytes);
 		ofs.write(header.data(), header.size());
-		if (dds_img.format() == png2dds::format::type::bc7) {
+		if (file_data.format == png2dds::format::type::bc7) {
 			ofs.write(reinterpret_cast<const char*>(&header_extension), sizeof(header_extension));
 		}
 
-		ofs.write(reinterpret_cast<const char*>(dds_img.blocks().data()), static_cast<std::ptrdiff_t>(block_size_bytes));
+		ofs.write(reinterpret_cast<const char*>(dds_img.image.data()), static_cast<std::ptrdiff_t>(block_size_bytes));
 		ofs.close();
 	}
 
 private:
+	const std::vector<file_data>& _files_data;
 	const paths_vector& _paths;
 };
 
@@ -293,15 +307,17 @@ void error_reporting(std::atomic<std::size_t>& progress, std::size_t total) {
 	}
 }
 
-otbb::filter<pixel_block_image, dds_image> encoding_filter(const std::vector<file_data>& files_data,
-	png2dds::format::type format_type, png2dds::format::quality quality) {
+otbb::filter<pixel_block_data, dds_data> encoding_filter(
+	std::vector<file_data>& files_data, png2dds::format::type format_type, png2dds::format::quality quality) {
 	switch (format_type) {
 	case png2dds::format::type::bc1:
-		return otbb::make_filter<pixel_block_image, dds_image>(otbb::filter_mode::parallel, encode_bc1_image{quality});
+		return otbb::make_filter<pixel_block_data, dds_data>(
+			otbb::filter_mode::parallel, encode_bc1_image{files_data, quality});
 	case png2dds::format::type::bc7:
-		return otbb::make_filter<pixel_block_image, dds_image>(otbb::filter_mode::parallel, encode_bc7_image{quality});
+		return otbb::make_filter<pixel_block_data, dds_data>(
+			otbb::filter_mode::parallel, encode_bc7_image{files_data, quality});
 	case png2dds::format::type::bc1_alpha_bc7:
-		return otbb::make_filter<pixel_block_image, dds_image>(
+		return otbb::make_filter<pixel_block_data, dds_data>(
 			otbb::filter_mode::parallel, encode_bc1_alpha_bc7_image{files_data, quality});
 	}
 	assert(false);
@@ -345,15 +361,14 @@ void encode_as_dds(const input& input_data) {
 		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_in_order, load_png_file(input_data.paths, counter)) &
 		// Decode PNG files into images loaded in memory.
 		otbb::make_filter<png_file, image>(
-			otbb::filter_mode::parallel, decode_png_image(files_data, input_data.paths, input_data.vflip,
-																		 input_data.format == format::type::bc1_alpha_bc7)) &
+			otbb::filter_mode::parallel, decode_png_image(files_data, input_data.paths, input_data.vflip)) &
 		// Convert images into pixel block images. The pixels of these images are rearranged into 4x4 blocks,
 		// ready for the DDS encoding stage.
-		otbb::make_filter<image, pixel_block_image>(otbb::filter_mode::parallel, get_pixel_blocks{}) &
+		otbb::make_filter<image, pixel_block_data>(otbb::filter_mode::parallel, get_pixel_blocks(files_data)) &
 		// Encode pixel block images as DDS files.
 		encoding_filter(files_data, input_data.format, input_data.quality) &
 		// Save DDS files back into the file system, one by one.
-		otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_dds_file{input_data.paths});
+		otbb::make_filter<dds_data, void>(otbb::filter_mode::parallel, save_dds_file{files_data, input_data.paths});
 
 	// Sending the Ctrl+C signal will stop loading new files, but files being currently processed will carry on.
 	handle_ctrl_c_signal();
