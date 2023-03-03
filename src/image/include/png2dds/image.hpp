@@ -35,12 +35,14 @@ public:
 	 * Width of the image excluding extra columns.
 	 * @return Real width in pixels.
 	 */
+	// ToDo remove
 	[[nodiscard]] std::size_t width() const noexcept;
 
 	/**
 	 * Height of the image excluding extra rows.
 	 * @return Real height in pixels.
 	 */
+	// ToDo remove
 	[[nodiscard]] std::size_t height() const noexcept;
 
 	/**
@@ -66,6 +68,7 @@ public:
 	 * Will always be false for pipelines which do not require this information.
 	 * @return If the image has alpha or not.
 	 */
+	 // ToDo remove
 	[[nodiscard]] bool encode_as_alpha() const noexcept;
 
 	/**
@@ -115,8 +118,8 @@ private:
 	std::size_t _padded_width;
 	std::size_t _padded_height;
 	buffer_type _buffer;
-	std::size_t _width;
-	std::size_t _height;
+	std::size_t _width; // ToDo remove// ToDo remove
+	std::size_t _height; // ToDo remove
 	std::size_t _file_index;
 	bool _encode_as_alpha; // NOLINT
 };

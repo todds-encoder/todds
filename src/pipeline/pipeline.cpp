@@ -87,6 +87,16 @@ constexpr std::size_t error_file_index = std::numeric_limits<std::size_t>::max()
 
 constexpr DDS_HEADER_DXT10 header_extension{DXGI_FORMAT_BC7_UNORM, D3D10_RESOURCE_DIMENSION_TEXTURE2D, 0U, 1U, 0U};
 
+struct file_data {
+	// Width of the image excluding extra columns.
+	std::size_t width{};
+	// Height of the image excluding extra rows.
+	std::size_t height{};
+	// True if the file has alpha and the current pipeline is interested in knowing this value.
+	// Will always be false for pipelines which do not require this information.
+	bool encode_as_alpha{};
+};
+
 struct png_file {
 	png2dds::vector<std::uint8_t> buffer;
 	std::size_t file_index;
@@ -126,8 +136,10 @@ private:
 
 class decode_png_image final {
 public:
-	explicit decode_png_image(const paths_vector& paths, bool vflip, bool calculate_alpha) noexcept
-		: _paths{paths}
+	explicit decode_png_image(
+		std::vector<file_data>& files_data, const paths_vector& paths, bool vflip, bool calculate_alpha) noexcept
+		: _files_data{files_data}
+		, _paths{paths}
 		, _vflip{vflip}
 		, _calculate_alpha{calculate_alpha} {}
 
@@ -139,19 +151,20 @@ public:
 			const std::string& path = _paths[file.file_index].first.string();
 			try {
 				result = png2dds::png::decode(file.file_index, path, file.buffer, _vflip);
+				// ToDo these values are currently still stored in the image type, store them in a struct instead.
+				_files_data[file.file_index].width = result.width();
+				_files_data[file.file_index].height = result.height();
+				_files_data[file.file_index].encode_as_alpha = _calculate_alpha && has_alpha(result);
 			} catch (const std::runtime_error& exc) {
 				error_log.push(fmt::format("PNG Decoding error {:s} -> {:s}", path, exc.what()));
 			}
-		}
-
-		if (result.file_index() != error_file_index && _calculate_alpha) [[unlikely]] {
-			if (has_alpha(result)) { result.set_encode_as_alpha(); }
 		}
 
 		return result;
 	}
 
 private:
+	std::vector<file_data>& _files_data;
 	const paths_vector& _paths;
 	bool _vflip;
 	bool _calculate_alpha;
@@ -196,19 +209,22 @@ private:
 
 class encode_bc1_alpha_bc7_image final {
 public:
-	explicit encode_bc1_alpha_bc7_image(png2dds::format::quality quality) noexcept
-		: _params{png2dds::dds::bc7_encode_params(quality)}
+	explicit encode_bc1_alpha_bc7_image(
+		const std::vector<file_data>& files_data, png2dds::format::quality quality) noexcept
+		: _files_data{files_data}
+		, _params{png2dds::dds::bc7_encode_params(quality)}
 		, _quality{quality} {}
 
 	dds_image operator()(const pixel_block_image& pixel_image) const {
 		if (pixel_image.file_index() != error_file_index) [[likely]] {
-			return pixel_image.encode_as_alpha() ? png2dds::dds::bc7_encode(_params, pixel_image) :
-																						 png2dds::dds::bc1_encode(_quality, pixel_image);
+			return _files_data[pixel_image.file_index()].encode_as_alpha ? png2dds::dds::bc7_encode(_params, pixel_image) :
+																																		 png2dds::dds::bc1_encode(_quality, pixel_image);
 		}
 		return dds_image{};
 	}
 
 private:
+	const std::vector<file_data>& _files_data;
 	png2dds::dds::bc7_params _params;
 	png2dds::format::quality _quality;
 };
@@ -231,6 +247,7 @@ public:
 
 		ofs << "DDS ";
 		const std::size_t block_size_bytes = dds_img.blocks().size() * sizeof(std::uint64_t);
+		// ToDo write header using the width and height values from the files_data vector.
 		const auto header = dds_img.header();
 		ofs.write(header.data(), header.size());
 		if (dds_img.format() == png2dds::format::type::bc7) {
@@ -273,7 +290,7 @@ void error_reporting(std::atomic<std::size_t>& progress, std::size_t total) {
 	}
 }
 
-otbb::filter<pixel_block_image, dds_image> encoding_filter(
+otbb::filter<pixel_block_image, dds_image> encoding_filter(const std::vector<file_data>& files_data,
 	png2dds::format::type format_type, png2dds::format::quality quality) {
 	switch (format_type) {
 	case png2dds::format::type::bc1:
@@ -282,7 +299,7 @@ otbb::filter<pixel_block_image, dds_image> encoding_filter(
 		return otbb::make_filter<pixel_block_image, dds_image>(otbb::filter_mode::parallel, encode_bc7_image{quality});
 	case png2dds::format::type::bc1_alpha_bc7:
 		return otbb::make_filter<pixel_block_image, dds_image>(
-			otbb::filter_mode::parallel, encode_bc1_alpha_bc7_image{quality});
+			otbb::filter_mode::parallel, encode_bc1_alpha_bc7_image{files_data, quality});
 	}
 	assert(false);
 	return {};
@@ -308,8 +325,12 @@ void encode_as_dds(const input& input_data) {
 	// Maximum number of files that the pipeline can process at the same time.
 	const std::size_t tokens = input_data.parallelism * 4UL;
 
-	// Variables referenced by the filters.
+	// Used to give each file processed in a token a unique file index to access the paths and files_data vectors.
 	std::atomic<std::size_t> counter;
+	// Contains extra data about each file being processed.
+	// Pipeline stages may write or read from this vector at any time. Since each token has a unique index, these
+	// accesses are thread-safe.
+	std::vector<file_data> files_data(input_data.paths.size());
 
 	std::future<void> error_report{};
 	if (input_data.verbose) {
@@ -320,13 +341,14 @@ void encode_as_dds(const input& input_data) {
 		// Load PNG files into memory, one by one.
 		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_in_order, load_png_file(input_data.paths, counter)) &
 		// Decode PNG files into images loaded in memory.
-		otbb::make_filter<png_file, image>(otbb::filter_mode::parallel,
-			decode_png_image(input_data.paths, input_data.vflip, input_data.format == format::type::bc1_alpha_bc7)) &
+		otbb::make_filter<png_file, image>(
+			otbb::filter_mode::parallel, decode_png_image(files_data, input_data.paths, input_data.vflip,
+																		 input_data.format == format::type::bc1_alpha_bc7)) &
 		// Convert images into pixel block images. The pixels of these images are rearranged into 4x4 blocks,
 		// ready for the DDS encoding stage.
 		otbb::make_filter<image, pixel_block_image>(otbb::filter_mode::parallel, get_pixel_blocks{}) &
 		// Encode pixel block images as DDS files.
-		encoding_filter(input_data.format, input_data.quality) &
+		encoding_filter(files_data, input_data.format, input_data.quality) &
 		// Save DDS files back into the file system, one by one.
 		otbb::make_filter<dds_image, void>(otbb::filter_mode::parallel, save_dds_file{input_data.paths});
 

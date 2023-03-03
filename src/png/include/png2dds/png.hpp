@@ -22,7 +22,8 @@ namespace png2dds::png {
  * @param png Path to the PNG file, used for reporting errors.
  * @param buffer Memory buffer holding a PNG file read from the filesystem.
  * @param flip Flip source image vertically during decoding.
- * @return Decoded PNG image. Width and height are increased if needed to make their number of pixels divisible by 4.
+ * @return Decoded PNG image loaded in memory in an RGBA memory layout. Width and height are increased if needed to
+ * make their number of pixels divisible by 4.
  */
 image decode(std::size_t file_index, const std::string& png, std::span<const std::uint8_t> buffer, bool flip);
 
