@@ -64,19 +64,6 @@ public:
 	[[nodiscard]] std::size_t file_index() const noexcept;
 
 	/**
-	 * True if the file has alpha and the current pipeline is interested in knowing this value.
-	 * Will always be false for pipelines which do not require this information.
-	 * @return If the image has alpha or not.
-	 */
-	 // ToDo remove
-	[[nodiscard]] bool encode_as_alpha() const noexcept;
-
-	/**
-	 * Marks the image as having alpha.
-	 */
-	void set_encode_as_alpha() noexcept;
-
-	/**
 	 * Memory buffer of the image.
 	 * Its size must be padded_width * padded_height * bytes_per_pixel.
 	 * @return Internal memory buffer.
@@ -121,7 +108,6 @@ private:
 	std::size_t _width; // ToDo remove// ToDo remove
 	std::size_t _height; // ToDo remove
 	std::size_t _file_index;
-	bool _encode_as_alpha; // NOLINT
 };
 
 } // namespace png2dds

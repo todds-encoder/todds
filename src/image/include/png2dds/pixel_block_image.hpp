@@ -34,7 +34,6 @@ public:
 	[[nodiscard]] std::size_t image_width() const noexcept;
 	[[nodiscard]] std::size_t image_height() const noexcept;
 	[[nodiscard]] std::size_t file_index() const noexcept;
-	[[nodiscard]] bool encode_as_alpha() const noexcept;
 	[[nodiscard]] block get_block(std::size_t block_x, std::size_t block_y) const noexcept;
 
 private:
@@ -44,7 +43,6 @@ private:
 	std::size_t _image_width;
 	std::size_t _image_height;
 	std::size_t _file_index;
-	bool _encode_as_alpha;
 };
 
 } // namespace png2dds

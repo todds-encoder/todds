@@ -45,7 +45,6 @@ TEST_CASE("png2dds::image construction", "[image]") {
 	REQUIRE(img.padded_width() == padded_width);
 	REQUIRE(img.padded_height() == padded_height);
 	REQUIRE(img.buffer().size() == padded_width * padded_height * image::bytes_per_pixel);
-	REQUIRE(!img.encode_as_alpha());
 }
 
 constexpr std::size_t iota_image_side = 16UL * 10UL;
