@@ -14,8 +14,9 @@
 namespace png2dds {
 
 /**
- * Image loaded in memory. The size of the internal buffer is padded to ensure that the number of pixels in the width
- * and the height are divisible by 4.
+ * Image loaded in memory in an RGBA memory layout.
+ * The size of the internal buffer is padded to ensure that the number of pixels in the width and the height
+ * divisible by 4.
  */
 class image final {
 public:
@@ -87,20 +88,11 @@ public:
 	[[nodiscard]] std::span<const std::uint8_t> buffer() const noexcept;
 
 	/**
-	 * Access an individual byte of the image.
-	 * @param byte_x X coordinate of the byte.
-	 * @param byte_y Y coordinate of the byte.
-	 * @return Copy of the accessed byte.
-	 */
-	[[nodiscard]] const std::uint8_t& get_byte(std::size_t byte_x, std::size_t byte_y) const noexcept;
-
-	/**
-	 * Modify an individual byte of the image.
-	 * @param byte_x X coordinate of the byte.
-	 * @param byte_y Y coordinate of the byte.
+	 * Reference to the first byte of the first pixel of a row.
+	 * @param row Y coordinate of the row.
 	 * @return Reference to the accessed byte.
 	 */
-	[[nodiscard]] std::uint8_t& get_byte(std::size_t byte_x, std::size_t byte_y) noexcept;
+	[[nodiscard]] std::uint8_t& row_start(std::size_t row) noexcept;
 
 	/**
 	 * Write-access to an specific pixel of the image.

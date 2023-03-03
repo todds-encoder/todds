@@ -74,6 +74,15 @@ void handle_ctrl_c_signal() {
 }
 #endif
 
+bool has_alpha(const image& img) {
+	const auto buffer = img.buffer();
+	for (std::size_t alpha_index = image::bytes_per_pixel - 1UL; alpha_index < buffer.size();
+			 alpha_index += image::bytes_per_pixel) {
+		if (buffer[alpha_index] < 255) { return true; }
+	}
+	return false;
+}
+
 constexpr std::size_t error_file_index = std::numeric_limits<std::size_t>::max();
 
 constexpr DDS_HEADER_DXT10 header_extension{DXGI_FORMAT_BC7_UNORM, D3D10_RESOURCE_DIMENSION_TEXTURE2D, 0U, 1U, 0U};
@@ -136,19 +145,7 @@ public:
 		}
 
 		if (result.file_index() != error_file_index && _calculate_alpha) [[unlikely]] {
-			bool alpha = false;
-
-			for (std::size_t pixel_y = 0UL; !alpha && pixel_y < result.height(); ++pixel_y) {
-				for (std::size_t pixel_x = 0UL; pixel_x < result.width(); ++pixel_x) {
-					const auto alpha_value = result.get_pixel(pixel_x, pixel_y).back();
-					if (alpha_value < 255) {
-						alpha = true;
-						break;
-					}
-				}
-			}
-
-			if (alpha) { result.set_encode_as_alpha(); }
+			if (has_alpha(result)) { result.set_encode_as_alpha(); }
 		}
 
 		return result;

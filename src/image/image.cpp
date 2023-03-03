@@ -42,12 +42,8 @@ std::size_t image::file_index() const noexcept { return _file_index; }
 
 [[nodiscard]] std::span<const std::uint8_t> image::buffer() const noexcept { return _buffer; }
 
-const std::uint8_t& image::get_byte(std::size_t byte_x, std::size_t byte_y) const noexcept {
-	return _buffer[get_byte_position(padded_width(), byte_x, byte_y)];
-}
-
-std::uint8_t& image::get_byte(std::size_t byte_x, std::size_t byte_y) noexcept {
-	return _buffer[get_byte_position(padded_width(), byte_x, byte_y)];
+std::uint8_t& image::row_start(std::size_t row) noexcept {
+	return _buffer[get_byte_position(padded_width(), 0UL, row)];
 }
 
 std::span<std::uint8_t, image::bytes_per_pixel> image::get_pixel(std::size_t pixel_x, std::size_t pixel_y) noexcept {

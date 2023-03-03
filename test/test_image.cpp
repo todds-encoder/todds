@@ -71,23 +71,23 @@ TEST_CASE("png2dds::image buffer access", "[image]") {
 }
 
 TEST_CASE("png2dds::image byte access", "[image]") {
-	const image img = iota_image();
+	image img = iota_image();
 	REQUIRE(img.padded_width() == iota_image_side);
 	REQUIRE(img.padded_height() == iota_image_side);
 
-	SECTION("Byte in specific coordinate") {
+	SECTION("Specific row") {
 		constexpr std::size_t coord = 10U;
-		constexpr std::size_t expected = (coord + coord * iota_image_side * image::bytes_per_pixel) % 256U;
-		REQUIRE(img.get_byte(coord, coord) == expected);
+		constexpr std::size_t expected = (coord * iota_image_side * image::bytes_per_pixel) % 256U;
+		REQUIRE(img.row_start(coord) == expected);
 	}
 
-	SECTION("Expected distance in memory between bytes.") {
-		REQUIRE(std::distance(&img.get_byte(0U, 0U), &img.get_byte(0U, 1U)) == iota_image_side * image::bytes_per_pixel);
+	SECTION("Expected distance in memory between rows.") {
+		REQUIRE(std::distance(&img.row_start(0U), &img.row_start(1U)) == iota_image_side * image::bytes_per_pixel);
 	}
 }
 
 TEST_CASE("png2dds::image pixel access", "[image]") {
-	const image img = iota_image();
+	image img = iota_image();
 
 	SECTION("First pixel") {
 		constexpr std::array<std::uint8_t, image::bytes_per_pixel> expected{0U, 1U, 2U, 3U};
@@ -101,7 +101,6 @@ TEST_CASE("png2dds::image pixel access", "[image]") {
 		constexpr std::array<std::uint8_t, image::bytes_per_pixel> expected{value, value + 1U, value + 2U, value + 3U};
 		const auto pixel = img.get_pixel(pixel_x, 0U);
 		REQUIRE(std::equal(pixel.begin(), pixel.end(), expected.cbegin()));
-		REQUIRE(pixel.data() == &img.get_byte(pixel_x * image::bytes_per_pixel, 0U));
 	}
 
 	SECTION("First pixel of the second row") {
@@ -110,6 +109,5 @@ TEST_CASE("png2dds::image pixel access", "[image]") {
 		constexpr std::array<std::uint8_t, image::bytes_per_pixel> expected{value, value + 1U, value + 2U, value + 3U};
 		auto pixel = img.get_pixel(0U, pixel_y);
 		REQUIRE(std::equal(pixel.begin(), pixel.end(), expected.cbegin()));
-		REQUIRE(pixel.data() == &img.get_byte(0U, pixel_y));
 	}
 }

@@ -88,7 +88,7 @@ image decode(std::size_t file_index, const std::string& png, std::span<const std
 		ret = spng_get_row_info(context.get(), &row_info);
 		if (ret != 0) { break; }
 		const std::size_t row = !flip ? row_info.row_num : result.height() - row_info.row_num - 1UL;
-		ret = spng_decode_row(context.get(), &result.get_byte(0UL, row), file_width);
+		ret = spng_decode_row(context.get(), &result.row_start(row), file_width);
 
 	} while (ret == 0);
 
