@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "png2dds/image.hpp"
+#include "png2dds/mipmap_image.hpp"
 #include "png2dds/vector.hpp"
 
 #include <cstdint>
@@ -21,6 +21,6 @@ using pixel_block_image = vector<std::uint32_t>;
 
 using dds_image = vector<std::uint64_t>;
 
-pixel_block_image to_pixel_blocks(const image& png, std::size_t padded_width, std::size_t padded_height);
+pixel_block_image to_pixel_blocks(const mipmap_image& img);
 
 } // namespace png2dds

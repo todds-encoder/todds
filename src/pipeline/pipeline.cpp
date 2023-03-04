@@ -177,18 +177,9 @@ struct pixel_block_data {
 
 class get_pixel_blocks final {
 public:
-	explicit get_pixel_blocks(std::vector<file_data>& files_data) noexcept
-		: _files_data{files_data} {}
-
 	pixel_block_data operator()(const mipmap_image& image) const {
-		const auto& file_data = _files_data[image.file_index()];
-		// ToDo joseasoler rework pipeline to include mipmap calculation, padding and pixel block conversion for all data.
-		return pixel_block_data{
-			png2dds::to_pixel_blocks(image.get_image(0ULL), file_data.width, file_data.height), image.file_index()};
+		return pixel_block_data{png2dds::to_pixel_blocks(image), image.file_index()};
 	}
-
-private:
-	std::vector<file_data>& _files_data;
 };
 
 struct dds_data {
@@ -367,12 +358,13 @@ void encode_as_dds(const input& input_data) {
 	const otbb::filter<void, void> filters =
 		// Load PNG files into memory, one by one.
 		otbb::make_filter<void, png_file>(otbb::filter_mode::serial_in_order, load_png_file(input_data.paths, counter)) &
-		// Decode PNG files into images loaded in memory.
+		// Decode a PNG file into pixels. It will also calculate all mipmaps.
+		// ToDo joseasoler Calculate all mipmaps.
 		otbb::make_filter<png_file, mipmap_image>(otbb::filter_mode::parallel,
 			decode_png_image(files_data, input_data.paths, input_data.vflip, input_data.mipmaps)) &
 		// Convert images into pixel block images. The pixels of these images are rearranged into 4x4 blocks,
 		// ready for the DDS encoding stage.
-		otbb::make_filter<mipmap_image, pixel_block_data>(otbb::filter_mode::parallel, get_pixel_blocks(files_data)) &
+		otbb::make_filter<mipmap_image, pixel_block_data>(otbb::filter_mode::parallel, get_pixel_blocks{}) &
 		// Encode pixel block images as DDS files.
 		encoding_filter(files_data, input_data.format, input_data.quality) &
 		// Save DDS files back into the file system, one by one.
