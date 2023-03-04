@@ -79,17 +79,14 @@ mipmap_image decode(std::size_t file_index, const std::string& png, std::span<co
 
 	constexpr spng_format format = SPNG_FMT_RGBA8;
 
-	// The png2dds data may be larger than the image size calculated by libspng because the data must ensure that
-	// the pixels of the width and the row are divisible by 4.
+
 	std::size_t file_size{};
 	if (const int ret = spng_decoded_image_size(context.get(), format, &file_size); ret != 0) {
 		throw std::runtime_error{fmt::format("Could not calculate decoded size of {:s}: {:s}", png, spng_strerror(ret))};
 	}
 
-	if (file_size > first.data().size()) {
-		throw std::runtime_error{fmt::format("Could not fit {:s} into the data. Expected size: {:d}, calculated size: {:d}",
-			png, first.data().size(), file_size)};
-	}
+	// The png2dds data may be larger than the file size because the width and the height must be divisible by 4.
+	assert(file_size > first.data().size());
 
 	if (const int ret = spng_decode_image(context.get(), nullptr, 0, format, SPNG_DECODE_TRNS | SPNG_DECODE_PROGRESSIVE);
 			ret != 0) {
