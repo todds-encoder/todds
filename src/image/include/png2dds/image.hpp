@@ -32,20 +32,6 @@ public:
 	~image() = default;
 
 	/**
-	 * Width of the image excluding extra columns.
-	 * @return Real width in pixels.
-	 */
-	// ToDo remove
-	[[nodiscard]] std::size_t width() const noexcept;
-
-	/**
-	 * Height of the image excluding extra rows.
-	 * @return Real height in pixels.
-	 */
-	// ToDo remove
-	[[nodiscard]] std::size_t height() const noexcept;
-
-	/**
 	 * Width of the memory buffer.
 	 * @return Buffer width in pixels.
 	 */
@@ -105,8 +91,6 @@ private:
 	std::size_t _padded_width;
 	std::size_t _padded_height;
 	buffer_type _buffer;
-	std::size_t _width; // ToDo remove// ToDo remove
-	std::size_t _height; // ToDo remove
 	std::size_t _file_index;
 };
 

@@ -40,8 +40,6 @@ TEST_CASE("png2dds::image construction", "[image]") {
 	constexpr std::size_t padded_height = 8888UL;
 	const image img{file_index, width, height};
 	REQUIRE(img.file_index() == file_index);
-	REQUIRE(img.width() == width);
-	REQUIRE(img.height() == height);
 	REQUIRE(img.padded_width() == padded_width);
 	REQUIRE(img.padded_height() == padded_height);
 	REQUIRE(img.buffer().size() == padded_width * padded_height * image::bytes_per_pixel);

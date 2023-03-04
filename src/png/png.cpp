@@ -38,7 +38,10 @@ private:
 
 namespace png2dds::png {
 
-image decode(std::size_t file_index, const std::string& png, std::span<const std::uint8_t> buffer, bool flip) {
+image decode(std::size_t file_index, const std::string& png, std::span<const std::uint8_t> buffer, bool flip,
+	std::size_t& width, std::size_t& height) {
+	width = 0ULL;
+	height = 0ULL;
 	// Ideally we would want to use SPNG_CTX_IGNORE_ADLER32 here, but unfortunately libspng ignores this value when using
 	// miniz.
 	spng_context context{png, 0};
@@ -59,7 +62,9 @@ image decode(std::size_t file_index, const std::string& png, std::span<const std
 		throw std::runtime_error{fmt::format("Could not read header data of {:s}: {:s}", png, spng_strerror(ret))};
 	}
 
-	image result(file_index, header.width, header.height);
+	width = header.width;
+	height = header.height;
+	image result(file_index, width, height);
 
 	constexpr spng_format format = SPNG_FMT_RGBA8;
 	// The png2dds buffer may be larger than the image size calculated by libspng because the buffer must ensure that
@@ -87,7 +92,7 @@ image decode(std::size_t file_index, const std::string& png, std::span<const std
 	do {
 		ret = spng_get_row_info(context.get(), &row_info);
 		if (ret != 0) { break; }
-		const std::size_t row = !flip ? row_info.row_num : result.height() - row_info.row_num - 1UL;
+		const std::size_t row = !flip ? row_info.row_num : height - row_info.row_num - 1UL;
 		ret = spng_decode_row(context.get(), &result.row_start(row), file_width);
 
 	} while (ret == 0);
@@ -98,21 +103,21 @@ image decode(std::size_t file_index, const std::string& png, std::span<const std
 	}
 
 	// When padding has been added to the image, copy the border pixel into the padding.
-	if (result.width() < result.padded_width()) {
-		const auto border_pixel_x = result.width() - 1UL;
+	if (width < result.padded_width()) {
+		const auto border_pixel_x = width - 1UL;
 		for (std::size_t pixel_y = 0UL; pixel_y < result.padded_height(); ++pixel_y) {
-			const auto border_pixel = result.get_pixel(border_pixel_x, std::min(pixel_y, result.height() - 1U));
-			for (std::size_t pixel_x = result.width(); pixel_x < result.padded_width(); ++pixel_x) {
+			const auto border_pixel = result.get_pixel(border_pixel_x, std::min(pixel_y, height - 1U));
+			for (std::size_t pixel_x = width; pixel_x < result.padded_width(); ++pixel_x) {
 				const auto current_pixel = result.get_pixel(pixel_x, pixel_y);
 				std::copy(border_pixel.begin(), border_pixel.end(), current_pixel.begin());
 			}
 		}
 	}
-	if (result.height() < result.padded_height()) {
-		const auto border_pixel_y = result.height() - 1UL;
+	if (height < result.padded_height()) {
+		const auto border_pixel_y = height - 1UL;
 		for (std::size_t pixel_x = 0UL; pixel_x < result.padded_width(); ++pixel_x) {
-			const auto border_pixel = result.get_pixel(std::min(pixel_x, result.width() - 1U), border_pixel_y);
-			for (std::size_t pixel_y = result.height(); pixel_y < result.padded_height(); ++pixel_y) {
+			const auto border_pixel = result.get_pixel(std::min(pixel_x, width - 1U), border_pixel_y);
+			for (std::size_t pixel_y = height; pixel_y < result.padded_height(); ++pixel_y) {
 				const auto current_pixel = result.get_pixel(pixel_x, pixel_y);
 				std::copy(border_pixel.begin(), border_pixel.end(), current_pixel.begin());
 			}

@@ -147,10 +147,8 @@ public:
 		if (!file.buffer.empty()) {
 			const std::string& path = _paths[file.file_index].first.string();
 			try {
-				result = png2dds::png::decode(file.file_index, path, file.buffer, _vflip);
-				// ToDo these values are currently still stored in the image type, store them in a struct instead.
-				_files_data[file.file_index].width = result.width();
-				_files_data[file.file_index].height = result.height();
+				auto& file_data = _files_data[file.file_index];
+				result = png2dds::png::decode(file.file_index, path, file.buffer, _vflip, file_data.width, file_data.height);
 			} catch (const std::runtime_error& exc) {
 				error_log.push(fmt::format("PNG Decoding error {:s} -> {:s}", path, exc.what()));
 			}

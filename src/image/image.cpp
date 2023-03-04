@@ -19,13 +19,7 @@ image::image(std::size_t index, std::size_t width, std::size_t height)
 	: _padded_width{util::next_divisible_by_4(width)}
 	, _padded_height{util::next_divisible_by_4(height)}
 	, _buffer(_padded_width * _padded_height * bytes_per_pixel)
-	, _width{width}
-	, _height{height}
 	, _file_index{index} {}
-
-std::size_t image::width() const noexcept { return _width; }
-
-std::size_t image::height() const noexcept { return _height; }
 
 std::size_t image::padded_width() const noexcept { return _padded_width; }
 
