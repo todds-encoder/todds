@@ -88,11 +88,13 @@ constexpr std::size_t error_file_index = std::numeric_limits<std::size_t>::max()
 constexpr DDS_HEADER_DXT10 header_extension{DXGI_FORMAT_BC7_UNORM, D3D10_RESOURCE_DIMENSION_TEXTURE2D, 0U, 1U, 0U};
 
 struct file_data {
-	// Width of the image excluding extra columns. Set during the decode PNG stage.
+	// Width of the image excluding extra columns. Set during the decoding PNG stage.
 	std::size_t width{};
-	// Height of the image excluding extra rows. Set during the decode PNG stage.
+	// Height of the image excluding extra rows. Set during the decoding PNG stage.
 	std::size_t height{};
-	// DDS format of the image. Set during the encode DDS stage.
+	// Number of mipmap levels in the image, including the main one. Set during the decode PNG stage.
+	std::size_t mipmaps{};
+	// DDS format of the image. Set during the encoding DDS stage.
 	png2dds::format::type format{};
 };
 
@@ -262,7 +264,8 @@ public:
 		ofs << "DDS ";
 		const std::size_t block_size_bytes = dds_img.image.size() * sizeof(std::uint64_t);
 		const auto& file_data = _files_data[file_index];
-		const auto header = png2dds::dds::dds_header(file_data.format, file_data.width, file_data.height, block_size_bytes);
+		const auto header = png2dds::dds::dds_header(
+			file_data.format, file_data.width, file_data.height, block_size_bytes, file_data.mipmaps);
 		ofs.write(header.data(), header.size());
 		if (file_data.format == png2dds::format::type::bc7) {
 			ofs.write(reinterpret_cast<const char*>(&header_extension), sizeof(header_extension));

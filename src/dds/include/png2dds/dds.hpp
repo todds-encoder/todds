@@ -59,9 +59,10 @@ void initialize_bc7_encoding();
  * @param width Original width of the image.
  * @param height Original height of the image.
  * @param block_size_bytes Size of the blocks vector in bytes.
+ * @param mipmaps Number of mipmaps generated. Zero means no mipmaps.
  * @return Array containing the DDS header information.
  */
 std::array<char, 124> dds_header(
-	png2dds::format::type format_type, std::size_t width, std::size_t height, std::size_t block_size_bytes);
+	png2dds::format::type format_type, std::size_t width, std::size_t height, std::size_t block_size_bytes, std::size_t mipmaps);
 
 } // namespace png2dds::dds

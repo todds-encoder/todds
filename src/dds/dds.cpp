@@ -32,16 +32,16 @@ constexpr std::uint32_t format_fourcc(png2dds::format::type format_type) {
 }
 
 // dwWidth, dwHeight, dwLinearSize and ddpfPixelFormat.dwFourCC must be filled in later by the caller.
+// dwFlags and dwCaps may need to be modified.
 constexpr DDSURFACEDESC2 get_surface_description() noexcept {
 	DDSURFACEDESC2 desc{};
 	desc.dwSize = sizeof(desc);
-	desc.dwFlags = DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT | DDSD_CAPS;
+	desc.dwFlags = DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT | DDSD_CAPS | DDSD_LINEARSIZE;
 
 	desc.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
 	desc.ddpfPixelFormat.dwSize = sizeof(desc.ddpfPixelFormat);
 	desc.ddpfPixelFormat.dwFlags |= DDPF_FOURCC;
 
-	desc.dwFlags |= DDSD_LINEARSIZE;
 	desc.ddpfPixelFormat.dwRGBBitCount = 0;
 
 	return desc;
@@ -116,14 +116,20 @@ vector<std::uint64_t> bc7_encode(const ispc::bc7e_compress_block_params& params,
 	return result;
 }
 
-std::array<char, 124> dds_header(
-	png2dds::format::type format_type, std::size_t width, std::size_t height, std::size_t block_size_bytes) {
+std::array<char, 124> dds_header(png2dds::format::type format_type, std::size_t width, std::size_t height,
+	std::size_t block_size_bytes, std::size_t mipmaps) {
 	std::array<char, 124> header{};
 	// Construct the surface description object directly into the header array memory.
 	auto* desc = new (header.data()) DDSURFACEDESC2(get_surface_description());
+	// Modify any values specific to this image.
 	desc->dwWidth = static_cast<std::uint32_t>(width);
 	desc->dwHeight = static_cast<std::uint32_t>(height);
 	desc->dwLinearSize = static_cast<std::uint32_t>(block_size_bytes);
+	if (mipmaps > 0) {
+		desc->dwFlags |= DDSD_MIPMAPCOUNT;
+		desc->dwMipMapCount = static_cast<std::uint32_t>(mipmaps);
+		desc->ddsCaps.dwCaps |= DDSCAPS_COMPLEX | DDSCAPS_MIPMAP;
+	}
 	desc->ddpfPixelFormat.dwFourCC = format_fourcc(format_type);
 
 	return header;
