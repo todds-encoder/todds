@@ -8,6 +8,7 @@
 #include "spng.h"
 #include <fmt/format.h>
 
+#include <cassert>
 #include <cstddef>
 #include <stdexcept>
 
@@ -38,8 +39,8 @@ private:
 
 namespace png2dds::png {
 
-image decode(std::size_t file_index, const std::string& png, std::span<const std::uint8_t> buffer, bool flip,
-	std::size_t& width, std::size_t& height, bool mipmaps, std::size_t& mipmap_count) {
+mipmap_image decode(std::size_t file_index, const std::string& png, std::span<const std::uint8_t> buffer, bool flip,
+	std::size_t& width, std::size_t& height, bool mipmaps) {
 	width = 0ULL;
 	height = 0ULL;
 	// Ideally we would want to use SPNG_CTX_IGNORE_ADLER32 here, but unfortunately libspng ignores this value when using
@@ -54,7 +55,7 @@ image decode(std::size_t file_index, const std::string& png, std::span<const std
 	spng_set_chunk_limits(context.get(), limit, limit);
 
 	if (const int ret = spng_set_png_buffer(context.get(), buffer.data(), buffer.size()); ret != 0) {
-		throw std::runtime_error{fmt::format("Could not set PNG file to buffer {:s}: {:s}", png, spng_strerror(ret))};
+		throw std::runtime_error{fmt::format("Could not set PNG file to data {:s}: {:s}", png, spng_strerror(ret))};
 	}
 
 	spng_ihdr header{};
@@ -64,31 +65,21 @@ image decode(std::size_t file_index, const std::string& png, std::span<const std
 
 	width = header.width;
 	height = header.height;
-	mipmap_count = 0ULL;
-	if (mipmaps)
-	{
-		mipmap_count = 1ULL;
-		std::size_t minimum_side = std::min(width, height);
-		while (minimum_side > 1ULL)
-		{
-			minimum_side >>= 1U;
-			++mipmap_count;
-		}
-	}
-	image result(file_index, width, height);
+	mipmap_image result(file_index, width, height, mipmaps);
+	assert(result.mipmap_count() >= 1ULL);
+	image& first = result.get_image(0ULL);
 
 	constexpr spng_format format = SPNG_FMT_RGBA8;
-	// The png2dds buffer may be larger than the image size calculated by libspng because the buffer must ensure that
+	// The png2dds data may be larger than the image size calculated by libspng because the data must ensure that
 	// the pixels of the width and the row are divisible by 4.
 	std::size_t file_size{};
 	if (const int ret = spng_decoded_image_size(context.get(), format, &file_size); ret != 0) {
 		throw std::runtime_error{fmt::format("Could not calculate decoded size of {:s}: {:s}", png, spng_strerror(ret))};
 	}
 
-	if (file_size > result.buffer().size()) {
+	if (file_size > first.data().size()) {
 		throw std::runtime_error{
-			fmt::format("Could not fit {:s} into the buffer. Expected size: {:d}, calculated size: {:d}", png,
-				result.buffer().size(), file_size)};
+			fmt::format("Could not fit {:s} into the data. Expected size: {:d}, calculated size: {:d}", png, first.data().size(), file_size)};
 	}
 
 	if (const int ret = spng_decode_image(context.get(), nullptr, 0, format, SPNG_DECODE_TRNS | SPNG_DECODE_PROGRESSIVE);
@@ -104,7 +95,7 @@ image decode(std::size_t file_index, const std::string& png, std::span<const std
 		ret = spng_get_row_info(context.get(), &row_info);
 		if (ret != 0) { break; }
 		const std::size_t row = !flip ? row_info.row_num : height - row_info.row_num - 1UL;
-		ret = spng_decode_row(context.get(), &result.row_start(row), file_width);
+		ret = spng_decode_row(context.get(), &first.row_start(row), file_width);
 
 	} while (ret == 0);
 
@@ -113,23 +104,24 @@ image decode(std::size_t file_index, const std::string& png, std::span<const std
 		throw std::runtime_error{fmt::format("Progressive decode error in {:s}: {:s}", png, spng_strerror(ret))};
 	}
 
+	// ToDo joseasoler padding calculation should be part of the mipmap / pixel block calculations.
 	// When padding has been added to the image, copy the border pixel into the padding.
-	if (width < result.padded_width()) {
+	if (width < first.width()) {
 		const auto border_pixel_x = width - 1UL;
-		for (std::size_t pixel_y = 0UL; pixel_y < result.padded_height(); ++pixel_y) {
-			const auto border_pixel = result.get_pixel(border_pixel_x, std::min(pixel_y, height - 1U));
-			for (std::size_t pixel_x = width; pixel_x < result.padded_width(); ++pixel_x) {
-				const auto current_pixel = result.get_pixel(pixel_x, pixel_y);
+		for (std::size_t pixel_y = 0UL; pixel_y < first.height(); ++pixel_y) {
+			const auto border_pixel = first.get_pixel(border_pixel_x, std::min(pixel_y, height - 1U));
+			for (std::size_t pixel_x = width; pixel_x < first.width(); ++pixel_x) {
+				const auto current_pixel = first.get_pixel(pixel_x, pixel_y);
 				std::copy(border_pixel.begin(), border_pixel.end(), current_pixel.begin());
 			}
 		}
 	}
-	if (height < result.padded_height()) {
+	if (height < first.height()) {
 		const auto border_pixel_y = height - 1UL;
-		for (std::size_t pixel_x = 0UL; pixel_x < result.padded_width(); ++pixel_x) {
-			const auto border_pixel = result.get_pixel(std::min(pixel_x, width - 1U), border_pixel_y);
-			for (std::size_t pixel_y = height; pixel_y < result.padded_height(); ++pixel_y) {
-				const auto current_pixel = result.get_pixel(pixel_x, pixel_y);
+		for (std::size_t pixel_x = 0UL; pixel_x < first.width(); ++pixel_x) {
+			const auto border_pixel = first.get_pixel(std::min(pixel_x, width - 1U), border_pixel_y);
+			for (std::size_t pixel_y = height; pixel_y < first.height(); ++pixel_y) {
+				const auto current_pixel = first.get_pixel(pixel_x, pixel_y);
 				std::copy(border_pixel.begin(), border_pixel.end(), current_pixel.begin());
 			}
 		}

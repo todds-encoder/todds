@@ -8,7 +8,6 @@ add_executable(png2dds_test
 	test_main.cpp
 	test_arguments.cpp
 	test_format.cpp
-	test_image.cpp
 	test_project.cpp
 	test_util.cpp
 	)

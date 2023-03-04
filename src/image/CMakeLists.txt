@@ -5,8 +5,10 @@
 add_library(png2dds_image STATIC
 	include/png2dds/image.hpp
 	include/png2dds/image_types.hpp
+	include/png2dds/mipmap_image.hpp
 	image.cpp
 	image_types.cpp
+	mipmap_image.cpp
 	)
 
 target_include_directories(png2dds_image PUBLIC

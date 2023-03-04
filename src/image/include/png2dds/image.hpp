@@ -6,7 +6,6 @@
 #pragma once
 
 #include "png2dds/memory.hpp"
-#include "png2dds/vector.hpp"
 
 #include <cstdint>
 #include <span>
@@ -15,16 +14,14 @@ namespace png2dds {
 
 /**
  * Image loaded in memory in an RGBA memory layout.
- * The size of the internal buffer is padded to ensure that the number of pixels in the width and the height
- * divisible by 4.
+ * The size of the internal data block is padded to keep the width and height divisible by 4.
+ * Image is only a view and is not the owner of the memory. See mipmap_image for details.
  */
 class image final {
 public:
 	static constexpr std::uint8_t bytes_per_pixel = 4U;
 
-	using buffer_type = png2dds::vector<std::uint8_t>;
-
-	image(std::size_t index, std::size_t width, std::size_t height);
+	image(std::size_t width, std::size_t height);
 	image(const image&) = delete;
 	image(image&&) noexcept = default;
 	image& operator=(const image&) = delete;
@@ -32,36 +29,31 @@ public:
 	~image() = default;
 
 	/**
-	 * Width of the memory buffer.
-	 * @return Buffer width in pixels.
+	 * Width of the image in pixels including padding.
+	 * @return Width of this image.
 	 */
-	[[nodiscard]] std::size_t padded_width() const noexcept;
+	[[nodiscard]] std::size_t width() const noexcept;
 
 	/**
-	 * Height of the memory buffer.
-	 * @return Buffer height in pixels.
+	 * Height of the image in pixels including padding.
+	 * @return Height of this image.
 	 */
-	[[nodiscard]] std::size_t padded_height() const noexcept;
+	[[nodiscard]] std::size_t height() const noexcept;
+
+	void set_data(std::span<std::uint8_t> data);
 
 	/**
-	 * File index of the image in the list of files to load.
-	 * @return Index of the file.
+	 * Memory data of the image.
+	 * Its size must be width * height * bytes_per_pixel.
+	 * @return Internal memory data.
 	 */
-	[[nodiscard]] std::size_t file_index() const noexcept;
+	[[nodiscard]] std::span<std::uint8_t> data() noexcept;
 
 	/**
-	 * Memory buffer of the image.
-	 * Its size must be padded_width * padded_height * bytes_per_pixel.
-	 * @return Internal memory buffer.
+	 * Memory data of the image.
+	 * @return Internal memory data.
 	 */
-	[[nodiscard]] std::span<std::uint8_t> buffer() noexcept;
-
-	/**
-	 * Memory buffer of the image.
-	 * Its size must be padded_width * padded_height * bytes_per_pixel.
-	 * @return Internal memory buffer.
-	 */
-	[[nodiscard]] std::span<const std::uint8_t> buffer() const noexcept;
+	[[nodiscard]] std::span<const std::uint8_t> data() const noexcept;
 
 	/**
 	 * Reference to the first byte of the first pixel of a row.
@@ -88,10 +80,9 @@ public:
 		std::size_t pixel_x, std::size_t pixel_y) const noexcept;
 
 private:
-	std::size_t _padded_width;
-	std::size_t _padded_height;
-	buffer_type _buffer;
-	std::size_t _file_index;
+	std::size_t _width;
+	std::size_t _height;
+	std::span<std::uint8_t> _data;
 };
 
 } // namespace png2dds

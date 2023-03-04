@@ -20,9 +20,9 @@ pixel_block_image to_pixel_blocks(const image& png, std::size_t padded_width, st
 			const auto pixel_x = block_x * pixel_block_side;
 			for (std::size_t pixel_offset_y = 0U; pixel_offset_y < pixel_block_side; ++pixel_offset_y) {
 				const std::uint8_t* pixel_start = png.get_pixel(pixel_x, pixel_y + pixel_offset_y).data();
-				assert(pixel_start < &png.buffer().back());
+				assert(pixel_start < &png.data().back());
 				const std::uint8_t* pixel_end = png.get_pixel(pixel_x + pixel_block_side, pixel_y + pixel_offset_y).data();
-				assert(pixel_end <= &*png.buffer().end());
+				assert(pixel_end <= &*png.data().end());
 				assert(std::distance(pixel_start, pixel_end) == pixel_block_side * png2dds::image::bytes_per_pixel);
 				pixel_block_current = std::copy(pixel_start, pixel_end, pixel_block_current);
 			}
