@@ -154,6 +154,7 @@ public:
 				auto& file_data = _files_data[file.file_index];
 				result =
 					png2dds::png::decode(file.file_index, path, file.buffer, _vflip, file_data.width, file_data.height, _mipmaps);
+				file_data.mipmaps = result.mipmap_count();
 			} catch (const std::runtime_error& exc) {
 				error_log.push(fmt::format("PNG Decoding error {:s} -> {:s}", path, exc.what()));
 			}
