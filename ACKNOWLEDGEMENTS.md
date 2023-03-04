@@ -12,5 +12,6 @@ Developing png2dds is only made possible by people who share their work and expe
 * **[NVIDIA Corporation](https://www.nvidia.com)** - [Non-Power-of-Two Mipmapping](http://nvidia.com/object/np2_mipmapping.html)
 * **[randy408](https://github.com/randy408)** - [libspng](https://libspng.org)
 * **[Richard Geldreich](https://richg42.blogspot.com)** - [bc7enc_rdo](https://github.com/richgel999/bc7enc_rdo), [miniz](https://github.com/richgel999/miniz)
+* **[Tristan Grimmer](http://upperboundsinteractive.com/)** - [tacentview](https://github.com/bluescan/tacentview)
 * **[UTF-8 Everywhere Manifesto](http://utf8everywhere.org)**
 * **[Vicky Brasseur](https://www.vmbrasseur.com)** - [Forge your future with Open Source](https://pragprog.com/titles/vbopens/forge-your-future-with-open-source)
