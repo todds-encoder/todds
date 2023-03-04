@@ -35,6 +35,27 @@ private:
 	spng_ctx* _ctx;
 };
 
+void set_buffer(spng_context& context, const std::string& png, std::span<const std::uint8_t> buffer) {
+	/* Ignore chunk CRCs and their calculations. */
+	spng_set_crc_action(context.get(), SPNG_CRC_USE, SPNG_CRC_USE);
+
+	/* Set memory usage limits for storing standard and unknown chunks. */
+	constexpr std::size_t limit = 1024UL * 1024UL * 64UL;
+	spng_set_chunk_limits(context.get(), limit, limit);
+
+	if (const int ret = spng_set_png_buffer(context.get(), buffer.data(), buffer.size()); ret != 0) {
+		throw std::runtime_error{fmt::format("Could not set PNG file to data {:s}: {:s}", png, spng_strerror(ret))};
+	}
+}
+
+spng_ihdr get_header(spng_context& context, const std::string& png) {
+	spng_ihdr header{};
+	if (const int ret = spng_get_ihdr(context.get(), &header); ret != 0) {
+		throw std::runtime_error{fmt::format("Could not read header data of {:s}: {:s}", png, spng_strerror(ret))};
+	}
+	return header;
+}
+
 } // anonymous namespace
 
 namespace png2dds::png {
@@ -47,21 +68,8 @@ mipmap_image decode(std::size_t file_index, const std::string& png, std::span<co
 	// miniz.
 	spng_context context{png, 0};
 
-	/* Ignore chunk CRCs and their calculations. */
-	spng_set_crc_action(context.get(), SPNG_CRC_USE, SPNG_CRC_USE);
-
-	/* Set memory usage limits for storing standard and unknown chunks. */
-	constexpr std::size_t limit = 1024UL * 1024UL * 64UL;
-	spng_set_chunk_limits(context.get(), limit, limit);
-
-	if (const int ret = spng_set_png_buffer(context.get(), buffer.data(), buffer.size()); ret != 0) {
-		throw std::runtime_error{fmt::format("Could not set PNG file to data {:s}: {:s}", png, spng_strerror(ret))};
-	}
-
-	spng_ihdr header{};
-	if (const int ret = spng_get_ihdr(context.get(), &header); ret != 0) {
-		throw std::runtime_error{fmt::format("Could not read header data of {:s}: {:s}", png, spng_strerror(ret))};
-	}
+	set_buffer(context, png, buffer);
+	const spng_ihdr header = get_header(context, png);
 
 	width = header.width;
 	height = header.height;
@@ -70,6 +78,7 @@ mipmap_image decode(std::size_t file_index, const std::string& png, std::span<co
 	image& first = result.get_image(0ULL);
 
 	constexpr spng_format format = SPNG_FMT_RGBA8;
+
 	// The png2dds data may be larger than the image size calculated by libspng because the data must ensure that
 	// the pixels of the width and the row are divisible by 4.
 	std::size_t file_size{};
@@ -78,8 +87,8 @@ mipmap_image decode(std::size_t file_index, const std::string& png, std::span<co
 	}
 
 	if (file_size > first.data().size()) {
-		throw std::runtime_error{
-			fmt::format("Could not fit {:s} into the data. Expected size: {:d}, calculated size: {:d}", png, first.data().size(), file_size)};
+		throw std::runtime_error{fmt::format("Could not fit {:s} into the data. Expected size: {:d}, calculated size: {:d}",
+			png, first.data().size(), file_size)};
 	}
 
 	if (const int ret = spng_decode_image(context.get(), nullptr, 0, format, SPNG_DECODE_TRNS | SPNG_DECODE_PROGRESSIVE);
@@ -89,7 +98,7 @@ mipmap_image decode(std::size_t file_index, const std::string& png, std::span<co
 
 	int ret{};
 	spng_row_info row_info{};
-	const auto file_width = file_size / header.height;
+	const auto file_width = file_size / height;
 
 	do {
 		ret = spng_get_row_info(context.get(), &row_info);
