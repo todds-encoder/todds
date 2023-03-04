@@ -27,7 +27,7 @@ std::size_t image::width() const noexcept { return _width; }
 std::size_t image::height() const noexcept { return _height; }
 
 void image::set_data(std::span<std::uint8_t> data) {
-	assert(data.size() = _width * _height);
+	assert(data.size() == _width * _height * image::bytes_per_pixel);
 	_data = data;
 }
 
