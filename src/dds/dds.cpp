@@ -8,7 +8,7 @@
 #include <bc7e_ispc.h>
 #include <dds_defs.h>
 #include <oneapi/tbb/parallel_for.h>
-#include <rgbcx.h>
+#include <rgbcx_png2dds.h>
 
 #include <cassert>
 
@@ -59,15 +59,15 @@ vector<std::uint64_t> bc1_encode(png2dds::format::quality quality, const vector<
 	vector<std::uint64_t> result(image.size() * bc1_block_size);
 
 	// Since it allows quality between [0, 18], multiply png2dds's [0, 6] range by 3.
-	const auto level = static_cast<unsigned int>(quality) * 3U;
-	const std::size_t num_blocks = image.size() / pixel_block_size;
+	const auto factors = rgbcx_png2dds::from_quality_level(static_cast<unsigned int>(quality) * 3U);
 
+	const std::size_t num_blocks = image.size() / pixel_block_size;
 	using blocked_range = oneapi::tbb::blocked_range<size_t>;
-	oneapi::tbb::parallel_for(blocked_range(0UL, num_blocks), [level, &image, &result](const blocked_range& range) {
+	oneapi::tbb::parallel_for(blocked_range(0UL, num_blocks), [factors, &image, &result](const blocked_range& range) {
 		for (std::size_t block_index = range.begin(); block_index < range.end(); ++block_index) {
 			auto* dds_block = &result[block_index * bc1_block_size];
 			const auto* pixel_block = reinterpret_cast<const std::uint8_t*>(&image[block_index * pixel_block_size]);
-			rgbcx::encode_bc1(level, dds_block, pixel_block, true, true);
+			rgbcx::encode_bc1(dds_block, pixel_block, factors.flags, factors.total_orderings4, factors.total_orderings3);
 		}
 	});
 
