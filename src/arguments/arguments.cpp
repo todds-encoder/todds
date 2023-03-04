@@ -41,9 +41,8 @@ constexpr auto format_arg = optional_argument("--format", "DDS encoding format. 
 
 constexpr auto quality_arg = optional_argument("--quality", "Encoder quality level. Higher values take more time.");
 
-constexpr std::size_t max_mipmaps = std::numeric_limits<std::size_t>::max();
-constexpr auto mipmaps_arg = optional_arg{
-	"--mipmaps", "-m", "Number of mipmap levels to generate. 0 generates all levels, 1 disables mipmap generation."};
+constexpr auto no_mipmaps_arg = optional_arg{
+	"--no-mipmaps", "-nm", "Disable mipmap generation."};
 
 constexpr auto threads_arg =
 	optional_arg{"--threads", "-th", "Number of threads used by the parallel pipeline [1, {:d}]."};
@@ -80,7 +79,7 @@ consteval std::size_t argument_name_total_space() {
 	std::size_t max_space{};
 	max_space = std::max(max_space, format_arg.name.size() + format_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, quality_arg.name.size() + quality_arg.shorter.size() + 2UL);
-	max_space = std::max(max_space, mipmaps_arg.name.size() + mipmaps_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, no_mipmaps_arg.name.size() + no_mipmaps_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, threads_arg.name.size() + threads_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, depth_arg.name.size() + depth_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, overwrite_arg.name.size() + overwrite_arg.shorter.size() + 2UL);
@@ -142,7 +141,7 @@ std::string get_help(std::size_t max_threads) {
 		png2dds::format::name(png2dds::format::type::bc1_alpha_bc7));
 
 	print_optional_argument(ostream, quality_arg);
-	print_optional_argument(ostream, mipmaps_arg);
+	print_optional_argument(ostream, no_mipmaps_arg);
 	const std::string threads_help = fmt::format(threads_arg.help, max_threads);
 	print_argument_impl(ostream, threads_arg.shorter, threads_arg.name, threads_help);
 	print_optional_argument(ostream, depth_arg);
@@ -199,7 +198,7 @@ data get(const png2dds::vector<std::string_view>& arguments) {
 	data parsed_arguments{};
 	// Set default values.
 	parsed_arguments.format = format::type::bc7;
-	parsed_arguments.mipmaps = max_mipmaps;
+	parsed_arguments.mipmaps = true;
 	const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
 	parsed_arguments.threads = max_threads;
 	parsed_arguments.depth = max_depth;
@@ -237,10 +236,8 @@ data get(const png2dds::vector<std::string_view>& arguments) {
 				parsed_arguments.text = fmt::format("Argument error: Unsupported encode quality level {:d} for format {:s}.",
 					static_cast<unsigned int>(parsed_arguments.quality), png2dds::format::name(parsed_arguments.format));
 			}
-		} else if (matches(argument, mipmaps_arg)) {
-			++index;
-			argument_from_str(mipmaps_arg.name, next_argument, parsed_arguments.mipmaps, parsed_arguments);
-			if (parsed_arguments.mipmaps == 0UL) { parsed_arguments.mipmaps = max_mipmaps; }
+		} else if (matches(argument, no_mipmaps_arg)) {
+			parsed_arguments.mipmaps = false;
 		} else if (matches(argument, threads_arg)) {
 			++index;
 			argument_from_str(threads_arg.name, next_argument, parsed_arguments.threads, parsed_arguments);

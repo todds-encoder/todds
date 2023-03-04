@@ -23,7 +23,7 @@ struct data {
 	std::optional<boost::filesystem::path> output;
 	png2dds::format::type format;
 	png2dds::format::quality quality;
-	std::size_t mipmaps;
+	bool mipmaps;
 	std::size_t threads;
 	std::size_t depth;
 	bool overwrite;
