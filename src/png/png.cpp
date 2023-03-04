@@ -39,7 +39,7 @@ private:
 namespace png2dds::png {
 
 image decode(std::size_t file_index, const std::string& png, std::span<const std::uint8_t> buffer, bool flip,
-	std::size_t& width, std::size_t& height) {
+	std::size_t& width, std::size_t& height, bool mipmaps, std::size_t& mipmap_count) {
 	width = 0ULL;
 	height = 0ULL;
 	// Ideally we would want to use SPNG_CTX_IGNORE_ADLER32 here, but unfortunately libspng ignores this value when using
@@ -64,6 +64,17 @@ image decode(std::size_t file_index, const std::string& png, std::span<const std
 
 	width = header.width;
 	height = header.height;
+	mipmap_count = 0ULL;
+	if (mipmaps)
+	{
+		mipmap_count = 1ULL;
+		std::size_t minimum_side = std::min(width, height);
+		while (minimum_side > 1ULL)
+		{
+			minimum_side >>= 1U;
+			++mipmap_count;
+		}
+	}
 	image result(file_index, width, height);
 
 	constexpr spng_format format = SPNG_FMT_RGBA8;

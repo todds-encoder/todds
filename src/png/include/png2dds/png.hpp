@@ -22,10 +22,13 @@ namespace png2dds::png {
  * @param flip Flip source image vertically during decoding.
  * @param width Width of the image.
  * @param height Height of the image.
+ * @param mipmaps True if mipmaps should be calculated.
+ * @param mipmap_count Number of mipmaps.
  * @return Decoded PNG image loaded in memory in an RGBA memory layout. Width and height are increased if needed to
- * make their number of pixels divisible by 4.
+ * make their number of pixels divisible by 4. If mipmaps is true, the buffer will have enough extra space allocated to
+ * fit all mipmaps.
  */
 image decode(std::size_t file_index, const std::string& png, std::span<const std::uint8_t> buffer, bool flip,
-	std::size_t& width, std::size_t& height);
+	std::size_t& width, std::size_t& height, bool mipmaps, std::size_t& mipmap_count);
 
 } // namespace png2dds::png

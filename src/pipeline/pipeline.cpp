@@ -137,10 +137,12 @@ private:
 
 class decode_png_image final {
 public:
-	explicit decode_png_image(std::vector<file_data>& files_data, const paths_vector& paths, bool vflip) noexcept
+	explicit decode_png_image(
+		std::vector<file_data>& files_data, const paths_vector& paths, bool vflip, bool mipmaps) noexcept
 		: _files_data{files_data}
 		, _paths{paths}
-		, _vflip{vflip} {}
+		, _vflip{vflip}
+		, _mipmaps{mipmaps} {}
 
 	image operator()(const png_file& file) const {
 		image result{error_file_index, 0U, 0U};
@@ -150,7 +152,8 @@ public:
 			const std::string& path = _paths[file.file_index].first.string();
 			try {
 				auto& file_data = _files_data[file.file_index];
-				result = png2dds::png::decode(file.file_index, path, file.buffer, _vflip, file_data.width, file_data.height);
+				result = png2dds::png::decode(
+					file.file_index, path, file.buffer, _vflip, file_data.width, file_data.height, _mipmaps, file_data.mipmaps);
 			} catch (const std::runtime_error& exc) {
 				error_log.push(fmt::format("PNG Decoding error {:s} -> {:s}", path, exc.what()));
 			}
@@ -163,6 +166,7 @@ private:
 	std::vector<file_data>& _files_data;
 	const paths_vector& _paths;
 	bool _vflip;
+	bool _mipmaps;
 };
 
 struct pixel_block_data {
