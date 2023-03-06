@@ -16,8 +16,8 @@ pixel_block_image to_pixel_blocks(const mipmap_image& img) {
 
 	for (std::size_t level_index{}; level_index < img.mipmap_count(); ++level_index) {
 		const image& level = img.get_image(level_index);
-		const std::size_t width_blocks = level.width() / pixel_block_side;
-		const std::size_t height_blocks = level.height() / pixel_block_side;
+		const std::size_t width_blocks = level.padded_width() / pixel_block_side;
+		const std::size_t height_blocks = level.padded_height() / pixel_block_side;
 
 		for (std::size_t block_y = 0U; block_y < height_blocks; ++block_y) {
 			const auto pixel_y = block_y * pixel_block_side;

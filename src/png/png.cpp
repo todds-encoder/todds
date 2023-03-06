@@ -112,21 +112,21 @@ mipmap_image decode(std::size_t file_index, const std::string& png, std::span<co
 
 	// ToDo joseasoler padding calculation should be part of the mipmap / pixel block calculations.
 	// When padding has been added to the image, copy the border pixel into the padding.
-	if (width < first.width()) {
+	if (width < first.padded_width()) {
 		const auto border_pixel_x = width - 1UL;
-		for (std::size_t pixel_y = 0UL; pixel_y < first.height(); ++pixel_y) {
+		for (std::size_t pixel_y = 0UL; pixel_y < first.padded_height(); ++pixel_y) {
 			const auto border_pixel = first.get_pixel(border_pixel_x, std::min(pixel_y, height - 1U));
-			for (std::size_t pixel_x = width; pixel_x < first.width(); ++pixel_x) {
+			for (std::size_t pixel_x = width; pixel_x < first.padded_width(); ++pixel_x) {
 				const auto current_pixel = first.get_pixel(pixel_x, pixel_y);
 				std::copy(border_pixel.begin(), border_pixel.end(), current_pixel.begin());
 			}
 		}
 	}
-	if (height < first.height()) {
+	if (height < first.padded_height()) {
 		const auto border_pixel_y = height - 1UL;
-		for (std::size_t pixel_x = 0UL; pixel_x < first.width(); ++pixel_x) {
+		for (std::size_t pixel_x = 0UL; pixel_x < first.padded_width(); ++pixel_x) {
 			const auto border_pixel = first.get_pixel(std::min(pixel_x, width - 1U), border_pixel_y);
-			for (std::size_t pixel_y = height; pixel_y < first.height(); ++pixel_y) {
+			for (std::size_t pixel_y = height; pixel_y < first.padded_height(); ++pixel_y) {
 				const auto current_pixel = first.get_pixel(pixel_x, pixel_y);
 				std::copy(border_pixel.begin(), border_pixel.end(), current_pixel.begin());
 			}
