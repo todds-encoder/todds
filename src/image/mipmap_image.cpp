@@ -8,7 +8,9 @@
 
 namespace png2dds {
 mipmap_image::mipmap_image(std::size_t file_index, std::size_t width, std::size_t height, bool mipmaps)
-	: _file_index{file_index} {
+	: _file_index{file_index}
+	, _data{}
+	, _images{} {
 	constexpr std::size_t minimum_size = 1ULL;
 	std::size_t pixels_required{};
 	while (width > minimum_size && height > minimum_size) {
