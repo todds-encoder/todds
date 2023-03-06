@@ -28,17 +28,17 @@ public:
 	image& operator=(image&&) noexcept = default;
 	~image() = default;
 
-		/**
-		 * Original width of the image in pixels excluding padding.
-		 * @return Width of this image.
-		 */
-		[[nodiscard]] std::size_t width() const noexcept;
+	/**
+	 * Original width of the image in pixels excluding padding.
+	 * @return Width of this image.
+	 */
+	[[nodiscard]] std::size_t width() const noexcept;
 
-		/**
-		 * Original height of the image in pixels excluding padding.
-		 * @return Height of this image.
-		 */
-		[[nodiscard]] std::size_t height() const noexcept;
+	/**
+	 * Original height of the image in pixels excluding padding.
+	 * @return Height of this image.
+	 */
+	[[nodiscard]] std::size_t height() const noexcept;
 
 	/**
 	 * Width of the image in pixels including padding.
