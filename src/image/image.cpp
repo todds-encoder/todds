@@ -18,9 +18,15 @@ constexpr std::size_t get_byte_position(std::size_t padded_width, std::size_t by
 
 namespace png2dds {
 image::image(std::size_t width, std::size_t height)
-	: _padded_width{util::next_divisible_by_4(width)}
+	: _width{width}
+	, _height{height}
+	, _padded_width{util::next_divisible_by_4(width)}
 	, _padded_height{util::next_divisible_by_4(height)}
 	, _data(static_cast<std::uint8_t*>(nullptr), 0UL) {}
+
+std::size_t image::width() const noexcept { return _width; }
+
+std::size_t image::height() const noexcept { return _height; }
 
 std::size_t image::padded_width() const noexcept { return _padded_width; }
 
