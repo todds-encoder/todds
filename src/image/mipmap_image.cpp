@@ -11,15 +11,26 @@ mipmap_image::mipmap_image(std::size_t file_index, std::size_t width, std::size_
 	: _file_index{file_index}
 	, _data{}
 	, _images{} {
-	constexpr std::size_t minimum_size = 1ULL;
 	std::size_t pixels_required{};
-	while (width > minimum_size && height > minimum_size) {
+
+	// Handle images with a width or height of 1. The initial image should always be included, regardless of minimum_size.
+	if (width > 0ULL && height > 0ULL) {
 		_images.emplace_back(width, height);
 		pixels_required += _images.back().padded_width() * _images.back().padded_height();
 		// Prepare sizes for the next iteration.
-		if (!mipmaps) { break; }
 		width >>= 1ULL;
 		height >>= 1ULL;
+	}
+
+	if (mipmaps) {
+		constexpr std::size_t minimum_size = 1ULL;
+		while (width > minimum_size && height > minimum_size) {
+			_images.emplace_back(width, height);
+			pixels_required += _images.back().padded_width() * _images.back().padded_height();
+			// Prepare sizes for the next iteration.
+			width >>= 1ULL;
+			height >>= 1ULL;
+		}
 	}
 
 	if (pixels_required == 0ULL) { return; }
