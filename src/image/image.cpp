@@ -41,6 +41,10 @@ void image::set_data(std::span<std::uint8_t> data) {
 
 [[nodiscard]] std::span<const std::uint8_t> image::data() const noexcept { return _data; }
 
+const std::uint8_t& image::row_start(std::size_t row) const noexcept {
+	return _data[get_byte_position(padded_width(), 0UL, row)];
+}
+
 std::uint8_t& image::row_start(std::size_t row) noexcept { return _data[get_byte_position(padded_width(), 0UL, row)]; }
 
 std::span<std::uint8_t, image::bytes_per_pixel> image::get_pixel(std::size_t pixel_x, std::size_t pixel_y) noexcept {

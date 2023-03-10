@@ -18,4 +18,6 @@ target_link_libraries(png2dds_png PUBLIC
 	PRIVATE
 	fmt::fmt
 	libspng
+	# ToDo reconsider this dependency.
+	png2dds_resize
 	)

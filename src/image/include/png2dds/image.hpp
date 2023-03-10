@@ -72,6 +72,13 @@ public:
 	 * @param row Y coordinate of the row.
 	 * @return Reference to the accessed byte.
 	 */
+	[[nodiscard]] const std::uint8_t& row_start(std::size_t row) const noexcept;
+
+	/**
+	 * Reference to the first byte of the first pixel of a row.
+	 * @param row Y coordinate of the row.
+	 * @return Reference to the accessed byte.
+	 */
 	[[nodiscard]] std::uint8_t& row_start(std::size_t row) noexcept;
 
 	/**

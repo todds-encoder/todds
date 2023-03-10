@@ -5,11 +5,12 @@
 
 #include "png2dds/png.hpp"
 
+#include "png2dds/resize.hpp"
+
 #include "spng.h"
 #include <fmt/format.h>
 
 #include <cassert>
-#include <cstddef>
 #include <stdexcept>
 
 namespace {
@@ -79,14 +80,13 @@ mipmap_image decode(std::size_t file_index, const std::string& png, std::span<co
 
 	constexpr spng_format format = SPNG_FMT_RGBA8;
 
-
 	std::size_t file_size{};
 	if (const int ret = spng_decoded_image_size(context.get(), format, &file_size); ret != 0) {
 		throw std::runtime_error{fmt::format("Could not calculate decoded size of {:s}: {:s}", png, spng_strerror(ret))};
 	}
 
 	// The png2dds data may be larger than the file size because the width and the height must be divisible by 4.
-	assert(file_size > first.data().size());
+	assert(file_size <= first.data().size());
 
 	if (const int ret = spng_decode_image(context.get(), nullptr, 0, format, SPNG_DECODE_TRNS | SPNG_DECODE_PROGRESSIVE);
 			ret != 0) {
@@ -110,7 +110,12 @@ mipmap_image decode(std::size_t file_index, const std::string& png, std::span<co
 		throw std::runtime_error{fmt::format("Progressive decode error in {:s}: {:s}", png, spng_strerror(ret))};
 	}
 
-	// ToDo joseasoler padding calculation should be part of the mipmap / pixel block calculations.
+	// ToDo move out of here.
+	for (std::size_t mipmap_index = 1ULL; mipmap_index < result.mipmap_count(); ++mipmap_index) {
+		png2dds::box_downscale(result.get_image(mipmap_index - 1UL), result.get_image(mipmap_index));
+	}
+
+	// ToDo joseasoler padding should be added to each mipmap after mipmap calculations.
 	// When padding has been added to the image, copy the border pixel into the padding.
 	if (width < first.padded_width()) {
 		const auto border_pixel_x = width - 1UL;
