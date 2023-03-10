@@ -94,9 +94,9 @@ bc7_params bc7_encode_params(png2dds::format::quality quality) noexcept {
 }
 
 vector<std::uint64_t> bc7_encode(const ispc::bc7e_compress_block_params& params, const vector<std::uint32_t>& image) {
-	vector<std::uint64_t> result(image.size() * bc7_block_size, 0UL);
-
 	const std::size_t num_blocks = image.size() / pixel_block_size;
+
+	vector<std::uint64_t> result(num_blocks * bc7_block_size);
 
 	using blocked_range = oneapi::tbb::blocked_range<size_t>;
 	oneapi::tbb::parallel_for(blocked_range(0UL, num_blocks), [&params, &image, &result](const blocked_range& range) {
