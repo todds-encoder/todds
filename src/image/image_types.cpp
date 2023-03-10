@@ -11,7 +11,8 @@
 namespace png2dds {
 pixel_block_image to_pixel_blocks(const mipmap_image& img) {
 	// Every mipmap level will be stored together in a contiguous vector of pixel blocks.
-	pixel_block_image buffer(img.data_size());
+	// pixel_block_image stores RGBA pixels inside of a std::uint32_t value.
+	pixel_block_image buffer(img.data_size() / 4ULL);
 	auto* pixel_block_current = reinterpret_cast<std::uint8_t*>(buffer.data());
 
 	for (std::size_t level_index{}; level_index < img.mipmap_count(); ++level_index) {
