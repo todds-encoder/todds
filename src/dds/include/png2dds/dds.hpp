@@ -10,6 +10,7 @@
 
 #include <bc7e_ispc.h>
 
+#include <array>
 #include <memory>
 
 namespace png2dds::dds {
@@ -49,9 +50,7 @@ void initialize_bc7_encoding();
  * @param image Source pixel block image.
  * @return BC7 encoded image.
  */
-[[nodiscard]] dds_image bc7_encode(
-	const ispc::bc7e_compress_block_params& params, const pixel_block_image& image);
-
+[[nodiscard]] dds_image bc7_encode(const ispc::bc7e_compress_block_params& params, const pixel_block_image& image);
 
 /**
  * Construct a DDS header.
@@ -62,7 +61,7 @@ void initialize_bc7_encoding();
  * @param mipmaps Number of mipmaps generated. Zero means no mipmaps.
  * @return Array containing the DDS header information.
  */
-std::array<char, 124> dds_header(
-	png2dds::format::type format_type, std::size_t width, std::size_t height, std::size_t block_size_bytes, std::size_t mipmaps);
+std::array<char, 124> dds_header(png2dds::format::type format_type, std::size_t width, std::size_t height,
+	std::size_t block_size_bytes, std::size_t mipmaps);
 
 } // namespace png2dds::dds
