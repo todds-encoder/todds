@@ -5,8 +5,6 @@
 
 #include "png2dds/png.hpp"
 
-#include "png2dds/resize.hpp"
-
 #include "spng.h"
 #include <fmt/format.h>
 
@@ -109,35 +107,6 @@ mipmap_image decode(std::size_t file_index, const std::string& png, std::span<co
 	if (ret != SPNG_EOI && ret != SPNG_EIDAT_STREAM) {
 		throw std::runtime_error{fmt::format("Progressive decode error in {:s}: {:s}", png, spng_strerror(ret))};
 	}
-
-	// ToDo move out of here.
-	for (std::size_t mipmap_index = 1ULL; mipmap_index < result.mipmap_count(); ++mipmap_index) {
-		png2dds::box_downscale(result.get_image(mipmap_index - 1UL), result.get_image(mipmap_index));
-	}
-
-	// ToDo joseasoler padding should be added to each mipmap after mipmap calculations.
-	// When padding has been added to the image, copy the border pixel into the padding.
-	if (width < first.padded_width()) {
-		const auto border_pixel_x = width - 1UL;
-		for (std::size_t pixel_y = 0UL; pixel_y < first.padded_height(); ++pixel_y) {
-			const auto border_pixel = first.get_pixel(border_pixel_x, std::min(pixel_y, height - 1U));
-			for (std::size_t pixel_x = width; pixel_x < first.padded_width(); ++pixel_x) {
-				const auto current_pixel = first.get_pixel(pixel_x, pixel_y);
-				std::copy(border_pixel.begin(), border_pixel.end(), current_pixel.begin());
-			}
-		}
-	}
-	if (height < first.padded_height()) {
-		const auto border_pixel_y = height - 1UL;
-		for (std::size_t pixel_x = 0UL; pixel_x < first.padded_width(); ++pixel_x) {
-			const auto border_pixel = first.get_pixel(std::min(pixel_x, width - 1U), border_pixel_y);
-			for (std::size_t pixel_y = height; pixel_y < first.padded_height(); ++pixel_y) {
-				const auto current_pixel = first.get_pixel(pixel_x, pixel_y);
-				std::copy(border_pixel.begin(), border_pixel.end(), current_pixel.begin());
-			}
-		}
-	}
-
 	return result;
 }
 
