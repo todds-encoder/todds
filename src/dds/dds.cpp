@@ -5,6 +5,8 @@
 
 #include "png2dds/dds.hpp"
 
+#include "png2dds/util.hpp"
+
 #include <bc7e_ispc.h>
 #include <dds_defs.h>
 #include <oneapi/tbb/parallel_for.h>
@@ -37,6 +39,7 @@ constexpr DDSURFACEDESC2 get_surface_description() noexcept {
 	DDSURFACEDESC2 desc{};
 	desc.dwSize = sizeof(desc);
 	desc.dwFlags = DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT | DDSD_CAPS | DDSD_LINEARSIZE;
+	desc.dwBackBufferCount = 1UL;
 
 	desc.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
 	desc.ddpfPixelFormat.dwSize = sizeof(desc.ddpfPixelFormat);
@@ -116,15 +119,15 @@ vector<std::uint64_t> bc7_encode(const ispc::bc7e_compress_block_params& params,
 	return result;
 }
 
-std::array<char, 124> dds_header(png2dds::format::type format_type, std::size_t width, std::size_t height,
-	std::size_t block_size_bytes, std::size_t mipmaps) {
+std::array<char, 124> dds_header(
+	png2dds::format::type format_type, std::size_t width, std::size_t height, std::size_t mipmaps) {
 	std::array<char, 124> header{};
 	// Construct the surface description object directly into the header array memory.
 	auto* desc = new (header.data()) DDSURFACEDESC2(get_surface_description());
 	// Modify any values specific to this image.
 	desc->dwWidth = static_cast<std::uint32_t>(width);
 	desc->dwHeight = static_cast<std::uint32_t>(height);
-	desc->dwLinearSize = static_cast<std::uint32_t>(block_size_bytes);
+	desc->lPitch = static_cast<std::int32_t>(util::next_divisible_by_4(width) * util::next_divisible_by_4(height));
 	if (mipmaps > 0) {
 		desc->dwFlags |= DDSD_MIPMAPCOUNT;
 		desc->dwMipMapCount = static_cast<std::uint32_t>(mipmaps);

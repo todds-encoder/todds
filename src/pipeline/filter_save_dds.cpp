@@ -8,6 +8,7 @@
 #include "png2dds/dds.hpp"
 
 #include <boost/nowide/fstream.hpp>
+#include <boost/predef.h>
 #include <dds_defs.h>
 
 #include "filter_pixel_blocks.hpp"
@@ -36,15 +37,15 @@ public:
 		boost::nowide::ofstream ofs{output, std::ios::out | std::ios::binary};
 
 		ofs << "DDS ";
-		const std::size_t block_size_bytes = dds_img.image.size() * sizeof(std::uint64_t);
 		const auto& file_data = _files_data[file_index];
-		const auto header = png2dds::dds::dds_header(
-			file_data.format, file_data.width, file_data.height, block_size_bytes, file_data.mipmaps);
+		const auto header =
+			png2dds::dds::dds_header(file_data.format, file_data.width, file_data.height, file_data.mipmaps);
 		ofs.write(header.data(), header.size());
 		if (file_data.format == png2dds::format::type::bc7) {
 			ofs.write(reinterpret_cast<const char*>(&header_extension), sizeof(header_extension));
 		}
 
+		const std::size_t block_size_bytes = dds_img.image.size() * sizeof(std::uint64_t);
 		ofs.write(reinterpret_cast<const char*>(dds_img.image.data()), static_cast<std::ptrdiff_t>(block_size_bytes));
 		ofs.close();
 	}

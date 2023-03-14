@@ -6,8 +6,6 @@
 #include "png2dds/pipeline.hpp"
 
 #include "png2dds/dds.hpp"
-#include "png2dds/mipmap_image.hpp"
-#include "png2dds/png.hpp"
 #include "png2dds/vector.hpp"
 
 #include <boost/nowide/iostream.hpp>

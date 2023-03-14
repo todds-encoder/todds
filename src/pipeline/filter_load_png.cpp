@@ -3,10 +3,11 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include <boost/nowide/fstream.hpp>
-#include <fmt/format.h>
-
 #include "filter_load_png.hpp"
+
+#include <boost/nowide/fstream.hpp>
+#include <boost/predef.h>
+#include <fmt/format.h>
 
 namespace png2dds::pipeline::impl {
 
