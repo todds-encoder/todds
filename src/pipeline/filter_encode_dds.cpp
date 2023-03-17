@@ -44,7 +44,7 @@ private:
 };
 
 // When using BC1_ALPHA_BC7, this function determines if a file should be encoded as BC7.
-bool has_alpha(const png2dds::pixel_block_image& img) {
+static bool has_alpha(const png2dds::pixel_block_image& img) {
 	for (const std::uint32_t pixel : img) {
 		// Pixels are encoded as RGBA.
 		if ((pixel % 256) < 255) { return true; }

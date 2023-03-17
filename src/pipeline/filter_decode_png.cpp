@@ -54,9 +54,9 @@ void process_image(png2dds::mipmap_image& mipmap_img) {
 	for (std::size_t mipmap_index = 1ULL; mipmap_index < mipmap_img.mipmap_count(); ++mipmap_index) {
 		png2dds::image& previous_image = mipmap_img.get_image(mipmap_index - 1UL);
 		png2dds::image& current_image = mipmap_img.get_image(mipmap_index);
-		cv::Mat input = previous_image;
-		cv::Mat output = current_image;
-		cv::resize(input, output, output.size(), 0, 0, CV_INTER_CUBIC);
+		auto input = static_cast<cv::Mat>(previous_image);
+		auto output = static_cast<cv::Mat>(current_image);
+		cv::resize(input, output, output.size(), 0, 0, cv::INTER_CUBIC);
 		// ToDo Solve alpha coverage issues on Windows
 		// png2dds::scale_alpha_to_coverage(desired_coverage, default_alpha_reference, current_image);
 	}

@@ -100,8 +100,9 @@ public:
 	[[nodiscard]] std::span<const std::uint8_t, bytes_per_pixel> get_pixel(
 		std::size_t pixel_x, std::size_t pixel_y) const noexcept;
 
-	operator cv::Mat() {
-		return cv::Mat(static_cast<int>(height()), static_cast<int>(width()), CV_8UC4, static_cast<void*>(_data.data()));
+	explicit operator cv::Mat() {
+		constexpr auto image_type = CV_8UC4; // NOLINT
+		return {static_cast<int>(height()), static_cast<int>(width()), image_type, static_cast<void*>(_data.data())};
 	}
 
 private:

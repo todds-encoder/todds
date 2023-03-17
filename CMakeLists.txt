@@ -37,6 +37,8 @@ find_package(TBB REQUIRED)
 
 add_subdirectory(thirdparty)
 
+include_directories(SYSTEM ${OpenCV_INCLUDE_DIRS})
+
 include(cmake/clang_tidy.cmake)
 include(cmake/warnings.cmake)
 include(cmake/sanitizer.cmake)
