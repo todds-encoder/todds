@@ -5,8 +5,6 @@
 
 #include "png2dds/format.hpp"
 
-#include <rgbcx.h>
-
 #include <catch2/catch_test_macros.hpp>
 
 using png2dds::format::name;
