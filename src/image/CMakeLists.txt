@@ -3,9 +3,11 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 add_library(png2dds_image STATIC
+	include/png2dds/alpha_coverage.hpp
 	include/png2dds/image.hpp
 	include/png2dds/image_types.hpp
 	include/png2dds/mipmap_image.hpp
+	alpha_coverage.cpp
 	image.cpp
 	image_types.cpp
 	mipmap_image.cpp

@@ -5,6 +5,7 @@
 
 #include "filter_decode_png.hpp"
 
+#include "png2dds/alpha_coverage.hpp"
 #include "png2dds/mipmap_image.hpp"
 #include "png2dds/png.hpp"
 #include "png2dds/resize.hpp"
@@ -43,13 +44,18 @@ void add_padding(png2dds::image& img) {
 }
 
 void process_image(png2dds::mipmap_image& mipmap_img) {
+	const auto& original_image = mipmap_img.get_image(0UL);
+
+	constexpr std::uint8_t default_alpha_reference = 245U;
+	const float desired_coverage = png2dds::alpha_coverage(default_alpha_reference, original_image);
+
 	add_padding(mipmap_img.get_image(0UL));
 
 	for (std::size_t mipmap_index = 1ULL; mipmap_index < mipmap_img.mipmap_count(); ++mipmap_index) {
 		png2dds::image& current_image = mipmap_img.get_image(mipmap_index);
 		// ToDo Support for additional downscaling algorithms.
 		png2dds::box_downscale(mipmap_img.get_image(mipmap_index - 1UL), current_image);
-		// ToDo preserve alpha coverage.
+		png2dds::scale_alpha_to_coverage(desired_coverage, default_alpha_reference, current_image);
 		add_padding(current_image);
 	}
 }
