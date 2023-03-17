@@ -44,10 +44,10 @@ void add_padding(png2dds::image& img) {
 }
 
 void process_image(png2dds::mipmap_image& mipmap_img) {
-	const auto& original_image = mipmap_img.get_image(0UL);
+	// const auto& original_image = mipmap_img.get_image(0UL);
 
-	constexpr std::uint8_t default_alpha_reference = 245U;
-	const float desired_coverage = png2dds::alpha_coverage(default_alpha_reference, original_image);
+	// constexpr std::uint8_t default_alpha_reference = 245U;
+	// const float desired_coverage = png2dds::alpha_coverage(default_alpha_reference, original_image);
 
 	add_padding(mipmap_img.get_image(0UL));
 
@@ -55,7 +55,8 @@ void process_image(png2dds::mipmap_image& mipmap_img) {
 		png2dds::image& current_image = mipmap_img.get_image(mipmap_index);
 		// ToDo Support for additional downscaling algorithms.
 		png2dds::box_downscale(mipmap_img.get_image(mipmap_index - 1UL), current_image);
-		png2dds::scale_alpha_to_coverage(desired_coverage, default_alpha_reference, current_image);
+		// ToDo Solve alpha coverage issues on Windows
+		// png2dds::scale_alpha_to_coverage(desired_coverage, default_alpha_reference, current_image);
 		add_padding(current_image);
 	}
 }
