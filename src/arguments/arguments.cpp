@@ -43,8 +43,7 @@ constexpr auto quality_arg = optional_argument("--quality", "Encoder quality lev
 
 constexpr auto no_mipmaps_arg = optional_arg{"--no-mipmaps", "-nm", "Disable mipmap generation."};
 
-constexpr auto filter_arg =
-	optional_arg{"--filter", "-ft", "Filter used to resize images during mipmap calculations."};
+constexpr auto filter_arg = optional_arg{"--filter", "-ft", "Filter used to resize images during mipmap calculations."};
 
 constexpr auto threads_arg =
 	optional_arg{"--threads", "-th", "Number of threads used by the parallel pipeline, must be in [1, {:d}]."};
@@ -149,13 +148,13 @@ std::string get_help(std::size_t max_threads) {
 	print_optional_argument(ostream, no_mipmaps_arg);
 
 	print_optional_argument(ostream, filter_arg);
-	print_string_argument(
-		ostream, png2dds::filter::name(png2dds::filter::type::area), "Resampling using pixel area relation. [Default]");
+	print_string_argument(ostream, png2dds::filter::name(png2dds::filter::type::lanczos),
+		"Lanczos interpolation over 8x8 neighborhood [Default].");
 	print_string_argument(
 		ostream, png2dds::filter::name(png2dds::filter::type::nearest), "Nearest neighbor interpolation.");
 	print_string_argument(ostream, png2dds::filter::name(png2dds::filter::type::cubic), "Bicubic interpolation.");
 	print_string_argument(
-		ostream, png2dds::filter::name(png2dds::filter::type::lanczos), "Lanczos interpolation over 8x8 neighborhood.");
+		ostream, png2dds::filter::name(png2dds::filter::type::area), "Resampling using pixel area relation.");
 	print_string_argument(
 		ostream, png2dds::filter::name(png2dds::filter::type::nearest_exact), "Bit exact nearest neighbor interpolation.");
 
@@ -234,7 +233,7 @@ data get(const png2dds::vector<std::string_view>& arguments) {
 	// Set default values.
 	parsed_arguments.format = format::type::bc7;
 	parsed_arguments.mipmaps = true;
-	parsed_arguments.filter = filter::type::area;
+	parsed_arguments.filter = filter::type::lanczos;
 	const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
 	parsed_arguments.threads = max_threads;
 	parsed_arguments.depth = max_depth;

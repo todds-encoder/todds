@@ -198,21 +198,22 @@ TEST_CASE("png2dds::arguments mipmaps", "[arguments]") {
 }
 
 TEST_CASE("png2dds::arguments filter", "[arguments]") {
-	SECTION("The default value of filter is area.") {
+	SECTION("The default value of filter is lanczos.") {
 		const auto arguments = get({binary, "."});
-		REQUIRE(arguments.filter == png2dds::filter::type::area);
-	}
-
-	SECTION("Parsing lanczos.") {
-		const auto arguments = get({binary, "--filter", "lanczos", "."});
 		REQUIRE(!has_error(arguments));
 		REQUIRE(arguments.filter == png2dds::filter::type::lanczos);
 	}
 
-	SECTION("Parsing lanczos with alternate case.") {
-		const auto arguments = get({binary, "-ft", "LaNCZoS", "."});
+	SECTION("Parsing nearest_exact.") {
+		const auto arguments = get({binary, "--filter", "nearest_exact", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.filter == png2dds::filter::type::lanczos);
+		REQUIRE(arguments.filter == png2dds::filter::type::nearest_exact);
+	}
+
+	SECTION("Parsing nearest_exact with alternate case.") {
+		const auto arguments = get({binary, "-ft", "nEArEst_ExAct", "."});
+		REQUIRE(!has_error(arguments));
+		REQUIRE(arguments.filter == png2dds::filter::type::nearest_exact);
 	}
 }
 
