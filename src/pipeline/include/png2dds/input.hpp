@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "png2dds/filter.hpp"
 #include "png2dds/format.hpp"
 #include "png2dds/vector.hpp"
 
@@ -34,6 +35,9 @@ struct input {
 
 	/** Flip source images vertically before encoding. */
 	bool vflip{};
+
+	/** Filter used to resize images during mipmap calculations. */
+	png2dds::filter::type filter{};
 
 	/** Display progress messages. */
 	bool verbose{};

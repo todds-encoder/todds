@@ -44,7 +44,7 @@ constexpr auto quality_arg = optional_argument("--quality", "Encoder quality lev
 constexpr auto no_mipmaps_arg = optional_arg{"--no-mipmaps", "-nm", "Disable mipmap generation."};
 
 constexpr auto filter_arg =
-	optional_arg{"--filter", "-ft", "Filter used to resize images during mipmap calculations.."};
+	optional_arg{"--filter", "-ft", "Filter used to resize images during mipmap calculations."};
 
 constexpr auto threads_arg =
 	optional_arg{"--threads", "-th", "Number of threads used by the parallel pipeline, must be in [1, {:d}]."};
