@@ -35,11 +35,11 @@ target_link_libraries(png2dds_pipeline
 	png2dds_dds
 	png2dds_png
 	png2dds_regex
-	png2dds_resize
 	png2dds_util
 	bc7enc_dds_defs
 	Boost::headers
 	Boost::filesystem
 	fmt::fmt
 	TBB::tbb
+	${OpenCV_LIBS}
 	)

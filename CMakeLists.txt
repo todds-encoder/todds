@@ -31,6 +31,7 @@ find_package(Boost 1.73 REQUIRED COMPONENTS
 	)
 find_package(fmt REQUIRED)
 find_package(Hyperscan REQUIRED)
+find_package(OpenCV REQUIRED)
 find_package(Threads REQUIRED)
 find_package(TBB REQUIRED)
 

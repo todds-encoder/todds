@@ -7,6 +7,8 @@
 
 #include "png2dds/memory.hpp"
 
+#include <opencv2/core.hpp>
+
 #include <cstdint>
 #include <span>
 
@@ -97,6 +99,10 @@ public:
 	 */
 	[[nodiscard]] std::span<const std::uint8_t, bytes_per_pixel> get_pixel(
 		std::size_t pixel_x, std::size_t pixel_y) const noexcept;
+
+	operator cv::Mat() {
+		return cv::Mat(static_cast<int>(height()), static_cast<int>(width()), CV_8UC4, static_cast<void*>(_data.data()));
+	}
 
 private:
 	std::size_t _width;
