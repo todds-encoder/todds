@@ -57,7 +57,7 @@ void process_image(png2dds::mipmap_image& mipmap_img, png2dds::filter::type filt
 		png2dds::image& current_image = mipmap_img.get_image(mipmap_index);
 		auto input = static_cast<cv::Mat>(previous_image);
 		auto output = static_cast<cv::Mat>(current_image);
-		cv::resize(input, output, output.size(), 0, 0, static_cast<cv::InterpolationFlags>(filter));
+		cv::resize(input, output, output.size(), 0, 0, static_cast<int>(filter));
 		// ToDo Solve alpha coverage issues on Windows
 		// png2dds::scale_alpha_to_coverage(desired_coverage, default_alpha_reference, current_image);
 	}
@@ -108,8 +108,8 @@ private:
 	filter::type _filter;
 };
 
-oneapi::tbb::filter<png_file, mipmap_image> decode_png_filter(
-	std::vector<file_data>& files_data, const paths_vector& paths, bool vflip, bool mipmaps, filter::type filter, error_queue& errors) {
+oneapi::tbb::filter<png_file, mipmap_image> decode_png_filter(std::vector<file_data>& files_data,
+	const paths_vector& paths, bool vflip, bool mipmaps, filter::type filter, error_queue& errors) {
 	return oneapi::tbb::make_filter<png_file, mipmap_image>(
 		oneapi::tbb::filter_mode::serial_in_order, decode_png(files_data, paths, vflip, mipmaps, filter, errors));
 }
