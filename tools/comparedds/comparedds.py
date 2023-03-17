@@ -8,7 +8,7 @@
 # * nvbatchcompress.exe (NVIDIA Texture Tools): DDS encoding tool
 # * texconv.exe (DirectXTex): DDS encoding tool
 # * bc7enc.exe (bc7enc_rdo): DDS encoding tool
-# * png2dds.exe: DDS encoding tool
+# * todds.exe: DDS encoding tool
 # * flip.exe (NVIDIA FLIP Difference Evaluator): FLIP metric
 # * magick.exe (ImageMagick): PSNR, RMSE and SSIM metrics
 
@@ -26,7 +26,7 @@ import winreg
 # Tools used by this script.
 bc7enc_tool = 'bc7enc'
 nvtt_tool = 'nvtt'
-png2dds_tool = 'png2dds'
+todds_tool = 'todds'
 texconv_tool = 'texconv'
 nvdecompress_executable = 'nvdecompress'
 flip_executable = 'flip'
@@ -37,7 +37,7 @@ EncoderData = collections.namedtuple('EncoderData', 'executable batch filepath p
 encoder_data = {
     bc7enc_tool: EncoderData('bc7enc', False, True, ('-q', '-g', '-u6')),
     nvtt_tool: EncoderData('nvbatchcompress', True, True, ('-fast', '-bc7', '-silent')),
-    png2dds_tool: EncoderData('png2dds', True, False, ('-o',)),
+    todds_tool: EncoderData('todds', True, False, ('-o',)),
     texconv_tool: EncoderData('texconv', True, False, ('-y', '-f', 'BC7_UNORM', '-bc', 'x')),
 }
 
@@ -89,11 +89,11 @@ def nvtt_version():
     return output
 
 
-def png2dds_version():
-    output = subprocess.run([encoder_data[png2dds_tool].executable, '--help'], text=True, check=False,
+def todds_version():
+    output = subprocess.run([encoder_data[todds_tool].executable, '--help'], text=True, check=False,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.DEVNULL).stdout
-    _, output = output.split('png2dds ', 1)
+    _, output = output.split('todds ', 1)
     output, _ = output.split('\n', 1)
     return output.strip()
 
@@ -169,10 +169,10 @@ def nvtt_execute(input_path, output_path):
     return subprocess.Popen(arguments, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
-def png2dds_execute(input_path, output_path):
-    png2dds_data = encoder_data[png2dds_tool]
-    arguments = [png2dds_data.executable, ]
-    arguments.extend(png2dds_data.params)
+def todds_execute(input_path, output_path):
+    todds_data = encoder_data[todds_tool]
+    arguments = [todds_data.executable, ]
+    arguments.extend(todds_data.params)
     arguments.append(input_path)
     arguments.append(output_path)
     return subprocess.Popen(arguments, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

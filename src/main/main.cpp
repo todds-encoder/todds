@@ -3,9 +3,9 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include "png2dds/arguments.hpp"
-#include "png2dds/project.hpp"
-#include "png2dds/task.hpp"
+#include "todds/arguments.hpp"
+#include "todds/project.hpp"
+#include "todds/task.hpp"
 
 #include <boost/nowide/filesystem.hpp>
 #include <boost/nowide/iostream.hpp>
@@ -26,12 +26,12 @@ int main(int argc, char** argv) {
 #if defined(NDEBUG)
 	try {
 #endif // defined(_NDEBUG)
-		auto data = png2dds::args::get(argc, argv);
+		auto data = todds::args::get(argc, argv);
 		if (!data.text.empty()) {
 			auto& stream = data.error ? cerr : cout;
 			stream << data.text;
 		} else if (!data.error) {
-			png2dds::run(data);
+			todds::run(data);
 			execution_status = EXIT_SUCCESS;
 			if (data.time || data.verbose) {
 				const auto end_time = oneapi::tbb::tick_count::now();
@@ -41,9 +41,9 @@ int main(int argc, char** argv) {
 #if defined(NDEBUG)
 	} catch (const std::exception& ex) {
 		cerr << fmt::format(
-			"{:s} has been terminated because of an exception: {:s}\n", png2dds::project::name(), ex.what());
+			"{:s} has been terminated because of an exception: {:s}\n", todds::project::name(), ex.what());
 	} catch (...) {
-		cerr << fmt::format("{:s} has been terminated because of an unknown exception.\n", png2dds::project::name());
+		cerr << fmt::format("{:s} has been terminated because of an unknown exception.\n", todds::project::name());
 	}
 #endif // defined(_NDEBUG)
 

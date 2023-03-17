@@ -2,10 +2,10 @@
  * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-#include "png2dds/task.hpp"
+#include "todds/task.hpp"
 
-#include "png2dds/pipeline.hpp"
-#include "png2dds/regex.hpp"
+#include "todds/pipeline.hpp"
+#include "todds/regex.hpp"
 
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/filesystem.hpp>
@@ -16,7 +16,7 @@
 #include <string_view>
 
 namespace fs = boost::filesystem;
-using png2dds::pipeline::paths_vector;
+using todds::pipeline::paths_vector;
 
 namespace {
 
@@ -34,7 +34,7 @@ bool has_extension(const fs::path& path, std::string_view extension) {
  * @param scratch Scratch used for regular expression evaluation.
  * @return True if the path should be processed.
  */
-bool is_valid_source(const fs::path& path, const png2dds::regex& regex, png2dds::regex::scratch_type& scratch) {
+bool is_valid_source(const fs::path& path, const todds::regex& regex, todds::regex::scratch_type& scratch) {
 	return has_extension(path, png_extension) && regex.match(scratch, path.string());
 }
 
@@ -48,7 +48,7 @@ void add_files(const fs::path& png_path, const fs::path& dds_path, paths_vector&
 }
 
 void process_directory(paths_vector& paths, const fs::path& input, const fs::path& output, bool different_output,
-	const png2dds::regex& regex, png2dds::regex::scratch_type& scratch, bool overwrite, std::size_t depth) {
+	const todds::regex& regex, todds::regex::scratch_type& scratch, bool overwrite, std::size_t depth) {
 	fs::path current_output = output;
 	const fs::directory_entry dir{input};
 	for (fs::recursive_directory_iterator itr{dir}; itr != fs::recursive_directory_iterator{}; ++itr) {
@@ -68,7 +68,7 @@ void process_directory(paths_vector& paths, const fs::path& input, const fs::pat
 	}
 }
 
-paths_vector get_paths(const png2dds::args::data& arguments) {
+paths_vector get_paths(const todds::args::data& arguments) {
 	const fs::path& input = arguments.input;
 	const bool different_output = static_cast<bool>(arguments.output);
 	const fs::path output = different_output ? arguments.output.value() : input.parent_path();
@@ -76,7 +76,7 @@ paths_vector get_paths(const png2dds::args::data& arguments) {
 	const auto depth = arguments.depth;
 
 	const auto& regex = arguments.regex;
-	png2dds::regex::scratch_type scratch = regex.allocate_scratch();
+	todds::regex::scratch_type scratch = regex.allocate_scratch();
 
 	paths_vector paths{};
 	if (fs::is_directory(input)) {
@@ -109,7 +109,7 @@ paths_vector get_paths(const png2dds::args::data& arguments) {
 
 } // anonymous namespace
 
-namespace png2dds {
+namespace todds {
 
 void run(const args::data& arguments) {
 	pipeline::input input_data;
@@ -127,4 +127,4 @@ void run(const args::data& arguments) {
 	pipeline::encode_as_dds(input_data);
 }
 
-} // namespace png2dds
+} // namespace todds

@@ -2,13 +2,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-#include "png2dds/image_types.hpp"
+#include "todds/image_types.hpp"
 
-#include "png2dds/mipmap_image.hpp"
+#include "todds/mipmap_image.hpp"
 
 #include <cassert>
 
-namespace png2dds {
+namespace todds {
 pixel_block_image to_pixel_blocks(const mipmap_image& img) {
 	// Every mipmap level will be stored together in a contiguous vector of pixel blocks.
 	// pixel_block_image stores RGBA pixels inside of a std::uint32_t value.
@@ -29,7 +29,7 @@ pixel_block_image to_pixel_blocks(const mipmap_image& img) {
 					assert(pixel_start < &level.data().back());
 					const std::uint8_t* pixel_end = level.get_pixel(pixel_x + pixel_block_side, pixel_y + pixel_offset_y).data();
 					assert(pixel_end <= &*level.data().end());
-					assert(std::distance(pixel_start, pixel_end) == pixel_block_side * png2dds::image::bytes_per_pixel);
+					assert(std::distance(pixel_start, pixel_end) == pixel_block_side * todds::image::bytes_per_pixel);
 					pixel_block_current = std::copy(pixel_start, pixel_end, pixel_block_current);
 				}
 			}
@@ -39,4 +39,4 @@ pixel_block_image to_pixel_blocks(const mipmap_image& img) {
 	return buffer;
 }
 
-} // namespace png2dds
+} // namespace todds

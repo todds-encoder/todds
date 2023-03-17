@@ -2,21 +2,21 @@
  * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-#include "png2dds/image.hpp"
+#include "todds/image.hpp"
 
-#include "png2dds/util.hpp"
+#include "todds/util.hpp"
 
 #include <cassert>
 
 namespace {
 
 constexpr std::size_t get_byte_position(std::size_t padded_width, std::size_t byte_x, std::size_t byte_y) noexcept {
-	return byte_x + byte_y * padded_width * png2dds::image::bytes_per_pixel;
+	return byte_x + byte_y * padded_width * todds::image::bytes_per_pixel;
 }
 
 } // anonymous namespace
 
-namespace png2dds {
+namespace todds {
 image::image(std::size_t width, std::size_t height)
 	: _width{width}
 	, _height{height}
@@ -60,4 +60,4 @@ std::span<const std::uint8_t, image::bytes_per_pixel> image::get_pixel(
 		_data.begin() + index, _data.begin() + index + bytes_per_pixel);
 }
 
-} // namespace png2dds
+} // namespace todds

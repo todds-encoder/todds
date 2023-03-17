@@ -4,9 +4,9 @@
 
 include_guard(GLOBAL)
 
-option(PNG2DDS_CLANG_TIDY "Analyze the project with clang-tidy." OFF)
+option(TODDS_CLANG_TIDY "Analyze the project with clang-tidy." OFF)
 
-if (PNG2DDS_CLANG_TIDY)
+if (TODDS_CLANG_TIDY)
 	find_program(
 		CLANG_TIDY_BINARY
 		NAMES "clang-tidy"

@@ -5,46 +5,46 @@
 
 #include "filter_encode_dds.hpp"
 
-#include "png2dds/dds.hpp"
+#include "todds/dds.hpp"
 
 #include <cassert>
 
-namespace png2dds::pipeline::impl {
+namespace todds::pipeline::impl {
 
 class encode_bc1_image final {
 public:
-	encode_bc1_image(std::vector<file_data>& files_data, png2dds::format::quality quality) noexcept
+	encode_bc1_image(std::vector<file_data>& files_data, todds::format::quality quality) noexcept
 		: _files_data{files_data}
 		, _quality{quality} {}
 
 	dds_data operator()(const pixel_block_data& pixel_data) const {
-		_files_data[pixel_data.file_index].format = png2dds::format::type::bc1;
-		return {png2dds::dds::bc1_encode(_quality, pixel_data.image), pixel_data.file_index};
+		_files_data[pixel_data.file_index].format = todds::format::type::bc1;
+		return {todds::dds::bc1_encode(_quality, pixel_data.image), pixel_data.file_index};
 	}
 
 private:
 	std::vector<file_data>& _files_data;
-	png2dds::format::quality _quality;
+	todds::format::quality _quality;
 };
 
 class encode_bc7_image final {
 public:
-	encode_bc7_image(std::vector<file_data>& files_data, png2dds::format::quality quality) noexcept
+	encode_bc7_image(std::vector<file_data>& files_data, todds::format::quality quality) noexcept
 		: _files_data{files_data}
-		, _params{png2dds::dds::bc7_encode_params(quality)} {}
+		, _params{todds::dds::bc7_encode_params(quality)} {}
 
 	dds_data operator()(const pixel_block_data& pixel_data) const {
-		_files_data[pixel_data.file_index].format = png2dds::format::type::bc7;
-		return {png2dds::dds::bc7_encode(_params, pixel_data.image), pixel_data.file_index};
+		_files_data[pixel_data.file_index].format = todds::format::type::bc7;
+		return {todds::dds::bc7_encode(_params, pixel_data.image), pixel_data.file_index};
 	}
 
 private:
 	std::vector<file_data>& _files_data;
-	png2dds::dds::bc7_params _params;
+	todds::dds::bc7_params _params;
 };
 
 // When using BC1_ALPHA_BC7, this function determines if a file should be encoded as BC7.
-static bool has_alpha(const png2dds::pixel_block_image& img) {
+static bool has_alpha(const todds::pixel_block_image& img) {
 	for (const std::uint32_t pixel : img) {
 		// Pixels are encoded as RGBA.
 		if ((pixel % 256) < 255) { return true; }
@@ -55,36 +55,36 @@ static bool has_alpha(const png2dds::pixel_block_image& img) {
 
 class encode_bc1_alpha_bc7_image final {
 public:
-	explicit encode_bc1_alpha_bc7_image(std::vector<file_data>& files_data, png2dds::format::quality quality) noexcept
+	explicit encode_bc1_alpha_bc7_image(std::vector<file_data>& files_data, todds::format::quality quality) noexcept
 		: _files_data{files_data}
-		, _params{png2dds::dds::bc7_encode_params(quality)}
+		, _params{todds::dds::bc7_encode_params(quality)}
 		, _quality{quality} {}
 
 	dds_data operator()(const pixel_block_data& pixel_data) const {
-		const auto format = has_alpha(pixel_data.image) ? png2dds::format::type::bc7 : png2dds::format::type::bc1;
+		const auto format = has_alpha(pixel_data.image) ? todds::format::type::bc7 : todds::format::type::bc1;
 		_files_data[pixel_data.file_index].format = format;
 
-		return {format == png2dds::format::type::bc7 ? png2dds::dds::bc7_encode(_params, pixel_data.image) :
-																									 png2dds::dds::bc1_encode(_quality, pixel_data.image),
+		return {format == todds::format::type::bc7 ? todds::dds::bc7_encode(_params, pixel_data.image) :
+																									 todds::dds::bc1_encode(_quality, pixel_data.image),
 			pixel_data.file_index};
 	}
 
 private:
 	std::vector<file_data>& _files_data;
-	png2dds::dds::bc7_params _params;
-	png2dds::format::quality _quality;
+	todds::dds::bc7_params _params;
+	todds::format::quality _quality;
 };
 
 oneapi::tbb::filter<pixel_block_data, dds_data> encode_dds_filter(
-	std::vector<file_data>& files_data, png2dds::format::type format_type, png2dds::format::quality quality) {
+	std::vector<file_data>& files_data, todds::format::type format_type, todds::format::quality quality) {
 	using oneapi::tbb::filter_mode;
 	using oneapi::tbb::make_filter;
 	switch (format_type) {
-	case png2dds::format::type::bc1:
+	case todds::format::type::bc1:
 		return make_filter<pixel_block_data, dds_data>(filter_mode::parallel, encode_bc1_image{files_data, quality});
-	case png2dds::format::type::bc7:
+	case todds::format::type::bc7:
 		return make_filter<pixel_block_data, dds_data>(filter_mode::parallel, encode_bc7_image{files_data, quality});
-	case png2dds::format::type::bc1_alpha_bc7:
+	case todds::format::type::bc1_alpha_bc7:
 		return make_filter<pixel_block_data, dds_data>(
 			filter_mode::parallel, encode_bc1_alpha_bc7_image{files_data, quality});
 	}
@@ -92,4 +92,4 @@ oneapi::tbb::filter<pixel_block_data, dds_data> encode_dds_filter(
 	return {};
 }
 
-} // namespace png2dds::pipeline::impl
+} // namespace todds::pipeline::impl

@@ -71,9 +71,9 @@ IncludeCategories:
     Priority: 20
   - Regex: '^<catch2.*'
     Priority: 200
-  - Regex: '^<png2dds.*'
+  - Regex: '^<todds.*'
     Priority: 10
-  - Regex: '^"png2dds.*'
+  - Regex: '^"todds.*'
     Priority: 10
   - Regex: '^<.*'
     Priority: 30

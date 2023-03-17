@@ -400,13 +400,13 @@ const uniform uint32_t BC7E_MODE_5_OPTIMAL_INDEX = 1;
 static uniform endpoint_err g_bc7_mode_0_optimal_endpoints[256][2][2]; // [c][hp][lp]
 const uniform uint32_t BC7E_MODE_0_OPTIMAL_INDEX = 2;
 
-/** PNG2DDS
+/** TODDS
 static uniform bool g_codec_initialized;
  */
 
 export void bc7e_compress_block_init()
 {
-	/** PNG2DDS
+	/** TODDS
 	if (g_codec_initialized)
 		return;
 	*/
@@ -661,7 +661,7 @@ export void bc7e_compress_block_init()
 
 	} // c
 
-	/** PNG2DDS
+	/** TODDS
 	g_codec_initialized = true;
 	 */
 }
@@ -4676,7 +4676,7 @@ static void handle_opaque_block_mode6(void *varying pBlock, const varying color_
 
 export void bc7e_compress_blocks(uniform uint32_t num_blocks, uniform uint64_t * uniform pBlocks, const uniform uint32_t * uniform pPixelsRGBA, const uniform bc7e_compress_block_params * uniform pComp_params)
 {
-	/** PNG2DDS
+	/** TODDS
 	if (!g_codec_initialized)
 	{
 		// Caller has forgotten to initialize the codec, or another thread is still working on that. We can't continue.

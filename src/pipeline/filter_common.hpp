@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include "png2dds/format.hpp"
+#include "todds/format.hpp"
 
 #include <oneapi/tbb/concurrent_queue.h>
 
 #include <limits>
 #include <string>
 
-namespace png2dds::pipeline::impl {
+namespace todds::pipeline::impl {
 
 using error_queue = oneapi::tbb::concurrent_queue<std::string>;
 
@@ -27,7 +27,7 @@ struct file_data {
 	// Number of mipmap levels in the image, including the main one. Set during the decode PNG stage.
 	std::size_t mipmaps{};
 	// DDS format of the image. Set during the encoding DDS stage.
-	png2dds::format::type format{};
+	todds::format::type format{};
 };
 
-} // namespace png2dds::pipeline::impl
+} // namespace todds::pipeline::impl

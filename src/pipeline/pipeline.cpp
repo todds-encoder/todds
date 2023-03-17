@@ -3,10 +3,10 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include "png2dds/pipeline.hpp"
+#include "todds/pipeline.hpp"
 
-#include "png2dds/dds.hpp"
-#include "png2dds/vector.hpp"
+#include "todds/dds.hpp"
+#include "todds/vector.hpp"
 
 #include <boost/nowide/iostream.hpp>
 #include <boost/predef.h>
@@ -31,8 +31,8 @@
 #endif
 
 namespace otbb = oneapi::tbb;
-using png2dds::dds_image;
-using png2dds::pipeline::paths_vector;
+using todds::dds_image;
+using todds::pipeline::paths_vector;
 
 namespace {
 
@@ -107,7 +107,7 @@ void error_reporting(otbb::concurrent_queue<std::string>& error_log, std::atomic
 
 } // Anonymous namespace
 
-namespace png2dds::pipeline {
+namespace todds::pipeline {
 
 void encode_as_dds(const input& input_data) {
 	// Initialize encoders.
@@ -178,4 +178,4 @@ void encode_as_dds(const input& input_data) {
 	force_finish_flag = nullptr;
 }
 
-} // namespace png2dds::pipeline
+} // namespace todds::pipeline

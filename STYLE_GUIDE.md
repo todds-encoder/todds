@@ -1,6 +1,6 @@
 # Style guide
 
-png2dds code formatting is mostly handled by the rules set in the .clang-format and .clang-tidy files. Besides the rules described in those files, there are some additional points to keep in mind: 
+todds code formatting is mostly handled by the rules set in the .clang-format and .clang-tidy files. Besides the rules described in those files, there are some additional points to keep in mind: 
 
 * Private member variables must be prefixed by a single underscore (_).
 

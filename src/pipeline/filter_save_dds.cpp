@@ -5,7 +5,7 @@
 
 #include "filter_save_dds.hpp"
 
-#include "png2dds/dds.hpp"
+#include "todds/dds.hpp"
 
 #include <boost/nowide/fstream.hpp>
 #include <boost/predef.h>
@@ -13,7 +13,7 @@
 
 #include "filter_pixel_blocks.hpp"
 
-namespace png2dds::pipeline::impl {
+namespace todds::pipeline::impl {
 
 // Header extension for BC7 files.
 constexpr DDS_HEADER_DXT10 header_extension{DXGI_FORMAT_BC7_UNORM, D3D10_RESOURCE_DIMENSION_TEXTURE2D, 0U, 1U, 0U};
@@ -39,9 +39,9 @@ public:
 		ofs << "DDS ";
 		const auto& file_data = _files_data[file_index];
 		const auto header =
-			png2dds::dds::dds_header(file_data.format, file_data.width, file_data.height, file_data.mipmaps);
+			todds::dds::dds_header(file_data.format, file_data.width, file_data.height, file_data.mipmaps);
 		ofs.write(header.data(), header.size());
-		if (file_data.format == png2dds::format::type::bc7) {
+		if (file_data.format == todds::format::type::bc7) {
 			ofs.write(reinterpret_cast<const char*>(&header_extension), sizeof(header_extension));
 		}
 
@@ -60,4 +60,4 @@ oneapi::tbb::filter<dds_data, void> save_dds_filter(
 	return oneapi::tbb::make_filter<dds_data, void>(oneapi::tbb::filter_mode::parallel, save_dds_file(files_data, paths));
 }
 
-} // namespace png2dds::pipeline::impl
+} // namespace todds::pipeline::impl

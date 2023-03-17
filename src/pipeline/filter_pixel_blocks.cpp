@@ -5,11 +5,11 @@
 
 #include "filter_pixel_blocks.hpp"
 
-namespace png2dds::pipeline::impl {
+namespace todds::pipeline::impl {
 class get_pixel_blocks final {
 public:
 	pixel_block_data operator()(const mipmap_image& image) const {
-		return pixel_block_data{png2dds::to_pixel_blocks(image), image.file_index()};
+		return pixel_block_data{todds::to_pixel_blocks(image), image.file_index()};
 	}
 };
 
@@ -18,4 +18,4 @@ oneapi::tbb::filter<mipmap_image, pixel_block_data> load_file_filter() {
 		oneapi::tbb::filter_mode::parallel, get_pixel_blocks{});
 }
 
-} // namespace png2dds::pipeline::impl
+} // namespace todds::pipeline::impl

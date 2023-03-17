@@ -2,17 +2,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-add_library(png2dds_regex STATIC
-	include/png2dds/regex.hpp
+add_library(todds_regex STATIC
+	include/todds/regex.hpp
 	regex.cpp
 	)
 
-target_include_directories(png2dds_regex PUBLIC
+target_include_directories(todds_regex PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
 	)
 
-target_compile_options(png2dds_regex PRIVATE ${PNG2DDS_CPP_WARNING_FLAGS})
+target_compile_options(todds_regex PRIVATE ${TODDS_CPP_WARNING_FLAGS})
 
-target_link_libraries(png2dds_regex PRIVATE
+target_link_libraries(todds_regex PRIVATE
 	Hyperscan::Hyperscan
 	)

@@ -2,11 +2,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-#include "png2dds/mipmap_image.hpp"
+#include "todds/mipmap_image.hpp"
 
 #include <cassert>
 
-namespace png2dds {
+namespace todds {
 mipmap_image::mipmap_image(std::size_t file_index, std::size_t width, std::size_t height, bool mipmaps)
 	: _file_index{file_index}
 	, _data{}
@@ -47,10 +47,10 @@ mipmap_image::mipmap_image(std::size_t file_index, std::size_t width, std::size_
 
 [[nodiscard]] std::size_t mipmap_image::mipmap_count() const noexcept { return _images.size(); }
 
-[[nodiscard]] const png2dds::image& mipmap_image::get_image(std::size_t index) const noexcept { return _images[index]; }
+[[nodiscard]] const todds::image& mipmap_image::get_image(std::size_t index) const noexcept { return _images[index]; }
 
-[[nodiscard]] png2dds::image& mipmap_image::get_image(std::size_t index) noexcept { return _images[index]; }
+[[nodiscard]] todds::image& mipmap_image::get_image(std::size_t index) noexcept { return _images[index]; }
 
 [[nodiscard]] std::size_t mipmap_image::data_size() const noexcept { return _data.size(); }
 
-} // namespace png2dds
+} // namespace todds

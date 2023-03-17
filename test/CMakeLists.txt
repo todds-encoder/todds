@@ -4,7 +4,7 @@
 
 find_package(Catch2 REQUIRED)
 
-add_executable(png2dds_test
+add_executable(todds_test
 	test_main.cpp
 	test_arguments.cpp
 	test_filter.cpp
@@ -13,16 +13,16 @@ add_executable(png2dds_test
 	test_util.cpp
 	)
 
-target_link_libraries(png2dds_test PRIVATE
+target_link_libraries(todds_test PRIVATE
 	bc7enc_dds_defs
 	Boost::nowide
 	Boost::filesystem
 	Catch2::Catch2
 	rgbcx
 	TBB::tbb
-	png2dds_arguments
-	png2dds_format
-	png2dds_image
-	png2dds_project
-	png2dds_util
+	todds_arguments
+	todds_format
+	todds_image
+	todds_project
+	todds_util
 	)

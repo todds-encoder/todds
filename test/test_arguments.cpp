@@ -3,9 +3,9 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include "png2dds/arguments.hpp"
-#include "png2dds/format.hpp"
-#include "png2dds/project.hpp"
+#include "todds/arguments.hpp"
+#include "todds/format.hpp"
+#include "todds/project.hpp"
 
 #include <boost/filesystem/operations.hpp>
 #include <oneapi/tbb/info.h>
@@ -14,19 +14,19 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using png2dds::args::get;
+using todds::args::get;
 
-constexpr auto binary = png2dds::project::name();
+constexpr auto binary = todds::project::name();
 
 constexpr std::string_view utf_characters = "ЄÑホΩѨ을ـگ⌭∰";
 
-bool has_help(const png2dds::args::data& arguments) { return !arguments.error && !arguments.text.empty(); }
+bool has_help(const todds::args::data& arguments) { return !arguments.error && !arguments.text.empty(); }
 
-bool has_error(const png2dds::args::data& arguments) { return arguments.error && !arguments.text.empty(); }
+bool has_error(const todds::args::data& arguments) { return arguments.error && !arguments.text.empty(); }
 
-bool is_valid(const png2dds::args::data& arguments) { return !arguments.error && arguments.text.empty(); }
+bool is_valid(const todds::args::data& arguments) { return !arguments.error && arguments.text.empty(); }
 
-TEST_CASE("png2dds::arguments input", "[arguments]") {
+TEST_CASE("todds::arguments input", "[arguments]") {
 	const auto input_path = boost::filesystem::temp_directory_path() / utf_characters.data();
 	boost::filesystem::create_directories(input_path);
 
@@ -49,7 +49,7 @@ TEST_CASE("png2dds::arguments input", "[arguments]") {
 	}
 }
 
-TEST_CASE("png2dds::arguments output", "[arguments]") {
+TEST_CASE("todds::arguments output", "[arguments]") {
 	SECTION("By default, output is not assigned") {
 		const auto arguments = get({binary, "."});
 		REQUIRE(is_valid(arguments));
@@ -65,7 +65,7 @@ TEST_CASE("png2dds::arguments output", "[arguments]") {
 	}
 }
 
-TEST_CASE("png2dds::arguments optional arguments", "[arguments]") {
+TEST_CASE("todds::arguments optional arguments", "[arguments]") {
 	SECTION("Invalid positional arguments are reported as errors") {
 		const auto arguments = get({binary, "--invalid", "."});
 		REQUIRE(has_error(arguments));
@@ -86,7 +86,7 @@ TEST_CASE("png2dds::arguments optional arguments", "[arguments]") {
 	}
 }
 
-TEST_CASE("png2dds::arguments help", "[arguments]") {
+TEST_CASE("todds::arguments help", "[arguments]") {
 	SECTION("Show help when called without arguments") {
 		const auto arguments = get({binary});
 		REQUIRE(has_help(arguments));
@@ -100,45 +100,45 @@ TEST_CASE("png2dds::arguments help", "[arguments]") {
 	}
 }
 
-TEST_CASE("png2dds::arguments format", "[arguments]") {
+TEST_CASE("todds::arguments format", "[arguments]") {
 	SECTION("The default value of format is bc7.") {
 		const auto arguments = get({binary, "."});
-		REQUIRE(arguments.format == png2dds::format::type::bc7);
+		REQUIRE(arguments.format == todds::format::type::bc7);
 	}
 
 	SECTION("Parsing bc1.") {
 		const auto arguments = get({binary, "--format", "bc1", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.format == png2dds::format::type::bc1);
+		REQUIRE(arguments.format == todds::format::type::bc1);
 	}
 
 	SECTION("Parsing bc1 with alternate case.") {
 		const auto arguments = get({binary, "-f", "Bc1", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.format == png2dds::format::type::bc1);
+		REQUIRE(arguments.format == todds::format::type::bc1);
 	}
 
 	SECTION("Parsing bc7.") {
 		const auto arguments = get({binary, "-f", "bc7", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.format == png2dds::format::type::bc7);
+		REQUIRE(arguments.format == todds::format::type::bc7);
 	}
 
 	SECTION("Parsing bc7 with alternate case.") {
 		const auto arguments = get({binary, "--format", "bC7", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.format == png2dds::format::type::bc7);
+		REQUIRE(arguments.format == todds::format::type::bc7);
 	}
 }
 
-TEST_CASE("png2dds::arguments quality", "[arguments]") {
+TEST_CASE("todds::arguments quality", "[arguments]") {
 	SECTION("The default quality is set to maximum.") {
 		const auto arguments = get({binary, "."});
-		REQUIRE(arguments.quality == png2dds::format::quality::maximum);
-		const auto arguments_bc1 = get({binary, "-f", png2dds::format::name(png2dds::format::type::bc1), "."});
-		REQUIRE(arguments_bc1.quality == png2dds::format::quality::maximum);
-		const auto arguments_bc7 = get({binary, "-f", png2dds::format::name(png2dds::format::type::bc7), "."});
-		REQUIRE(arguments_bc7.quality == png2dds::format::quality::maximum);
+		REQUIRE(arguments.quality == todds::format::quality::maximum);
+		const auto arguments_bc1 = get({binary, "-f", todds::format::name(todds::format::type::bc1), "."});
+		REQUIRE(arguments_bc1.quality == todds::format::quality::maximum);
+		const auto arguments_bc7 = get({binary, "-f", todds::format::name(todds::format::type::bc7), "."});
+		REQUIRE(arguments_bc7.quality == todds::format::quality::maximum);
 	}
 
 	SECTION("Error when the quality is not a number") {
@@ -173,15 +173,15 @@ TEST_CASE("png2dds::arguments quality", "[arguments]") {
 	}
 
 	SECTION("Quality level is larger than the maximum") {
-		constexpr auto format_type = png2dds::format::type::bc1;
-		constexpr auto too_large_quality = static_cast<unsigned int>(png2dds::format::quality::maximum) + 1U;
+		constexpr auto format_type = todds::format::type::bc1;
+		constexpr auto too_large_quality = static_cast<unsigned int>(todds::format::quality::maximum) + 1U;
 		const auto arguments =
-			get({binary, "-f", png2dds::format::name(format_type), "-q", std::to_string(too_large_quality), "."});
+			get({binary, "-f", todds::format::name(format_type), "-q", std::to_string(too_large_quality), "."});
 		REQUIRE(has_error(arguments));
 	}
 }
 
-TEST_CASE("png2dds::arguments mipmaps", "[arguments]") {
+TEST_CASE("todds::arguments mipmaps", "[arguments]") {
 	SECTION("The default value of mipmaps is true") {
 		const auto arguments = get({binary, "."});
 		REQUIRE(arguments.mipmaps);
@@ -197,27 +197,27 @@ TEST_CASE("png2dds::arguments mipmaps", "[arguments]") {
 	}
 }
 
-TEST_CASE("png2dds::arguments filter", "[arguments]") {
+TEST_CASE("todds::arguments filter", "[arguments]") {
 	SECTION("The default value of filter is lanczos.") {
 		const auto arguments = get({binary, "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.filter == png2dds::filter::type::lanczos);
+		REQUIRE(arguments.filter == todds::filter::type::lanczos);
 	}
 
 	SECTION("Parsing nearest_exact.") {
 		const auto arguments = get({binary, "--filter", "nearest_exact", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.filter == png2dds::filter::type::nearest_exact);
+		REQUIRE(arguments.filter == todds::filter::type::nearest_exact);
 	}
 
 	SECTION("Parsing nearest_exact with alternate case.") {
 		const auto arguments = get({binary, "-ft", "nEArEst_ExAct", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.filter == png2dds::filter::type::nearest_exact);
+		REQUIRE(arguments.filter == todds::filter::type::nearest_exact);
 	}
 }
 
-TEST_CASE("png2dds::arguments threads", "[arguments]") {
+TEST_CASE("todds::arguments threads", "[arguments]") {
 	const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
 	SECTION("The default value of threads is determined by the oneTBB library.") {
 		const auto arguments = get({binary, "."});
@@ -262,7 +262,7 @@ TEST_CASE("png2dds::arguments threads", "[arguments]") {
 	}
 }
 
-TEST_CASE("png2dds::arguments depth", "[arguments]") {
+TEST_CASE("todds::arguments depth", "[arguments]") {
 	SECTION("The default value of threads is the maximum possible value") {
 		const auto arguments = get({binary, "."});
 		REQUIRE(arguments.depth == std::numeric_limits<std::size_t>::max());
@@ -301,7 +301,7 @@ TEST_CASE("png2dds::arguments depth", "[arguments]") {
 	}
 }
 
-TEST_CASE("png2dds::arguments overwrite", "[arguments]") {
+TEST_CASE("todds::arguments overwrite", "[arguments]") {
 	SECTION("The default value of overwrite is false") {
 		const auto arguments = get({binary, "."});
 		REQUIRE(!arguments.overwrite);
@@ -317,7 +317,7 @@ TEST_CASE("png2dds::arguments overwrite", "[arguments]") {
 	}
 }
 
-TEST_CASE("png2dds::arguments vflip", "[arguments]") {
+TEST_CASE("todds::arguments vflip", "[arguments]") {
 	SECTION("The default value of vflip is false") {
 		const auto arguments = get({binary, "."});
 		REQUIRE(!arguments.vflip);
@@ -333,7 +333,7 @@ TEST_CASE("png2dds::arguments vflip", "[arguments]") {
 	}
 }
 
-TEST_CASE("png2dds::arguments time", "[arguments]") {
+TEST_CASE("todds::arguments time", "[arguments]") {
 	SECTION("The default value of time is false") {
 		const auto arguments = get({binary, "."});
 		REQUIRE(!arguments.time);
@@ -349,7 +349,7 @@ TEST_CASE("png2dds::arguments time", "[arguments]") {
 	}
 }
 
-TEST_CASE("png2dds::arguments verbose", "[arguments]") {
+TEST_CASE("todds::arguments verbose", "[arguments]") {
 	SECTION("The default value of verbose is false") {
 		const auto arguments = get({binary, "."});
 		REQUIRE(!arguments.verbose);
@@ -365,7 +365,7 @@ TEST_CASE("png2dds::arguments verbose", "[arguments]") {
 	}
 }
 
-TEST_CASE("png2dds::arguments regex", "[arguments]") {
+TEST_CASE("todds::arguments regex", "[arguments]") {
 	SECTION("By default regex is empty") {
 		const auto arguments = get({binary, "."});
 		REQUIRE(arguments.regex.error().empty());

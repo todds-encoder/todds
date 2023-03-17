@@ -3,12 +3,12 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include "png2dds/project.hpp"
+#include "todds/project.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("png2dds::project coherence checks", "[project]") {
-	STATIC_REQUIRE(!png2dds::project::name().empty());
-	STATIC_REQUIRE(!png2dds::project::description().empty());
-	STATIC_REQUIRE(!png2dds::project::version().empty());
+TEST_CASE("todds::project coherence checks", "[project]") {
+	STATIC_REQUIRE(!todds::project::name().empty());
+	STATIC_REQUIRE(!todds::project::description().empty());
+	STATIC_REQUIRE(!todds::project::version().empty());
 }

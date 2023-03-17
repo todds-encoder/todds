@@ -3,7 +3,7 @@
 #
 # altera-*: Disable FPGA checks.
 # bugprone-easily-swappable-parameters: Allow adjacent parameters of the same type.
-# clang-diagnostic-c++20-compat: png2dds only supports c++20
+# clang-diagnostic-c++20-compat: todds only supports c++20
 # clang-diagnostic-unknown-warning-option: Triggered by GCC-only warnings.
 # clang-diagnostic-unused-command-line-argument: Ignore unused command line arguments.
 # cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers: Required for test cases.
@@ -61,8 +61,8 @@ Checks: '*,
 
 AnalyzeTemporaryDtors: true
 FormatStyle: file
-# Headers are in a sub-folder named png2dds.
-HeaderFilterRegex: 'png2dds/.*'
+# Headers are in a sub-folder named todds.
+HeaderFilterRegex: 'todds/.*'
 
 CheckOptions:
   - { key: readability-identifier-naming.ClassCase,              value: lower_case }

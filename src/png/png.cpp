@@ -3,7 +3,7 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include "png2dds/png.hpp"
+#include "todds/png.hpp"
 
 #include "spng.h"
 #include <fmt/format.h>
@@ -57,7 +57,7 @@ spng_ihdr get_header(spng_context& context, const std::string& png) {
 
 } // anonymous namespace
 
-namespace png2dds::png {
+namespace todds::png {
 
 mipmap_image decode(std::size_t file_index, const std::string& png, std::span<const std::uint8_t> buffer, bool flip,
 	std::size_t& width, std::size_t& height, bool mipmaps) {
@@ -83,7 +83,7 @@ mipmap_image decode(std::size_t file_index, const std::string& png, std::span<co
 		throw std::runtime_error{fmt::format("Could not calculate decoded size of {:s}: {:s}", png, spng_strerror(ret))};
 	}
 
-	// The png2dds data may be larger than the file size because the width and the height must be divisible by 4.
+	// The todds data may be larger than the file size because the width and the height must be divisible by 4.
 	assert(file_size <= first.data().size());
 
 	if (const int ret = spng_decode_image(context.get(), nullptr, 0, format, SPNG_DECODE_TRNS | SPNG_DECODE_PROGRESSIVE);
@@ -110,4 +110,4 @@ mipmap_image decode(std::size_t file_index, const std::string& png, std::span<co
 	return result;
 }
 
-} // namespace png2dds::png
+} // namespace todds::png

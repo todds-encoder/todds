@@ -3,16 +3,16 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include "png2dds/filter.hpp"
+#include "todds/filter.hpp"
 
 #include <opencv2/imgproc.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
-using png2dds::filter::name;
-using png2dds::filter::type;
+using todds::filter::name;
+using todds::filter::type;
 
-TEST_CASE("png2dds::filter::name", "[filter]") {
+TEST_CASE("todds::filter::name", "[filter]") {
 	STATIC_REQUIRE(!name(type::nearest).empty());
 	STATIC_REQUIRE(!name(type::cubic).empty());
 	STATIC_REQUIRE(!name(type::area).empty());
@@ -20,7 +20,7 @@ TEST_CASE("png2dds::filter::name", "[filter]") {
 	STATIC_REQUIRE(!name(type::nearest_exact).empty());
 }
 
-TEST_CASE("png2dds::filter::type and OpenCV", "[filter]") {
+TEST_CASE("todds::filter::type and OpenCV", "[filter]") {
 	STATIC_REQUIRE(static_cast<std::uint8_t>(type::nearest) == static_cast<std::uint8_t>(cv::INTER_NEAREST));
 	STATIC_REQUIRE(static_cast<std::uint8_t>(type::cubic) == static_cast<std::uint8_t>(cv::INTER_CUBIC));
 	STATIC_REQUIRE(static_cast<std::uint8_t>(type::area) == static_cast<std::uint8_t>(cv::INTER_AREA));

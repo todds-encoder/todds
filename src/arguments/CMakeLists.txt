@@ -2,25 +2,25 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-add_library(png2dds_arguments STATIC
-	include/png2dds/arguments.hpp
+add_library(todds_arguments STATIC
+	include/todds/arguments.hpp
 	arguments.cpp
 	)
 
-target_include_directories(png2dds_arguments PUBLIC
+target_include_directories(todds_arguments PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
 	)
 
-target_compile_options(png2dds_arguments PRIVATE ${PNG2DDS_CPP_WARNING_FLAGS})
+target_compile_options(todds_arguments PRIVATE ${TODDS_CPP_WARNING_FLAGS})
 
-target_link_libraries(png2dds_arguments PRIVATE
-	png2dds_project
+target_link_libraries(todds_arguments PRIVATE
+	todds_project
 	Boost::nowide
 	fmt::fmt
 	TBB::tbb
 	PUBLIC
-	png2dds_format
-	png2dds_regex
-	png2dds_util
+	todds_format
+	todds_regex
+	todds_util
 	Boost::filesystem
 	)

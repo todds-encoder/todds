@@ -3,11 +3,11 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include "png2dds/arguments.hpp"
+#include "todds/arguments.hpp"
 
-#include "png2dds/format.hpp"
-#include "png2dds/project.hpp"
-#include "png2dds/vector.hpp"
+#include "todds/format.hpp"
+#include "todds/project.hpp"
+#include "todds/vector.hpp"
 
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/nowide/args.hpp>
@@ -122,9 +122,9 @@ void print_string_argument(std::ostringstream& ostream, std::string_view name, s
 
 std::string get_help(std::size_t max_threads) {
 	std::ostringstream ostream;
-	ostream << png2dds::project::name() << ' ' << png2dds::project::version() << "\n\n"
-					<< png2dds::project::description() << "\n\n";
-	ostream << "USAGE:\n  " << png2dds::project::name() << " [OPTIONS] " << input_name << " [" << output_name << ']'
+	ostream << todds::project::name() << ' ' << todds::project::version() << "\n\n"
+					<< todds::project::description() << "\n\n";
+	ostream << "USAGE:\n  " << todds::project::name() << " [OPTIONS] " << input_name << " [" << output_name << ']'
 					<< "\n\n";
 
 	ostream << "ARGS:\n";
@@ -136,27 +136,27 @@ std::string get_help(std::size_t max_threads) {
 
 	print_optional_argument(ostream, format_arg);
 	print_string_argument(
-		ostream, png2dds::format::name(png2dds::format::type::bc7), "High-quality compression supporting alpha. [Default]");
-	print_string_argument(ostream, png2dds::format::name(png2dds::format::type::bc1), "Highly compressed RGB data.");
-	print_string_argument(ostream, png2dds::format::name(png2dds::format::type::bc1_alpha_bc7),
+		ostream, todds::format::name(todds::format::type::bc7), "High-quality compression supporting alpha. [Default]");
+	print_string_argument(ostream, todds::format::name(todds::format::type::bc1), "Highly compressed RGB data.");
+	print_string_argument(ostream, todds::format::name(todds::format::type::bc1_alpha_bc7),
 		"Files with alpha are encoded as BC7. Others are encoded as BC1.");
 
 	const std::string quality_help =
-		fmt::format(quality_arg.help, static_cast<unsigned int>(png2dds::format::quality::minimum),
-			static_cast<unsigned int>(png2dds::format::quality::maximum));
+		fmt::format(quality_arg.help, static_cast<unsigned int>(todds::format::quality::minimum),
+			static_cast<unsigned int>(todds::format::quality::maximum));
 	print_argument_impl(ostream, quality_arg.shorter, quality_arg.name, quality_help);
 	print_optional_argument(ostream, no_mipmaps_arg);
 
 	print_optional_argument(ostream, filter_arg);
-	print_string_argument(ostream, png2dds::filter::name(png2dds::filter::type::lanczos),
+	print_string_argument(ostream, todds::filter::name(todds::filter::type::lanczos),
 		"Lanczos interpolation over 8x8 neighborhood [Default].");
 	print_string_argument(
-		ostream, png2dds::filter::name(png2dds::filter::type::nearest), "Nearest neighbor interpolation.");
-	print_string_argument(ostream, png2dds::filter::name(png2dds::filter::type::cubic), "Bicubic interpolation.");
+		ostream, todds::filter::name(todds::filter::type::nearest), "Nearest neighbor interpolation.");
+	print_string_argument(ostream, todds::filter::name(todds::filter::type::cubic), "Bicubic interpolation.");
 	print_string_argument(
-		ostream, png2dds::filter::name(png2dds::filter::type::area), "Resampling using pixel area relation.");
+		ostream, todds::filter::name(todds::filter::type::area), "Resampling using pixel area relation.");
 	print_string_argument(
-		ostream, png2dds::filter::name(png2dds::filter::type::nearest_exact), "Bit exact nearest neighbor interpolation.");
+		ostream, todds::filter::name(todds::filter::type::nearest_exact), "Bit exact nearest neighbor interpolation.");
 
 	const std::string threads_help = fmt::format(threads_arg.help, max_threads);
 	print_argument_impl(ostream, threads_arg.shorter, threads_arg.name, threads_help);
@@ -171,32 +171,32 @@ std::string get_help(std::size_t max_threads) {
 	return std::move(ostream).str();
 }
 
-void format_from_str(std::string_view argument, png2dds::args::data& parsed_arguments) {
+void format_from_str(std::string_view argument, todds::args::data& parsed_arguments) {
 	const std::string argument_upper = boost::to_upper_copy(std::string{argument});
-	if (argument_upper == png2dds::format::name(png2dds::format::type::bc1)) {
-		parsed_arguments.format = png2dds::format::type::bc1;
-	} else if (argument_upper == png2dds::format::name(png2dds::format::type::bc7)) {
-		parsed_arguments.format = png2dds::format::type::bc7;
-	} else if (argument_upper == png2dds::format::name(png2dds::format::type::bc1_alpha_bc7)) {
-		parsed_arguments.format = png2dds::format::type::bc1_alpha_bc7;
+	if (argument_upper == todds::format::name(todds::format::type::bc1)) {
+		parsed_arguments.format = todds::format::type::bc1;
+	} else if (argument_upper == todds::format::name(todds::format::type::bc7)) {
+		parsed_arguments.format = todds::format::type::bc7;
+	} else if (argument_upper == todds::format::name(todds::format::type::bc1_alpha_bc7)) {
+		parsed_arguments.format = todds::format::type::bc1_alpha_bc7;
 	} else {
 		parsed_arguments.error = true;
 		parsed_arguments.text = fmt::format("Unsupported format: {:s}", argument);
 	}
 }
 
-void filter_from_str(std::string_view argument, png2dds::args::data& parsed_arguments) {
+void filter_from_str(std::string_view argument, todds::args::data& parsed_arguments) {
 	const std::string argument_upper = boost::to_upper_copy(std::string{argument});
-	if (argument_upper == png2dds::filter::name(png2dds::filter::type::nearest)) {
-		parsed_arguments.filter = png2dds::filter::type::nearest;
-	} else if (argument_upper == png2dds::filter::name(png2dds::filter::type::cubic)) {
-		parsed_arguments.filter = png2dds::filter::type::cubic;
-	} else if (argument_upper == png2dds::filter::name(png2dds::filter::type::area)) {
-		parsed_arguments.filter = png2dds::filter::type::area;
-	} else if (argument_upper == png2dds::filter::name(png2dds::filter::type::lanczos)) {
-		parsed_arguments.filter = png2dds::filter::type::lanczos;
-	} else if (argument_upper == png2dds::filter::name(png2dds::filter::type::nearest_exact)) {
-		parsed_arguments.filter = png2dds::filter::type::nearest_exact;
+	if (argument_upper == todds::filter::name(todds::filter::type::nearest)) {
+		parsed_arguments.filter = todds::filter::type::nearest;
+	} else if (argument_upper == todds::filter::name(todds::filter::type::cubic)) {
+		parsed_arguments.filter = todds::filter::type::cubic;
+	} else if (argument_upper == todds::filter::name(todds::filter::type::area)) {
+		parsed_arguments.filter = todds::filter::type::area;
+	} else if (argument_upper == todds::filter::name(todds::filter::type::lanczos)) {
+		parsed_arguments.filter = todds::filter::type::lanczos;
+	} else if (argument_upper == todds::filter::name(todds::filter::type::nearest_exact)) {
+		parsed_arguments.filter = todds::filter::type::nearest_exact;
 	} else {
 		parsed_arguments.error = true;
 		parsed_arguments.text = fmt::format("Unsupported filter: {:s}", argument);
@@ -205,7 +205,7 @@ void filter_from_str(std::string_view argument, png2dds::args::data& parsed_argu
 
 template<typename Type>
 void argument_from_str(
-	std::string_view argument_name, std::string_view argument, Type& value, png2dds::args::data& parsed_arguments) {
+	std::string_view argument_name, std::string_view argument, Type& value, todds::args::data& parsed_arguments) {
 	const auto [_, error] = std::from_chars(argument.data(), argument.data() + argument.size(), value);
 	if (error == std::errc::invalid_argument || error == std::errc::result_out_of_range) {
 		parsed_arguments.error = true;
@@ -215,11 +215,11 @@ void argument_from_str(
 
 } // anonymous namespace
 
-namespace png2dds::args {
+namespace todds::args {
 
 data get(int argc, char** argv) {
 	const boost::nowide::args nowide_args(argc, argv);
-	png2dds::vector<std::string_view> arguments;
+	todds::vector<std::string_view> arguments;
 	arguments.reserve(static_cast<std::size_t>(argc));
 	for (std::size_t index = 0UL; index < static_cast<std::size_t>(argc); ++index) {
 		arguments.emplace_back(argv[index]);
@@ -228,7 +228,7 @@ data get(int argc, char** argv) {
 	return get(arguments);
 }
 
-data get(const png2dds::vector<std::string_view>& arguments) {
+data get(const todds::vector<std::string_view>& arguments) {
 	data parsed_arguments{};
 	// Set default values.
 	parsed_arguments.format = format::type::bc7;
@@ -237,7 +237,7 @@ data get(const png2dds::vector<std::string_view>& arguments) {
 	const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
 	parsed_arguments.threads = max_threads;
 	parsed_arguments.depth = max_depth;
-	parsed_arguments.quality = png2dds::format::quality::maximum;
+	parsed_arguments.quality = todds::format::quality::maximum;
 
 	std::size_t index = 1UL;
 
@@ -269,7 +269,7 @@ data get(const png2dds::vector<std::string_view>& arguments) {
 			unsigned int value{};
 			argument_from_str(quality_arg.name, next_argument, value, parsed_arguments);
 			parsed_arguments.quality = static_cast<format::quality>(value);
-			if (parsed_arguments.quality > png2dds::format::quality::maximum) {
+			if (parsed_arguments.quality > todds::format::quality::maximum) {
 				parsed_arguments.error = true;
 				parsed_arguments.text = fmt::format("Argument error: Unsupported encode quality level {:d}.",
 					static_cast<unsigned int>(parsed_arguments.quality));
@@ -286,7 +286,7 @@ data get(const png2dds::vector<std::string_view>& arguments) {
 			if (parsed_arguments.depth == 0UL) { parsed_arguments.depth = max_depth; }
 		} else if (matches(argument, regex_arg)) {
 			++index;
-			parsed_arguments.regex = png2dds::regex{next_argument};
+			parsed_arguments.regex = todds::regex{next_argument};
 			const auto regex_err = parsed_arguments.regex.error();
 			if (!regex_err.empty()) {
 				parsed_arguments.error = true;
@@ -332,4 +332,4 @@ data get(const png2dds::vector<std::string_view>& arguments) {
 	return parsed_arguments;
 }
 
-} // namespace png2dds::args
+} // namespace todds::args

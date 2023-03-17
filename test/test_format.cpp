@@ -3,14 +3,14 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include "png2dds/format.hpp"
+#include "todds/format.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
-using png2dds::format::name;
-using png2dds::format::type;
+using todds::format::name;
+using todds::format::type;
 
-TEST_CASE("png2dds::format::name", "[format]") {
+TEST_CASE("todds::format::name", "[format]") {
 	STATIC_REQUIRE(!name(type::bc1).empty());
 	STATIC_REQUIRE(!name(type::bc7).empty());
 	STATIC_REQUIRE(!name(type::bc1_alpha_bc7).empty());

@@ -3,7 +3,7 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include "png2dds/regex.hpp"
+#include "todds/regex.hpp"
 
 #include <hs.h>
 
@@ -45,7 +45,7 @@ int handle_match(
 
 } // namespace
 
-namespace png2dds {
+namespace todds {
 
 regex::regex()
 	: _error{}
@@ -74,4 +74,4 @@ bool regex::match(regex::scratch_type& scratch, std::string_view input) const {
 	return has_match;
 }
 
-} // namespace png2dds
+} // namespace todds

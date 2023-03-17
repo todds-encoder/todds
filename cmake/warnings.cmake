@@ -2,24 +2,24 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-# This module defines a list of warnings called PNG2DDS_CPP_WARNING_FLAGS. They can be enabled by using:
-# target_compile_options(${TARGET_NAME} PRIVATE ${PNG2DDS_CPP_WARNING_FLAGS})
+# This module defines a list of warnings called TODDS_CPP_WARNING_FLAGS. They can be enabled by using:
+# target_compile_options(${TARGET_NAME} PRIVATE ${TODDS_CPP_WARNING_FLAGS})
 
 include_guard(GLOBAL)
 
-option(PNG2DDS_CPP_WARNINGS_AS_ERRORS "Treat PNG2DDS_CPP_WARNING_FLAGS as errors." ON)
+option(TODDS_CPP_WARNINGS_AS_ERRORS "Treat TODDS_CPP_WARNING_FLAGS as errors." ON)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-	option(PNG2DDS_CPP_CLANG_ALL_WARNINGS
+	option(TODDS_CPP_CLANG_ALL_WARNINGS
 		"Include most Clang warnings. This may trigger unexpected positives when using newer Clang versions." OFF)
 endif ()
 
-message(STATUS "Defining PNG2DDS_CPP_WARNING_FLAGS")
+message(STATUS "Defining TODDS_CPP_WARNING_FLAGS")
 
-set(PNG2DDS_CPP_WARNING_FLAGS)
+set(TODDS_CPP_WARNING_FLAGS)
 
-if (PNG2DDS_CPP_CLANG_ALL_WARNINGS AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-	list(APPEND PNG2DDS_CPP_WARNING_FLAGS
+if (TODDS_CPP_CLANG_ALL_WARNINGS AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+	list(APPEND TODDS_CPP_WARNING_FLAGS
 		-Weverything                          # Enable every Clang warning except for the following exceptions.
 		-Wno-c++98-compat                     # This project is not compatible with C++98.
 		-Wno-c++98-compat-pedantic            # This project is not compatible with C++98.
@@ -31,7 +31,7 @@ if (PNG2DDS_CPP_CLANG_ALL_WARNINGS AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	# Warnings present in all supported versions of GCC and Clang.
-	list(APPEND PNG2DDS_CPP_WARNING_FLAGS
+	list(APPEND TODDS_CPP_WARNING_FLAGS
 		-Wall                # Enables most warnings.
 		-Wextra              # Enables an extra set of warnings.
 		-pedantic            # Strict compliance to the standard is not met.
@@ -54,7 +54,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "
 		)
 	# Enable additional warnings depending on the compiler type and version in use.
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-		list(APPEND PNG2DDS_CPP_WARNING_FLAGS
+		list(APPEND TODDS_CPP_WARNING_FLAGS
 			-Walloca                    # This option warns on all uses of alloca in the source.
 			-Walloc-zero                # Calls to allocation functions with attribute alloc_size with zero bytes.
 			-Warith-conversion          # Implicit conversions when it cannot change operand values.
@@ -79,7 +79,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "
 			)
 	endif ()
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-	list(APPEND PNG2DDS_CPP_WARNING_FLAGS
+	list(APPEND TODDS_CPP_WARNING_FLAGS
 		/permissive- # Specify standards conformance mode to the compiler.
 		/W4          # Enable level 4 warnings.
 		/w14062      # Enumerator 'identifier' in a switch of enum 'enumeration' is not handled.
@@ -112,10 +112,10 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif ()
 
 # Enable warnings as errors.
-if (PNG2DDS_CPP_WARNINGS_AS_ERRORS)
+if (TODDS_CPP_WARNINGS_AS_ERRORS)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-		list(APPEND PNG2DDS_CPP_WARNING_FLAGS -Werror)
+		list(APPEND TODDS_CPP_WARNING_FLAGS -Werror)
 	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-		list(APPEND PNG2DDS_CPP_WARNING_FLAGS /WX)
+		list(APPEND TODDS_CPP_WARNING_FLAGS /WX)
 	endif ()
 endif ()

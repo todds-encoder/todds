@@ -9,7 +9,7 @@
 #include <boost/predef.h>
 #include <fmt/format.h>
 
-namespace png2dds::pipeline::impl {
+namespace todds::pipeline::impl {
 
 class load_png_file final {
 public:
@@ -53,4 +53,4 @@ oneapi::tbb::filter<void, png_file> load_png_filter(
 	return oneapi::tbb::make_filter<void, png_file>(
 		oneapi::tbb::filter_mode::serial_in_order, load_png_file(paths, counter, force_finish, errors));
 }
-} // namespace png2dds::pipeline::impl
+} // namespace todds::pipeline::impl

@@ -2,9 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-add_library(png2dds_pipeline STATIC
-	include/png2dds/input.hpp
-	include/png2dds/pipeline.hpp
+add_library(todds_pipeline STATIC
+	include/todds/input.hpp
+	include/todds/pipeline.hpp
 	filter_common.hpp
 	filter_decode_png.hpp
 	filter_decode_png.cpp
@@ -19,23 +19,23 @@ add_library(png2dds_pipeline STATIC
 	pipeline.cpp
 	)
 
-target_include_directories(png2dds_pipeline PUBLIC
+target_include_directories(todds_pipeline PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
 	PRIVATE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
 	)
 
-target_compile_options(png2dds_pipeline PRIVATE ${PNG2DDS_CPP_WARNING_FLAGS})
+target_compile_options(todds_pipeline PRIVATE ${TODDS_CPP_WARNING_FLAGS})
 
-target_link_libraries(png2dds_pipeline
+target_link_libraries(todds_pipeline
 	PUBLIC
-	png2dds_arguments
-	png2dds_format
+	todds_arguments
+	todds_format
 	PRIVATE
-	png2dds_dds
-	png2dds_png
-	png2dds_regex
-	png2dds_util
+	todds_dds
+	todds_png
+	todds_regex
+	todds_util
 	bc7enc_dds_defs
 	Boost::headers
 	Boost::filesystem

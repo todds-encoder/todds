@@ -5,15 +5,15 @@
 
 #pragma once
 
-#include "png2dds/image_types.hpp"
-#include "png2dds/input.hpp"
-#include "png2dds/mipmap_image.hpp"
+#include "todds/image_types.hpp"
+#include "todds/input.hpp"
+#include "todds/mipmap_image.hpp"
 
 #include <oneapi/tbb/parallel_pipeline.h>
 
 #include "filter_common.hpp"
 
-namespace png2dds::pipeline::impl {
+namespace todds::pipeline::impl {
 
 struct pixel_block_data {
 	pixel_block_image image;
@@ -22,4 +22,4 @@ struct pixel_block_data {
 
 oneapi::tbb::filter<mipmap_image, pixel_block_data> load_file_filter();
 
-} // namespace png2dds::pipeline::impl
+} // namespace todds::pipeline::impl

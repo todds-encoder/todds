@@ -4,13 +4,13 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-project(png2dds
+project(todds
 	VERSION 0.1.0
 	DESCRIPTION "A DDS encoder optimized for fast batch conversions with high encoding quality"
-	HOMEPAGE_URL "https://github.com/joseasoler/png2dds"
+	HOMEPAGE_URL "https://github.com/joseasoler/todds"
 	)
 
-option(PNG2DDS_UNIT_TESTS "Build png2dds unit tests" OFF)
+option(TODDS_UNIT_TESTS "Build todds unit tests" OFF)
 
 # Set the C++ standard used by this project.
 set(CMAKE_CXX_STANDARD 20)
@@ -44,6 +44,6 @@ include(cmake/warnings.cmake)
 include(cmake/sanitizer.cmake)
 
 add_subdirectory(src)
-if (PNG2DDS_UNIT_TESTS)
+if (TODDS_UNIT_TESTS)
 	add_subdirectory(test)
 endif ()

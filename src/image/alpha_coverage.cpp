@@ -3,7 +3,7 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include "png2dds/alpha_coverage.hpp"
+#include "todds/alpha_coverage.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -11,7 +11,7 @@
 
 namespace {
 
-constexpr auto bytes_per_pixel = png2dds::image::bytes_per_pixel;
+constexpr auto bytes_per_pixel = todds::image::bytes_per_pixel;
 
 /**
  * Helper function which calculates what the alpha coverage would be if a specific scale was applied.
@@ -20,7 +20,7 @@ constexpr auto bytes_per_pixel = png2dds::image::bytes_per_pixel;
  * @param img Image being considered.
  * @return Ratio of pixels above the alpha threshold.
  */
-float alpha_coverage_scale(std::uint8_t alpha_reference, float alpha_scale, const png2dds::image& img) {
+float alpha_coverage_scale(std::uint8_t alpha_reference, float alpha_scale, const todds::image& img) {
 	std::size_t coverage{};
 
 	for (std::size_t alpha_index = 3UL; alpha_index < img.data().size(); alpha_index += bytes_per_pixel) {
@@ -37,7 +37,7 @@ float alpha_coverage_scale(std::uint8_t alpha_reference, float alpha_scale, cons
  * @param alpha_scale Scaling factor applied to the alpha channel.
  * @param img Image being considered.
  */
-void scale_alpha(float alpha_scale, png2dds::image& img) {
+void scale_alpha(float alpha_scale, todds::image& img) {
 	constexpr auto min_alpha = static_cast<std::uint32_t>(std::numeric_limits<std::uint8_t>::min());
 	constexpr auto max_alpha = static_cast<std::uint32_t>(std::numeric_limits<std::uint8_t>::max());
 
@@ -51,7 +51,7 @@ void scale_alpha(float alpha_scale, png2dds::image& img) {
 
 } // Anonymous namespace
 
-namespace png2dds {
+namespace todds {
 
 float alpha_coverage(std::uint8_t alpha_reference, const image& img) {
 	std::size_t coverage{};
@@ -98,4 +98,4 @@ void scale_alpha_to_coverage(float desired_coverage, std::uint8_t alpha_referenc
 	scale_alpha(best_alpha_scale, img);
 }
 
-} // namespace png2dds
+} // namespace todds

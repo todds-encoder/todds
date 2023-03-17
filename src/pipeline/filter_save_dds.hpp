@@ -10,9 +10,9 @@
 #include "filter_common.hpp"
 #include "filter_encode_dds.hpp"
 
-namespace png2dds::pipeline::impl {
+namespace todds::pipeline::impl {
 
 oneapi::tbb::filter<dds_data, void> save_dds_filter(
 	const std::vector<file_data>& files_data, const paths_vector& paths);
 
-} // namespace png2dds::pipeline::impl
+} // namespace todds::pipeline::impl

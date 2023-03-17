@@ -5,17 +5,17 @@
 
 #include "filter_decode_png.hpp"
 
-#include "png2dds/alpha_coverage.hpp"
-#include "png2dds/filter.hpp"
-#include "png2dds/mipmap_image.hpp"
-#include "png2dds/png.hpp"
+#include "todds/alpha_coverage.hpp"
+#include "todds/filter.hpp"
+#include "todds/mipmap_image.hpp"
+#include "todds/png.hpp"
 
 #include <fmt/format.h>
 #include <opencv2/imgproc.hpp>
 
 namespace {
 
-void add_padding(png2dds::image& img) {
+void add_padding(todds::image& img) {
 	// When padding has been added to the image, copy the border pixel into the padding.
 	const auto width = img.width();
 	const auto height = img.height();
@@ -44,28 +44,28 @@ void add_padding(png2dds::image& img) {
 	}
 }
 
-void process_image(png2dds::mipmap_image& mipmap_img, png2dds::filter::type filter) {
+void process_image(todds::mipmap_image& mipmap_img, todds::filter::type filter) {
 	auto& original_image = mipmap_img.get_image(0UL);
 
 	// constexpr std::uint8_t default_alpha_reference = 245U;
-	// const float desired_coverage = png2dds::alpha_coverage(default_alpha_reference, original_image);
+	// const float desired_coverage = todds::alpha_coverage(default_alpha_reference, original_image);
 
 	add_padding(original_image);
 
 	for (std::size_t mipmap_index = 1ULL; mipmap_index < mipmap_img.mipmap_count(); ++mipmap_index) {
-		png2dds::image& previous_image = mipmap_img.get_image(mipmap_index - 1UL);
-		png2dds::image& current_image = mipmap_img.get_image(mipmap_index);
+		todds::image& previous_image = mipmap_img.get_image(mipmap_index - 1UL);
+		todds::image& current_image = mipmap_img.get_image(mipmap_index);
 		auto input = static_cast<cv::Mat>(previous_image);
 		auto output = static_cast<cv::Mat>(current_image);
 		cv::resize(input, output, output.size(), 0, 0, static_cast<int>(filter));
 		// ToDo Solve alpha coverage issues on Windows
-		// png2dds::scale_alpha_to_coverage(desired_coverage, default_alpha_reference, current_image);
+		// todds::scale_alpha_to_coverage(desired_coverage, default_alpha_reference, current_image);
 	}
 }
 
 } // Anonymous namespace
 
-namespace png2dds::pipeline::impl {
+namespace todds::pipeline::impl {
 
 class decode_png final {
 public:
@@ -114,4 +114,4 @@ oneapi::tbb::filter<png_file, mipmap_image> decode_png_filter(std::vector<file_d
 		oneapi::tbb::filter_mode::serial_in_order, decode_png(files_data, paths, vflip, mipmaps, filter, errors));
 }
 
-} // namespace png2dds::pipeline::impl
+} // namespace todds::pipeline::impl
