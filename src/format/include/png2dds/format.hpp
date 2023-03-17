@@ -10,6 +10,7 @@
 namespace png2dds::format {
 
 enum class type : std::uint8_t { bc1, bc7, bc1_alpha_bc7 };
+
 enum class quality : std::uint8_t {
 	ultra_fast = 0U,
 	minimum = 0U,

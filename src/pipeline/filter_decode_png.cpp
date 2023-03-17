@@ -56,7 +56,7 @@ void process_image(png2dds::mipmap_image& mipmap_img) {
 		png2dds::image& current_image = mipmap_img.get_image(mipmap_index);
 		auto input = static_cast<cv::Mat>(previous_image);
 		auto output = static_cast<cv::Mat>(current_image);
-		cv::resize(input, output, output.size(), 0, 0, cv::INTER_CUBIC);
+		cv::resize(input, output, output.size(), 0, 0, cv::INTER_AREA);
 		// ToDo Solve alpha coverage issues on Windows
 		// png2dds::scale_alpha_to_coverage(desired_coverage, default_alpha_reference, current_image);
 	}

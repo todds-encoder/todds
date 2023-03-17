@@ -5,6 +5,7 @@
 add_library(png2dds_format INTERFACE)
 
 target_sources(png2dds_format INTERFACE
+	include/png2dds/filter.hpp
 	include/png2dds/format.hpp
 	)
 

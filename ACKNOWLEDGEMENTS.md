@@ -15,3 +15,4 @@ Developing png2dds is only made possible by people who share their work and expe
 * **[Tristan Grimmer](http://upperboundsinteractive.com/)** - [tacentview](https://github.com/bluescan/tacentview)
 * **[UTF-8 Everywhere Manifesto](http://utf8everywhere.org)**
 * **[Vicky Brasseur](https://www.vmbrasseur.com)** - [Forge your future with Open Source](https://pragprog.com/titles/vbopens/forge-your-future-with-open-source)
+* **[Wenru Dong](https://medium.com/@wenrudong)** - [What is OpenCV’s INTER_AREA Actually Doing?](https://medium.com/@wenrudong/what-is-opencvs-inter-area-actually-doing-282a626a09b3)

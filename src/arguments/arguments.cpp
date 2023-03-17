@@ -37,15 +37,17 @@ constexpr bool matches(std::string_view argument, const optional_arg& optional_a
 	return argument == optional_arg.shorter || argument == optional_arg.name;
 }
 
-constexpr auto format_arg = optional_argument("--format", "DDS encoding format. BC7 is used by default.");
+constexpr auto format_arg = optional_argument("--format", "DDS encoding format.");
 
-constexpr auto quality_arg = optional_argument("--quality", "Encoder quality level. Higher values take more time.");
+constexpr auto quality_arg = optional_argument("--quality", "Encoder quality level, must be in [{:d}, {:d}].");
 
-constexpr auto no_mipmaps_arg = optional_arg{
-	"--no-mipmaps", "-nm", "Disable mipmap generation."};
+constexpr auto no_mipmaps_arg = optional_arg{"--no-mipmaps", "-nm", "Disable mipmap generation."};
+
+constexpr auto filter_arg =
+	optional_arg{"--filter", "-ft", "Filter used to resize images during mipmap calculations.."};
 
 constexpr auto threads_arg =
-	optional_arg{"--threads", "-th", "Number of threads used by the parallel pipeline [1, {:d}]."};
+	optional_arg{"--threads", "-th", "Number of threads used by the parallel pipeline, must be in [1, {:d}]."};
 
 constexpr std::size_t max_depth = std::numeric_limits<std::size_t>::max();
 constexpr auto depth_arg =
@@ -80,6 +82,7 @@ consteval std::size_t argument_name_total_space() {
 	max_space = std::max(max_space, format_arg.name.size() + format_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, quality_arg.name.size() + quality_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, no_mipmaps_arg.name.size() + no_mipmaps_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, filter_arg.name.size() + filter_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, threads_arg.name.size() + threads_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, depth_arg.name.size() + depth_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, overwrite_arg.name.size() + overwrite_arg.shorter.size() + 2UL);
@@ -112,12 +115,10 @@ void print_optional_argument(std::ostringstream& ostream, const optional_arg& ar
 	print_argument_impl(ostream, argument.shorter, argument.name, argument.help);
 }
 
-void print_format_information(std::ostringstream& ostream, png2dds::format::type format_type) {
+void print_string_argument(std::ostringstream& ostream, std::string_view name, std::string_view text) {
 	constexpr std::size_t argument_space = argument_name_total_space() + 6UL;
 	std::fill_n(std::ostream_iterator<char>(ostream), argument_space, ' ');
-	ostream << fmt::format("{:s}: Encoder quality level [{:d}, {:d}]\n", png2dds::format::name(format_type),
-		static_cast<unsigned int>(png2dds::format::quality::minimum),
-		static_cast<unsigned int>(png2dds::format::quality::maximum));
+	ostream << fmt::format("{:s}: {:s}\n", name, text);
 }
 
 std::string get_help(std::size_t max_threads) {
@@ -133,15 +134,31 @@ std::string get_help(std::size_t max_threads) {
 	print_positional_argument(ostream, output_name, output_help);
 
 	ostream << "\nOPTIONS:\n";
-	print_optional_argument(ostream, format_arg);
-	print_format_information(ostream, png2dds::format::type::bc1);
-	print_format_information(ostream, png2dds::format::type::bc7);
-	std::fill_n(std::ostream_iterator<char>(ostream), argument_name_total_space() + 6UL, ' ');
-	ostream << fmt::format("{:s}: Files with alpha are encoded as BC7. Others are encoded as BC1.\n",
-		png2dds::format::name(png2dds::format::type::bc1_alpha_bc7));
 
-	print_optional_argument(ostream, quality_arg);
+	print_optional_argument(ostream, format_arg);
+	print_string_argument(
+		ostream, png2dds::format::name(png2dds::format::type::bc7), "High-quality compression supporting alpha. [Default]");
+	print_string_argument(ostream, png2dds::format::name(png2dds::format::type::bc1), "Highly compressed RGB data.");
+	print_string_argument(ostream, png2dds::format::name(png2dds::format::type::bc1_alpha_bc7),
+		"Files with alpha are encoded as BC7. Others are encoded as BC1.");
+
+	const std::string quality_help =
+		fmt::format(quality_arg.help, static_cast<unsigned int>(png2dds::format::quality::minimum),
+			static_cast<unsigned int>(png2dds::format::quality::maximum));
+	print_argument_impl(ostream, quality_arg.shorter, quality_arg.name, quality_help);
 	print_optional_argument(ostream, no_mipmaps_arg);
+
+	print_optional_argument(ostream, filter_arg);
+	print_string_argument(
+		ostream, png2dds::filter::name(png2dds::filter::type::area), "Resampling using pixel area relation. [Default]");
+	print_string_argument(
+		ostream, png2dds::filter::name(png2dds::filter::type::nearest), "Nearest neighbor interpolation.");
+	print_string_argument(ostream, png2dds::filter::name(png2dds::filter::type::cubic), "Bicubic interpolation.");
+	print_string_argument(
+		ostream, png2dds::filter::name(png2dds::filter::type::lanczos), "Lanczos interpolation over 8x8 neighborhood.");
+	print_string_argument(
+		ostream, png2dds::filter::name(png2dds::filter::type::nearest_exact), "Bit exact nearest neighbor interpolation.");
+
 	const std::string threads_help = fmt::format(threads_arg.help, max_threads);
 	print_argument_impl(ostream, threads_arg.shorter, threads_arg.name, threads_help);
 	print_optional_argument(ostream, depth_arg);
@@ -166,6 +183,24 @@ void format_from_str(std::string_view argument, png2dds::args::data& parsed_argu
 	} else {
 		parsed_arguments.error = true;
 		parsed_arguments.text = fmt::format("Unsupported format: {:s}", argument);
+	}
+}
+
+void filter_from_str(std::string_view argument, png2dds::args::data& parsed_arguments) {
+	const std::string argument_upper = boost::to_upper_copy(std::string{argument});
+	if (argument_upper == png2dds::filter::name(png2dds::filter::type::nearest)) {
+		parsed_arguments.filter = png2dds::filter::type::nearest;
+	} else if (argument_upper == png2dds::filter::name(png2dds::filter::type::cubic)) {
+		parsed_arguments.filter = png2dds::filter::type::cubic;
+	} else if (argument_upper == png2dds::filter::name(png2dds::filter::type::area)) {
+		parsed_arguments.filter = png2dds::filter::type::area;
+	} else if (argument_upper == png2dds::filter::name(png2dds::filter::type::lanczos)) {
+		parsed_arguments.filter = png2dds::filter::type::lanczos;
+	} else if (argument_upper == png2dds::filter::name(png2dds::filter::type::nearest_exact)) {
+		parsed_arguments.filter = png2dds::filter::type::nearest_exact;
+	} else {
+		parsed_arguments.error = true;
+		parsed_arguments.text = fmt::format("Unsupported filter: {:s}", argument);
 	}
 }
 
@@ -199,6 +234,7 @@ data get(const png2dds::vector<std::string_view>& arguments) {
 	// Set default values.
 	parsed_arguments.format = format::type::bc7;
 	parsed_arguments.mipmaps = true;
+	parsed_arguments.filter = filter::type::area;
 	const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
 	parsed_arguments.threads = max_threads;
 	parsed_arguments.depth = max_depth;
@@ -226,6 +262,9 @@ data get(const png2dds::vector<std::string_view>& arguments) {
 		if (matches(argument, format_arg)) {
 			++index;
 			format_from_str(next_argument, parsed_arguments);
+		} else if (matches(argument, filter_arg)) {
+			++index;
+			filter_from_str(next_argument, parsed_arguments);
 		} else if (matches(argument, quality_arg)) {
 			++index;
 			unsigned int value{};
@@ -233,8 +272,8 @@ data get(const png2dds::vector<std::string_view>& arguments) {
 			parsed_arguments.quality = static_cast<format::quality>(value);
 			if (parsed_arguments.quality > png2dds::format::quality::maximum) {
 				parsed_arguments.error = true;
-				parsed_arguments.text = fmt::format("Argument error: Unsupported encode quality level {:d} for format {:s}.",
-					static_cast<unsigned int>(parsed_arguments.quality), png2dds::format::name(parsed_arguments.format));
+				parsed_arguments.text = fmt::format("Argument error: Unsupported encode quality level {:d}.",
+					static_cast<unsigned int>(parsed_arguments.quality));
 			}
 		} else if (matches(argument, no_mipmaps_arg)) {
 			parsed_arguments.mipmaps = false;

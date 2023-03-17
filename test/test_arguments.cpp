@@ -108,21 +108,25 @@ TEST_CASE("png2dds::arguments format", "[arguments]") {
 
 	SECTION("Parsing bc1.") {
 		const auto arguments = get({binary, "--format", "bc1", "."});
+		REQUIRE(!has_error(arguments));
 		REQUIRE(arguments.format == png2dds::format::type::bc1);
 	}
 
 	SECTION("Parsing bc1 with alternate case.") {
 		const auto arguments = get({binary, "-f", "Bc1", "."});
+		REQUIRE(!has_error(arguments));
 		REQUIRE(arguments.format == png2dds::format::type::bc1);
 	}
 
 	SECTION("Parsing bc7.") {
 		const auto arguments = get({binary, "-f", "bc7", "."});
+		REQUIRE(!has_error(arguments));
 		REQUIRE(arguments.format == png2dds::format::type::bc7);
 	}
 
-	SECTION("Parsing bc1 with alternate case.") {
+	SECTION("Parsing bc7 with alternate case.") {
 		const auto arguments = get({binary, "--format", "bC7", "."});
+		REQUIRE(!has_error(arguments));
 		REQUIRE(arguments.format == png2dds::format::type::bc7);
 	}
 }
@@ -153,7 +157,8 @@ TEST_CASE("png2dds::arguments quality", "[arguments]") {
 	}
 
 	SECTION("Level is too large to be parsed.") {
-		const auto arguments = get({binary, "--quality", "4444444444444444444444444444444444444444444444444444444444444", "."});
+		const auto arguments =
+			get({binary, "--quality", "4444444444444444444444444444444444444444444444444444444444444", "."});
 		REQUIRE(has_error(arguments));
 	}
 
@@ -170,8 +175,8 @@ TEST_CASE("png2dds::arguments quality", "[arguments]") {
 	SECTION("Quality level is larger than the maximum") {
 		constexpr auto format_type = png2dds::format::type::bc1;
 		constexpr auto too_large_quality = static_cast<unsigned int>(png2dds::format::quality::maximum) + 1U;
-		const auto arguments = get({binary, "-f", png2dds::format::name(format_type), "-q",
-			std::to_string(too_large_quality), "."});
+		const auto arguments =
+			get({binary, "-f", png2dds::format::name(format_type), "-q", std::to_string(too_large_quality), "."});
 		REQUIRE(has_error(arguments));
 	}
 }
@@ -189,6 +194,25 @@ TEST_CASE("png2dds::arguments mipmaps", "[arguments]") {
 		const auto shorter = get({binary, "-nm", "."});
 		REQUIRE(is_valid(shorter));
 		REQUIRE(!shorter.mipmaps);
+	}
+}
+
+TEST_CASE("png2dds::arguments filter", "[arguments]") {
+	SECTION("The default value of filter is area.") {
+		const auto arguments = get({binary, "."});
+		REQUIRE(arguments.filter == png2dds::filter::type::area);
+	}
+
+	SECTION("Parsing lanczos.") {
+		const auto arguments = get({binary, "--filter", "lanczos", "."});
+		REQUIRE(!has_error(arguments));
+		REQUIRE(arguments.filter == png2dds::filter::type::lanczos);
+	}
+
+	SECTION("Parsing lanczos with alternate case.") {
+		const auto arguments = get({binary, "-ft", "LaNCZoS", "."});
+		REQUIRE(!has_error(arguments));
+		REQUIRE(arguments.filter == png2dds::filter::type::lanczos);
 	}
 }
 
@@ -222,7 +246,8 @@ TEST_CASE("png2dds::arguments threads", "[arguments]") {
 	}
 
 	SECTION("Threads is too large to be parsed") {
-		const auto arguments = get({binary, "--threads", "4444444444444444444444444444444444444444444444444444444444444", "."});
+		const auto arguments =
+			get({binary, "--threads", "4444444444444444444444444444444444444444444444444444444444444", "."});
 		REQUIRE(has_error(arguments));
 	}
 
@@ -253,7 +278,8 @@ TEST_CASE("png2dds::arguments depth", "[arguments]") {
 	}
 
 	SECTION("Depth is too large to be parsed.") {
-		const auto arguments = get({binary, "--depth", "4444444444444444444444444444444444444444444444444444444444444", "."});
+		const auto arguments =
+			get({binary, "--depth", "4444444444444444444444444444444444444444444444444444444444444", "."});
 		REQUIRE(has_error(arguments));
 	}
 

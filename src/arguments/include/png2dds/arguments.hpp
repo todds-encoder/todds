@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "png2dds/filter.hpp"
 #include "png2dds/format.hpp"
 #include "png2dds/regex.hpp"
 #include "png2dds/vector.hpp"
@@ -24,6 +25,7 @@ struct data {
 	png2dds::format::type format;
 	png2dds::format::quality quality;
 	bool mipmaps;
+	png2dds::filter::type filter;
 	std::size_t threads;
 	std::size_t depth;
 	bool overwrite;
