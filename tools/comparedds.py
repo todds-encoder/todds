@@ -23,6 +23,7 @@ nvtt_tool = 'nvtt'
 todds_tool = 'todds'
 texconv_tool = 'texconv'
 nvdecompress_executable = 'nvdecompress'
+# Currently the flip executable fails in at least one texture of every dataset. The code has been commented out.
 flip_executable = 'flip'
 magick_executable = 'magick'
 
@@ -143,7 +144,8 @@ def generate_info(arguments):
             version = version_func()
 
             csv_out.writerow([tool, version])
-    csv_out.writerow([flip_executable, flip_version()])
+    # ToDo flip fails on every dataset.
+    # csv_out.writerow([flip_executable, flip_version()])
     csv_out.writerow([magick_executable, magick_version()])
 
 
@@ -263,7 +265,9 @@ def calculate_flip(png_input, png_file):
 
 def calculate_metrics(arguments, input_files):
     csv_out = csv.writer(sys.stdout, lineterminator='\n')
-    csv_out.writerow(['File', 'Tool', 'FLIP (Mean)', 'PSNR', 'RMSE (%)', 'SSIM'])
+    # ToDo FLIP fails on every data set.
+    # csv_out.writerow(['File', 'Tool', 'FLIP (Mean)', 'PSNR', 'RMSE (%)', 'SSIM'])
+    csv_out.writerow(['File', 'Tool', 'PSNR', 'RMSE (%)', 'SSIM'])
     for tool, data in encoder_data.items():
         if getattr(arguments, tool):
             output_path = os.path.join(args.output, tool)
@@ -272,13 +276,14 @@ def calculate_metrics(arguments, input_files):
                 dds_file = output_base + '.dds'
                 png_file = output_base + '.png'
                 decode_png(dds_file, png_file)
-                flip_mean = calculate_flip(input_file, png_file)
+                # flip_mean = calculate_flip(input_file, png_file)
                 psnr = calculate_metric(input_file, png_file, 'PSNR')
                 rmse = calculate_metric(input_file, png_file, 'RMSE')
                 ssim = calculate_metric(input_file, png_file, 'SSIM')
                 if os.sep in input_file:
                     input_file = input_file.rpartition(os.sep)[-1]
-                csv_out.writerow([input_file, tool, flip_mean, psnr, rmse, ssim])
+                # csv_out.writerow([input_file, tool, flip_mean, psnr, rmse, ssim])
+                csv_out.writerow([input_file, tool, psnr, rmse, ssim])
 
 
 if __name__ == '__main__':
@@ -288,7 +293,8 @@ if __name__ == '__main__':
         sys.exit(args_error)
 
     if args.info or args.metrics:
-        for extra_executable in [nvdecompress_executable, magick_executable, flip_executable]:
+        # ToDo FLIP fails on every data set.
+        for extra_executable in [nvdecompress_executable, magick_executable]:
             if shutil.which(extra_executable) is None:
                 sys.exit(f'{extra_executable} must be present in the PATH.')
 
