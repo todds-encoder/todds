@@ -4,13 +4,7 @@
 
 # Since some tools evaluated by this script only work on Windows, the script also requires Windows.
 
-# Expects the following executables to be in the PATH:
-# * nvbatchcompress.exe (NVIDIA Texture Tools): DDS encoding tool
-# * texconv.exe (DirectXTex): DDS encoding tool
-# * bc7enc.exe (bc7enc_rdo): DDS encoding tool
-# * todds.exe: DDS encoding tool
-# * flip.exe (NVIDIA FLIP Difference Evaluator): FLIP metric
-# * magick.exe (ImageMagick): PSNR, RMSE and SSIM metrics
+# See ANALYSIS.md for details.
 
 import argparse
 import collections
@@ -46,7 +40,7 @@ encoder_data = {
 
 
 def get_parsed_args():
-    parser = argparse.ArgumentParser(description='Compare DDS encoders.')
+    parser = argparse.ArgumentParser(description='Performance and quality analysis comparing texture encoders.')
     for tool, data in encoder_data.items():
         parser.add_argument(f'--{tool}', action='store_true',
                             help=f'Compare {tool}. The {data.executable} executable must be in the PATH.')
@@ -57,8 +51,8 @@ def get_parsed_args():
                         help=f'Generate a CSV with the encoding time for individual files along with file statistics.')
     parser.add_argument(f'--metrics', action='store_true',
                         help=f'Generate a CSV with metrics for DDS files. Will fail if they have not been generated')
-    parser.add_argument('input', metavar='input', type=str, help='Path containing PNGs to be used for testing')
-    parser.add_argument('output', metavar='output', type=str, help='Path in which output PNGs will be created.')
+    parser.add_argument('input', nargs='?', metavar='input', type=str, help='Path containing PNGs to be used for testing')
+    parser.add_argument('output', nargs='?', metavar='output', type=str, help='Path in which output PNGs will be created.')
     return parser.parse_args()
 
 
@@ -67,10 +61,13 @@ def validate_args(arguments):
         if getattr(arguments, tool) and shutil.which(data.executable) is None:
             return f'To use {tool}, {data.executable} must be present in the PATH'
 
-    if not os.path.isdir(arguments.input):
+    if args.info:
+        return ''
+
+    if arguments.input is None or not os.path.isdir(arguments.input):
         return f'Input directory {arguments.input} is not valid'
 
-    if os.path.exists(args.output) and not os.path.isdir(arguments.output):
+    if arguments.output is None or os.path.exists(args.output) and not os.path.isdir(arguments.output):
         return f'{args.output} is not a directory'
 
     return ''
@@ -285,7 +282,6 @@ def calculate_metrics(arguments, input_files):
 
 
 if __name__ == '__main__':
-    # Argument parsing and validation.
     args = get_parsed_args()
     args_error = validate_args(args)
     if len(args_error) > 0:
