@@ -35,9 +35,12 @@ magick_executable = 'magick'
 # Maps tool arguments to their executable and parameters.
 EncoderData = collections.namedtuple('EncoderData', 'executable batch filepath params')
 encoder_data = {
+    # bc7enc lacks mipmap support.
     bc7enc_tool: EncoderData('bc7enc', False, True, ('-q', '-g', '-u6')),
-    nvtt_tool: EncoderData('nvbatchcompress', True, True, ('-fast', '-bc7', '-silent')),
+    nvtt_tool: EncoderData('nvbatchcompress', True, True, ('-highest', '-bc7', '-mipfilter', 'kaiser', '-silent')),
+    # todds encodes with BC7 and uses Lanczos interpolation to generate mipmaps by default.
     todds_tool: EncoderData('todds', True, False, ('-o',)),
+    # Texconv should use WIC to generate mipmaps with this setup.
     texconv_tool: EncoderData('texconv', True, False, ('-y', '-f', 'BC7_UNORM', '-bc', 'x')),
 }
 
@@ -219,7 +222,7 @@ def batch_encode(arguments, input_files):
 def files_encode(arguments, input_files):
     current_module = sys.modules[__name__]
     csv_out = csv.writer(sys.stdout, lineterminator='\n')
-    csv_out.writerow(['File', 'Tool', 'Time (ns)', 'Size (Bytes)'])
+    csv_out.writerow(['File', 'Tool', 'Time (ns)', 'Size (%)'])
     for tool, data in encoder_data.items():
         if getattr(arguments, tool):
             output_path = os.path.join(args.output, tool)
@@ -231,7 +234,13 @@ def files_encode(arguments, input_files):
                 execute_start = time.perf_counter_ns()
                 execute_func(input_file, output_file if data.filepath else output_path).wait()
                 execute_time = time.perf_counter_ns() - execute_start
-                csv_out.writerow([input_file, tool, execute_time, os.path.getsize(output_file)])
+                input_file_size = os.path.getsize(input_file)
+                output_file_size = os.path.getsize(output_file)
+                size_percentage = (100.0 * output_file_size) / input_file_size
+                size_str = '{:.2f}'.format(round(size_percentage, 2))
+                if os.sep in input_file:
+                    input_file = input_file.rpartition(os.sep)[-1]
+                csv_out.writerow([input_file, tool, execute_time, size_str])
 
 
 def decode_png(dds_file, png_file):
@@ -245,7 +254,7 @@ def calculate_metric(png_input, png_file, metric):
     if metric == 'RMSE':
         _, output = output.split(' (')
         output, _ = output.split(')')
-    return output
+    return output.strip()
 
 
 def calculate_flip(png_input, png_file):
@@ -270,6 +279,8 @@ def calculate_metrics(arguments, input_files):
                 psnr = calculate_metric(input_file, png_file, 'PSNR')
                 rmse = calculate_metric(input_file, png_file, 'RMSE')
                 ssim = calculate_metric(input_file, png_file, 'SSIM')
+                if os.sep in input_file:
+                    input_file = input_file.rpartition(os.sep)[-1]
                 csv_out.writerow([input_file, tool, flip_mean, psnr, rmse, ssim])
 
 
