@@ -2,6 +2,7 @@
 
 Developing todds is only made possible by people who share their work and expertise with others. This file lists people or groups whose work has been helpful for todds.
 
+* **[Amit Dhamu](https://amitd.co/)** - [Flatten a directory](https://amitd.co/code/python/flatten-a-directory)
 * **[Aras Pranckevičius](https://aras-p.info)** - [Texture Compression in 2020](https://aras-p.info/blog/2020/12/08/Texture-Compression-in-2020)
 * **[bbradson](https://github.com/bbradson)** - [DDSgenerator](https://github.com/bbradson/DDSgenerator): Basis for the bc1_alpha_bc7 encoding format.
 * **[Ignacio Castaño](http://www.ludicon.com/castano/blog/)** - [NVIDIA Texture Tools](https://github.com/castano/nvidia-texture-tools), [Computing Alpha Mipmaps](http://www.ludicon.com/castano/blog/articles/computing-alpha-mipmaps/)
