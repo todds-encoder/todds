@@ -15,42 +15,9 @@
 
 namespace {
 
-void add_padding(todds::image& img) {
-	// When padding has been added to the image, copy the border pixel into the padding.
-	const auto width = img.width();
-	const auto height = img.height();
-	const auto padded_width = img.padded_width();
-	const auto padded_height = img.padded_height();
-	if (width < padded_width) {
-		const auto border_pixel_x = width - 1UL;
-		for (std::size_t pixel_y = 0UL; pixel_y < padded_height; ++pixel_y) {
-			const auto border_pixel = img.get_pixel(border_pixel_x, std::min(pixel_y, height - 1U));
-			for (std::size_t pixel_x = width; pixel_x < padded_width; ++pixel_x) {
-				const auto current_pixel = img.get_pixel(pixel_x, pixel_y);
-				std::copy(border_pixel.begin(), border_pixel.end(), current_pixel.begin());
-			}
-		}
-	}
-
-	if (height < padded_height) {
-		const auto border_pixel_y = height - 1UL;
-		for (std::size_t pixel_x = 0UL; pixel_x < padded_width; ++pixel_x) {
-			const auto border_pixel = img.get_pixel(std::min(pixel_x, width - 1U), border_pixel_y);
-			for (std::size_t pixel_y = height; pixel_y < padded_height; ++pixel_y) {
-				const auto current_pixel = img.get_pixel(pixel_x, pixel_y);
-				std::copy(border_pixel.begin(), border_pixel.end(), current_pixel.begin());
-			}
-		}
-	}
-}
-
 void process_image(todds::mipmap_image& mipmap_img, todds::filter::type filter) {
-	auto& original_image = mipmap_img.get_image(0UL);
-
 	// constexpr std::uint8_t default_alpha_reference = 245U;
 	// const float desired_coverage = todds::alpha_coverage(default_alpha_reference, original_image);
-
-	add_padding(original_image);
 
 	for (std::size_t mipmap_index = 1ULL; mipmap_index < mipmap_img.mipmap_count(); ++mipmap_index) {
 		todds::image& previous_image = mipmap_img.get_image(mipmap_index - 1UL);

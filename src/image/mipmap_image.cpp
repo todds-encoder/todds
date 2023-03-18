@@ -15,7 +15,7 @@ mipmap_image::mipmap_image(std::size_t file_index, std::size_t width, std::size_
 
 	// The first image is always included.
 	_images.emplace_back(width, height);
-	pixels_required += _images.back().padded_width() * _images.back().padded_height();
+	pixels_required += _images.back().width() * _images.back().height();
 
 	if (mipmaps) {
 		constexpr std::size_t minimum_size = 1ULL;
@@ -23,7 +23,7 @@ mipmap_image::mipmap_image(std::size_t file_index, std::size_t width, std::size_
 			if (width > minimum_size) { width >>= 1ULL; }
 			if (height > minimum_size) { height >>= 1ULL; }
 			_images.emplace_back(width, height);
-			pixels_required += _images.back().padded_width() * _images.back().padded_height();
+			pixels_required += _images.back().width() * _images.back().height();
 		}
 	}
 
@@ -35,7 +35,7 @@ mipmap_image::mipmap_image(std::size_t file_index, std::size_t width, std::size_
 	std::size_t memory_start = 0ULL;
 	// Point each image to its memory chunk.
 	for (image& current : _images) {
-		const std::size_t required_memory = current.padded_width() * current.padded_height() * image::bytes_per_pixel;
+		const std::size_t required_memory = current.width() * current.height() * image::bytes_per_pixel;
 		current.set_data(std::span<std::uint8_t>(&_data[memory_start], required_memory));
 		memory_start += required_memory;
 	}

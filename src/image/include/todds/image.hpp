@@ -16,7 +16,6 @@ namespace todds {
 
 /**
  * Image loaded in memory in an RGBA memory layout.
- * The size of the internal data block is padded to keep the width and height divisible by 4.
  * Image is only a view and is not the owner of the memory. See mipmap_image for details.
  */
 class image final {
@@ -31,28 +30,16 @@ public:
 	~image() = default;
 
 	/**
-	 * Original width of the image in pixels excluding padding.
+	 * Original width of the image in pixels.
 	 * @return Width of this image.
 	 */
 	[[nodiscard]] std::size_t width() const noexcept;
 
 	/**
-	 * Original height of the image in pixels excluding padding.
+	 * Original height of the image in pixels.
 	 * @return Height of this image.
 	 */
 	[[nodiscard]] std::size_t height() const noexcept;
-
-	/**
-	 * Width of the image in pixels including padding.
-	 * @return Width of this image.
-	 */
-	[[nodiscard]] std::size_t padded_width() const noexcept;
-
-	/**
-	 * Height of the image in pixels including padding.
-	 * @return Height of this image.
-	 */
-	[[nodiscard]] std::size_t padded_height() const noexcept;
 
 	void set_data(std::span<std::uint8_t> data);
 
@@ -108,8 +95,6 @@ public:
 private:
 	std::size_t _width;
 	std::size_t _height;
-	std::size_t _padded_width;
-	std::size_t _padded_height;
 	std::span<std::uint8_t> _data;
 };
 

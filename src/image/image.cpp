@@ -4,14 +4,12 @@
  */
 #include "todds/image.hpp"
 
-#include "todds/util.hpp"
-
 #include <cassert>
 
 namespace {
 
-constexpr std::size_t get_byte_position(std::size_t padded_width, std::size_t byte_x, std::size_t byte_y) noexcept {
-	return byte_x + byte_y * padded_width * todds::image::bytes_per_pixel;
+constexpr std::size_t get_byte_position(std::size_t width, std::size_t byte_x, std::size_t byte_y) noexcept {
+	return byte_x + byte_y * width * todds::image::bytes_per_pixel;
 }
 
 } // anonymous namespace
@@ -20,20 +18,14 @@ namespace todds {
 image::image(std::size_t width, std::size_t height)
 	: _width{width}
 	, _height{height}
-	, _padded_width{util::next_divisible_by_4(width)}
-	, _padded_height{util::next_divisible_by_4(height)}
 	, _data(static_cast<std::uint8_t*>(nullptr), 0UL) {}
 
 std::size_t image::width() const noexcept { return _width; }
 
 std::size_t image::height() const noexcept { return _height; }
 
-std::size_t image::padded_width() const noexcept { return _padded_width; }
-
-std::size_t image::padded_height() const noexcept { return _padded_height; }
-
 void image::set_data(std::span<std::uint8_t> data) {
-	assert(data.size() == _padded_width * _padded_height * image::bytes_per_pixel);
+	assert(data.size() == _width * _height * image::bytes_per_pixel);
 	_data = data;
 }
 
@@ -42,20 +34,20 @@ void image::set_data(std::span<std::uint8_t> data) {
 [[nodiscard]] std::span<const std::uint8_t> image::data() const noexcept { return _data; }
 
 const std::uint8_t& image::row_start(std::size_t row) const noexcept {
-	return _data[get_byte_position(padded_width(), 0UL, row)];
+	return _data[get_byte_position(width(), 0UL, row)];
 }
 
-std::uint8_t& image::row_start(std::size_t row) noexcept { return _data[get_byte_position(padded_width(), 0UL, row)]; }
+std::uint8_t& image::row_start(std::size_t row) noexcept { return _data[get_byte_position(width(), 0UL, row)]; }
 
 std::span<std::uint8_t, image::bytes_per_pixel> image::get_pixel(std::size_t pixel_x, std::size_t pixel_y) noexcept {
-	auto index = static_cast<std::ptrdiff_t>(get_byte_position(padded_width(), pixel_x * bytes_per_pixel, pixel_y));
+	auto index = static_cast<std::ptrdiff_t>(get_byte_position(width(), pixel_x * bytes_per_pixel, pixel_y));
 	return std::span<std::uint8_t, image::bytes_per_pixel>(
 		_data.begin() + index, _data.begin() + index + bytes_per_pixel);
 }
 
 std::span<const std::uint8_t, image::bytes_per_pixel> image::get_pixel(
 	std::size_t pixel_x, std::size_t pixel_y) const noexcept {
-	auto index = static_cast<std::ptrdiff_t>(get_byte_position(padded_width(), pixel_x * bytes_per_pixel, pixel_y));
+	auto index = static_cast<std::ptrdiff_t>(get_byte_position(width(), pixel_x * bytes_per_pixel, pixel_y));
 	return std::span<const std::uint8_t, image::bytes_per_pixel>(
 		_data.begin() + index, _data.begin() + index + bytes_per_pixel);
 }
