@@ -7,9 +7,20 @@
 
 #include <memory>
 
+#if defined(TODDS_TBB_ALLOCATOR)
+#include <oneapi/tbb/scalable_allocator.h>
+#endif
+
 namespace todds {
 
 /** Allocator to use in todds types. */
-template<typename Type> using allocator = std::allocator<Type>;
+template<typename Type>
+using allocator =
+#if defined(TODDS_TBB_ALLOCATOR)
+	tbb::scalable_allocator<Type>
+#else
+	std::allocator<Type>
+#endif //
+	;
 
 } // namespace todds

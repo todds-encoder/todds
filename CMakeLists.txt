@@ -11,6 +11,7 @@ project(todds
 	)
 
 option(TODDS_UNIT_TESTS "Build todds unit tests" OFF)
+option(TODDS_TBB_ALLOCATOR "Use OneAPI TBB scalable_allocator." OFF)
 
 # Set the C++ standard used by this project.
 set(CMAKE_CXX_STANDARD 20)
@@ -42,6 +43,7 @@ include_directories(SYSTEM ${OpenCV_INCLUDE_DIRS})
 include(cmake/clang_tidy.cmake)
 include(cmake/warnings.cmake)
 include(cmake/sanitizer.cmake)
+include(cmake/options.cmake)
 
 add_subdirectory(src)
 if (TODDS_UNIT_TESTS)

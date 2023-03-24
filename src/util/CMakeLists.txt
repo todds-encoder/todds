@@ -13,3 +13,7 @@ target_sources(todds_util INTERFACE
 target_include_directories(todds_util INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
 	)
+
+if (TODDS_TBB_ALLOCATOR)
+	target_link_libraries(todds_util INTERFACE TBB::tbbmalloc)
+endif()
