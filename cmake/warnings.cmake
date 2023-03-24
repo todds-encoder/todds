@@ -107,6 +107,8 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 		/wd6239      # Triggered by code inside of fmt.
 		/wd6294      # Triggered by OpenCV.
 		/wd6297      # Triggered by code inside of rgbcx.
+		/wd6385      # Triggered by OneAPI TBB on debug mode.
+		/wd28182     # Triggered by OneAPI TBB on debug mode.
 		/wd28301     # Triggered by the Windows API.
 		)
 endif ()
