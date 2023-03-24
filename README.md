@@ -6,9 +6,11 @@ A CPU-based DDS encoder optimized for fast batch conversions with high encoding 
 
 ### Performance
 
-todds can encode multiple files at once at high speeds, without compromising on encoding quality. It also provides great performance when processing single files, and may be faster than other implementations depending on your hardware.
+todds is optimized for encoding multiple files at the same time, without compromising on encoding quality. todds can quickly encode a single file but the full benefits of its parallel pipeline are reached when encoding large numbers of files.
 
-You can find detailed reports and benchmark results here: https://github.com/joseasoler/todds/wiki/Performance
+todds also performs better with CPUs with a large number of cores. Depending on your hardware, it can perform better than GPU based texture encoders or it might be slower. Check the analysis results for details.
+
+https://github.com/joseasoler/todds/wiki/Performance
 
 ### Supported encoding formats
 
@@ -16,7 +18,7 @@ BC7 support is implemented using the [bc7e.ispc](https://github.com/richgel999/b
 
 As seen in the [Texture Compression in 2020](https://aras-p.info/blog/2020/12/08/Texture-Compression-in-2020/) blog post, these libraries provide great encoding quality and performance.
 
-todds also supports a mixed mode called BC1_ALPHA_BC7. When this mode is enabled, PNG files with alpha values will be converted to BC7 while files without alpha will be converted to BC1.
+todds also supports a mixed mode called BC1_ALPHA_BC7. When this mode is enabled, PNG files with alpha values will be converted to BC7 while files without alpha will be converted to BC1. Encoding using this mode is faster than BC7 and the resulting textures will require less VRAM, but the quality is worse than with BC7.
 
 ## Building
 
