@@ -20,7 +20,7 @@ constexpr DDS_HEADER_DXT10 header_extension{DXGI_FORMAT_BC7_UNORM, D3D10_RESOURC
 
 class save_dds_file final {
 public:
-	explicit save_dds_file(const std::vector<file_data>& files_data, const paths_vector& paths) noexcept
+	explicit save_dds_file(const vector<file_data>& files_data, const paths_vector& paths) noexcept
 		: _files_data{files_data}
 		, _paths{paths} {}
 
@@ -38,8 +38,7 @@ public:
 
 		ofs << "DDS ";
 		const auto& file_data = _files_data[file_index];
-		const auto header =
-			todds::dds::dds_header(file_data.format, file_data.width, file_data.height, file_data.mipmaps);
+		const auto header = todds::dds::dds_header(file_data.format, file_data.width, file_data.height, file_data.mipmaps);
 		ofs.write(header.data(), header.size());
 		if (file_data.format == todds::format::type::bc7) {
 			ofs.write(reinterpret_cast<const char*>(&header_extension), sizeof(header_extension));
@@ -51,12 +50,11 @@ public:
 	}
 
 private:
-	const std::vector<file_data>& _files_data;
+	const vector<file_data>& _files_data;
 	const paths_vector& _paths;
 };
 
-oneapi::tbb::filter<dds_data, void> save_dds_filter(
-	const std::vector<file_data>& files_data, const paths_vector& paths) {
+oneapi::tbb::filter<dds_data, void> save_dds_filter(const vector<file_data>& files_data, const paths_vector& paths) {
 	return oneapi::tbb::make_filter<dds_data, void>(oneapi::tbb::filter_mode::parallel, save_dds_file(files_data, paths));
 }
 

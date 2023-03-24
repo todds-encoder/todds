@@ -13,7 +13,7 @@ namespace todds::pipeline::impl {
 
 class encode_bc1_image final {
 public:
-	encode_bc1_image(std::vector<file_data>& files_data, todds::format::quality quality) noexcept
+	encode_bc1_image(vector<file_data>& files_data, todds::format::quality quality) noexcept
 		: _files_data{files_data}
 		, _quality{quality} {}
 
@@ -23,13 +23,13 @@ public:
 	}
 
 private:
-	std::vector<file_data>& _files_data;
+	vector<file_data>& _files_data;
 	todds::format::quality _quality;
 };
 
 class encode_bc7_image final {
 public:
-	encode_bc7_image(std::vector<file_data>& files_data, todds::format::quality quality) noexcept
+	encode_bc7_image(vector<file_data>& files_data, todds::format::quality quality) noexcept
 		: _files_data{files_data}
 		, _params{todds::dds::bc7_encode_params(quality)} {}
 
@@ -39,8 +39,8 @@ public:
 	}
 
 private:
-	std::vector<file_data>& _files_data;
-	todds::dds::bc7_params _params;
+	vector<file_data>& _files_data;
+	dds::bc7_params _params;
 };
 
 // When using BC1_ALPHA_BC7, this function determines if a file should be encoded as BC7.
@@ -55,7 +55,7 @@ static bool has_alpha(const todds::pixel_block_image& img) {
 
 class encode_bc1_alpha_bc7_image final {
 public:
-	explicit encode_bc1_alpha_bc7_image(std::vector<file_data>& files_data, todds::format::quality quality) noexcept
+	explicit encode_bc1_alpha_bc7_image(vector<file_data>& files_data, todds::format::quality quality) noexcept
 		: _files_data{files_data}
 		, _params{todds::dds::bc7_encode_params(quality)}
 		, _quality{quality} {}
@@ -70,13 +70,13 @@ public:
 	}
 
 private:
-	std::vector<file_data>& _files_data;
-	todds::dds::bc7_params _params;
-	todds::format::quality _quality;
+	vector<file_data>& _files_data;
+	dds::bc7_params _params;
+	format::quality _quality;
 };
 
 oneapi::tbb::filter<pixel_block_data, dds_data> encode_dds_filter(
-	std::vector<file_data>& files_data, todds::format::type format_type, todds::format::quality quality) {
+	vector<file_data>& files_data, todds::format::type format_type, todds::format::quality quality) {
 	using oneapi::tbb::filter_mode;
 	using oneapi::tbb::make_filter;
 	switch (format_type) {

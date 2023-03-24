@@ -30,7 +30,7 @@ mipmap_image::mipmap_image(std::size_t file_index, std::size_t width, std::size_
 	if (pixels_required == 0ULL) { return; }
 
 	// Allocate the memory required for every image in a single contiguous array.
-	_data = std::vector<std::uint8_t>(pixels_required * image::bytes_per_pixel);
+	_data = todds::vector<std::uint8_t>(pixels_required * image::bytes_per_pixel);
 
 	std::size_t memory_start = 0ULL;
 	// Point each image to its memory chunk.

@@ -130,7 +130,7 @@ void encode_as_dds(const input& input_data) {
 	// Contains extra data about each file being processed.
 	// Pipeline stages may write or read from this vector at any time. Since each token has a unique index, these
 	// accesses are thread-safe.
-	std::vector<impl::file_data> files_data(input_data.paths.size());
+	vector<impl::file_data> files_data(input_data.paths.size());
 
 	// Stores all warnings and errors gathered during the pipeline execution.
 	otbb::concurrent_queue<std::string> error_log;

@@ -76,7 +76,6 @@ constexpr std::string_view output_help =
 	"points to a TXT file.";
 
 consteval std::size_t argument_name_total_space() {
-	// Other implementations may not have constexpr support so std::vector is used explicitly.
 	std::size_t max_space{};
 	max_space = std::max(max_space, format_arg.name.size() + format_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, quality_arg.name.size() + quality_arg.shorter.size() + 2UL);

@@ -40,7 +40,7 @@ namespace todds::pipeline::impl {
 
 class decode_png final {
 public:
-	explicit decode_png(std::vector<file_data>& files_data, const paths_vector& paths, bool vflip, bool mipmaps,
+	explicit decode_png(vector<file_data>& files_data, const paths_vector& paths, bool vflip, bool mipmaps,
 		filter::type filter, error_queue& errors) noexcept
 		: _files_data{files_data}
 		, _paths{paths}
@@ -70,7 +70,7 @@ public:
 	}
 
 private:
-	std::vector<file_data>& _files_data;
+	vector<file_data>& _files_data;
 	const paths_vector& _paths;
 	bool _vflip;
 	error_queue& _errors;
@@ -78,7 +78,7 @@ private:
 	filter::type _filter;
 };
 
-oneapi::tbb::filter<png_file, mipmap_image> decode_png_filter(std::vector<file_data>& files_data,
+oneapi::tbb::filter<png_file, mipmap_image> decode_png_filter(vector<file_data>& files_data,
 	const paths_vector& paths, bool vflip, bool mipmaps, filter::type filter, error_queue& errors) {
 	return oneapi::tbb::make_filter<png_file, mipmap_image>(
 		oneapi::tbb::filter_mode::serial_in_order, decode_png(files_data, paths, vflip, mipmaps, filter, errors));

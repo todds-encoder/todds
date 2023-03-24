@@ -43,8 +43,8 @@ public:
 
 private:
 	std::size_t _file_index;
-	std::vector<std::uint8_t> _data;
-	std::vector<image> _images;
+	todds::vector<std::uint8_t> _data;
+	todds::vector<image> _images;
 };
 
 } // namespace todds
