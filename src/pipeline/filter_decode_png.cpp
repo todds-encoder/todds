@@ -56,7 +56,6 @@ public:
 				// Load the first image of the mipmap image and reserve the memory for the rest of the images.
 				result = png::decode(file.file_index, path, file.buffer, _vflip, file_data.width, file_data.height, _mipmaps);
 				file_data.mipmaps = result.mipmap_count();
-				// Add padding, calculate mipmaps, etc.
 				process_image(result, _filter);
 			} catch (const std::runtime_error& exc) {
 				_errors.push(fmt::format("PNG Decoding error {:s} -> {:s}", path, exc.what()));
