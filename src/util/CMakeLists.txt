@@ -16,4 +16,6 @@ target_include_directories(todds_util INTERFACE
 
 if (TODDS_TBB_ALLOCATOR)
 	target_link_libraries(todds_util INTERFACE TBB::tbbmalloc)
+elseif(TODDS_MIMALLOC_ALLOCATOR)
+	target_link_libraries(todds_util INTERFACE mimalloc-static)
 endif()

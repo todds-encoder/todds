@@ -9,6 +9,8 @@
 
 #if defined(TODDS_TBB_ALLOCATOR)
 #include <oneapi/tbb/scalable_allocator.h>
+#elif defined(TODDS_MIMALLOC_ALLOCATOR)
+#include <mimalloc.h>
 #endif
 
 namespace todds {
@@ -18,6 +20,8 @@ template<typename Type>
 using allocator =
 #if defined(TODDS_TBB_ALLOCATOR)
 	tbb::scalable_allocator<Type>
+#elif defined(TODDS_MIMALLOC_ALLOCATOR)
+	mi_stl_allocator<Type>
 #else
 	std::allocator<Type>
 #endif //

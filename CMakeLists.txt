@@ -12,6 +12,7 @@ project(todds
 
 option(TODDS_UNIT_TESTS "Build todds unit tests" OFF)
 option(TODDS_TBB_ALLOCATOR "Use OneAPI TBB scalable_allocator." OFF)
+option(TODDS_MIMALLOC_ALLOCATOR "Use mimalloc." OFF)
 
 # Set the C++ standard used by this project.
 set(CMAKE_CXX_STANDARD 20)
@@ -35,6 +36,9 @@ find_package(Hyperscan REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Threads REQUIRED)
 find_package(TBB REQUIRED)
+if(TODDS_MIMALLOC_ALLOCATOR)
+	find_package(mimalloc REQUIRED)
+endif()
 
 add_subdirectory(thirdparty)
 
