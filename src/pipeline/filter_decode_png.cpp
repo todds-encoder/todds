@@ -22,7 +22,7 @@ void process_image(todds::mipmap_image& mipmap_img, todds::filter::type filter) 
 	const auto input = static_cast<cv::Mat>(mipmap_img.get_image(0UL));
 
 	using blocked_range = oneapi::tbb::blocked_range<size_t>;
-	oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0UL, mipmap_img.mipmap_count()),
+	oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(1UL, mipmap_img.mipmap_count()),
 		[&mipmap_img, &input, filter](const blocked_range& range) {
 			for (std::size_t mipmap_index = range.begin(); mipmap_index < range.end(); ++mipmap_index) {
 				todds::image& current_image = mipmap_img.get_image(mipmap_index);
