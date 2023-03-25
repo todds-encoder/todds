@@ -59,8 +59,8 @@ spng_ihdr get_header(spng_context& context, const std::string& png) {
 
 namespace todds::png {
 
-mipmap_image decode(std::size_t file_index, const std::string& png, std::span<const std::uint8_t> buffer, bool flip,
-	std::size_t& width, std::size_t& height, bool mipmaps) {
+std::unique_ptr<mipmap_image> decode(std::size_t file_index, const std::string& png,
+	std::span<const std::uint8_t> buffer, bool flip, std::size_t& width, std::size_t& height, bool mipmaps) {
 	width = 0ULL;
 	height = 0ULL;
 	// Ideally we would want to use SPNG_CTX_IGNORE_ADLER32 here, but unfortunately libspng ignores this value when using
@@ -72,9 +72,9 @@ mipmap_image decode(std::size_t file_index, const std::string& png, std::span<co
 
 	width = header.width;
 	height = header.height;
-	mipmap_image result(file_index, width, height, mipmaps);
-	assert(result.mipmap_count() >= 1ULL);
-	image& first = result.get_image(0ULL);
+	auto result = std::make_unique<mipmap_image>(file_index, width, height, mipmaps);
+	assert(result->mipmap_count() >= 1ULL);
+	image& first = result->get_image(0ULL);
 
 	constexpr spng_format format = SPNG_FMT_RGBA8;
 

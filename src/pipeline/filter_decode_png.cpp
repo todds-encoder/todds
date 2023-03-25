@@ -49,8 +49,8 @@ public:
 		, _mipmaps{mipmaps}
 		, _filter{filter} {}
 
-	mipmap_image operator()(const png_file& file) const {
-		mipmap_image result{error_file_index, 0U, 0U, false};
+	std::unique_ptr<mipmap_image> operator()(const png_file& file) const {
+		std::unique_ptr<mipmap_image> result{};
 
 		// If the data is empty, assume that load_png_file already reported an error.
 		if (!file.buffer.empty()) {
@@ -59,8 +59,8 @@ public:
 				auto& file_data = _files_data[file.file_index];
 				// Load the first image of the mipmap image and reserve the memory for the rest of the images.
 				result = png::decode(file.file_index, path, file.buffer, _vflip, file_data.width, file_data.height, _mipmaps);
-				file_data.mipmaps = result.mipmap_count();
-				process_image(result, _filter);
+				file_data.mipmaps = result->mipmap_count();
+				process_image(*result, _filter);
 			} catch (const std::runtime_error& exc) {
 				_errors.push(fmt::format("PNG Decoding error {:s} -> {:s}", path, exc.what()));
 			}
@@ -78,9 +78,9 @@ private:
 	filter::type _filter;
 };
 
-oneapi::tbb::filter<png_file, mipmap_image> decode_png_filter(vector<file_data>& files_data,
+oneapi::tbb::filter<png_file, std::unique_ptr<mipmap_image>> decode_png_filter(vector<file_data>& files_data,
 	const paths_vector& paths, bool vflip, bool mipmaps, filter::type filter, error_queue& errors) {
-	return oneapi::tbb::make_filter<png_file, mipmap_image>(
+	return oneapi::tbb::make_filter<png_file, std::unique_ptr<mipmap_image>>(
 		oneapi::tbb::filter_mode::serial_in_order, decode_png(files_data, paths, vflip, mipmaps, filter, errors));
 }
 

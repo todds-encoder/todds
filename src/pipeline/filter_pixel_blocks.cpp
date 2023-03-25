@@ -8,13 +8,17 @@
 namespace todds::pipeline::impl {
 class get_pixel_blocks final {
 public:
-	pixel_block_data operator()(const mipmap_image& image) const {
-		return pixel_block_data{todds::to_pixel_blocks(image), image.file_index()};
+	pixel_block_data operator()(std::unique_ptr<mipmap_image> image) const {
+		if (image == nullptr) [[unlikely]]
+		{
+			return {};
+		}
+		return pixel_block_data{todds::to_pixel_blocks(*image), image->file_index()};
 	}
 };
 
-oneapi::tbb::filter<mipmap_image, pixel_block_data> load_file_filter() {
-	return oneapi::tbb::make_filter<mipmap_image, pixel_block_data>(
+oneapi::tbb::filter<std::unique_ptr<mipmap_image>, pixel_block_data> load_file_filter() {
+	return oneapi::tbb::make_filter<std::unique_ptr<mipmap_image>, pixel_block_data>(
 		oneapi::tbb::filter_mode::parallel, get_pixel_blocks{});
 }
 
