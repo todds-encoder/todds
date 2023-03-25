@@ -25,7 +25,7 @@ struct data {
 	todds::format::type format;
 	todds::format::quality quality;
 	bool mipmaps;
-	todds::filter::type filter;
+	todds::filter::type mipmap_filter;
 	std::size_t threads;
 	std::size_t depth;
 	bool overwrite;

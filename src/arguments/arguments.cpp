@@ -43,7 +43,8 @@ constexpr auto quality_arg = optional_argument("--quality", "Encoder quality lev
 
 constexpr auto no_mipmaps_arg = optional_arg{"--no-mipmaps", "-nm", "Disable mipmap generation."};
 
-constexpr auto filter_arg = optional_arg{"--filter", "-ft", "Filter used to resize images during mipmap calculations."};
+constexpr auto mipmap_filter_arg =
+	optional_arg{"--mipmap_filter", "-mf", "Filter used to resize images during mipmap calculations."};
 
 constexpr auto threads_arg =
 	optional_arg{"--threads", "-th", "Number of threads used by the parallel pipeline, must be in [1, {:d}]."};
@@ -80,7 +81,7 @@ consteval std::size_t argument_name_total_space() {
 	max_space = std::max(max_space, format_arg.name.size() + format_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, quality_arg.name.size() + quality_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, no_mipmaps_arg.name.size() + no_mipmaps_arg.shorter.size() + 2UL);
-	max_space = std::max(max_space, filter_arg.name.size() + filter_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, mipmap_filter_arg.name.size() + mipmap_filter_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, threads_arg.name.size() + threads_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, depth_arg.name.size() + depth_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, overwrite_arg.name.size() + overwrite_arg.shorter.size() + 2UL);
@@ -146,11 +147,10 @@ std::string get_help(std::size_t max_threads) {
 	print_argument_impl(ostream, quality_arg.shorter, quality_arg.name, quality_help);
 	print_optional_argument(ostream, no_mipmaps_arg);
 
-	print_optional_argument(ostream, filter_arg);
+	print_optional_argument(ostream, mipmap_filter_arg);
 	print_string_argument(ostream, todds::filter::name(todds::filter::type::lanczos),
 		"Lanczos interpolation over 8x8 neighborhood [Default].");
-	print_string_argument(
-		ostream, todds::filter::name(todds::filter::type::nearest), "Nearest neighbor interpolation.");
+	print_string_argument(ostream, todds::filter::name(todds::filter::type::nearest), "Nearest neighbor interpolation.");
 	print_string_argument(ostream, todds::filter::name(todds::filter::type::cubic), "Bicubic interpolation.");
 	print_string_argument(
 		ostream, todds::filter::name(todds::filter::type::area), "Resampling using pixel area relation.");
@@ -187,18 +187,18 @@ void format_from_str(std::string_view argument, todds::args::data& parsed_argume
 void filter_from_str(std::string_view argument, todds::args::data& parsed_arguments) {
 	const std::string argument_upper = boost::to_upper_copy(std::string{argument});
 	if (argument_upper == todds::filter::name(todds::filter::type::nearest)) {
-		parsed_arguments.filter = todds::filter::type::nearest;
+		parsed_arguments.mipmap_filter = todds::filter::type::nearest;
 	} else if (argument_upper == todds::filter::name(todds::filter::type::cubic)) {
-		parsed_arguments.filter = todds::filter::type::cubic;
+		parsed_arguments.mipmap_filter = todds::filter::type::cubic;
 	} else if (argument_upper == todds::filter::name(todds::filter::type::area)) {
-		parsed_arguments.filter = todds::filter::type::area;
+		parsed_arguments.mipmap_filter = todds::filter::type::area;
 	} else if (argument_upper == todds::filter::name(todds::filter::type::lanczos)) {
-		parsed_arguments.filter = todds::filter::type::lanczos;
+		parsed_arguments.mipmap_filter = todds::filter::type::lanczos;
 	} else if (argument_upper == todds::filter::name(todds::filter::type::nearest_exact)) {
-		parsed_arguments.filter = todds::filter::type::nearest_exact;
+		parsed_arguments.mipmap_filter = todds::filter::type::nearest_exact;
 	} else {
 		parsed_arguments.error = true;
-		parsed_arguments.text = fmt::format("Unsupported filter: {:s}", argument);
+		parsed_arguments.text = fmt::format("Unsupported mipmap_filter: {:s}", argument);
 	}
 }
 
@@ -232,7 +232,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 	// Set default values.
 	parsed_arguments.format = format::type::bc7;
 	parsed_arguments.mipmaps = true;
-	parsed_arguments.filter = filter::type::lanczos;
+	parsed_arguments.mipmap_filter = filter::type::lanczos;
 	const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
 	parsed_arguments.threads = max_threads;
 	parsed_arguments.depth = max_depth;
@@ -260,7 +260,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 		if (matches(argument, format_arg)) {
 			++index;
 			format_from_str(next_argument, parsed_arguments);
-		} else if (matches(argument, filter_arg)) {
+		} else if (matches(argument, mipmap_filter_arg)) {
 			++index;
 			filter_from_str(next_argument, parsed_arguments);
 		} else if (matches(argument, quality_arg)) {

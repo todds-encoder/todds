@@ -37,7 +37,7 @@ struct input {
 	bool vflip{};
 
 	/** Filter used to resize images during mipmap calculations. */
-	todds::filter::type filter{};
+	todds::filter::type mipmap_filter{};
 
 	/** Display progress messages. */
 	bool verbose{};

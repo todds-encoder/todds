@@ -148,7 +148,7 @@ void encode_as_dds(const input& input_data) {
 		impl::load_png_filter(input_data.paths, counter, force_finish, error_log) &
 		// Decode a PNG file into pixels. It will also calculate all mipmaps.
 		impl::decode_png_filter(
-			files_data, input_data.paths, input_data.vflip, input_data.mipmaps, input_data.filter, error_log) &
+			files_data, input_data.paths, input_data.vflip, input_data.mipmaps, input_data.mipmap_filter, error_log) &
 		// Convert images into pixel block images. The pixels of these images are rearranged into 4x4 blocks,
 		// ready for the DDS encoding stage.
 		impl::load_file_filter() &

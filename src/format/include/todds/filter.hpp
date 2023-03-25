@@ -33,4 +33,4 @@ enum class type : std::uint8_t {
 	return name_str;
 }
 
-} // namespace todds::filter
+} // namespace todds::mipmap_filter

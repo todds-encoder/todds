@@ -197,23 +197,23 @@ TEST_CASE("todds::arguments mipmaps", "[arguments]") {
 	}
 }
 
-TEST_CASE("todds::arguments filter", "[arguments]") {
-	SECTION("The default value of filter is lanczos.") {
+TEST_CASE("todds::arguments mipmap_filter", "[arguments]") {
+	SECTION("The default value of mipmap_filter is lanczos.") {
 		const auto arguments = get({binary, "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.filter == todds::filter::type::lanczos);
+		REQUIRE(arguments.mipmap_filter == todds::filter::type::lanczos);
 	}
 
 	SECTION("Parsing nearest_exact.") {
-		const auto arguments = get({binary, "--filter", "nearest_exact", "."});
+		const auto arguments = get({binary, "--mipmap_filter", "nearest_exact", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.filter == todds::filter::type::nearest_exact);
+		REQUIRE(arguments.mipmap_filter == todds::filter::type::nearest_exact);
 	}
 
 	SECTION("Parsing nearest_exact with alternate case.") {
-		const auto arguments = get({binary, "-ft", "nEArEst_ExAct", "."});
+		const auto arguments = get({binary, "-mf", "nEArEst_ExAct", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.filter == todds::filter::type::nearest_exact);
+		REQUIRE(arguments.mipmap_filter == todds::filter::type::nearest_exact);
 	}
 }
 
