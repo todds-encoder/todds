@@ -9,9 +9,12 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 	add_compile_definitions(UNICODE _UNICODE)
 	message(STATUS "Defining UNICODE and _UNICODE for MSVC")
 	add_compile_options("/utf-8")
-	message(STATUS "Adding /utf-8 option for MSVC ")
+	message(STATUS "Adding /utf-8 option for MSVC.")
 	add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN)
 	message(STATUS "Defining NOMINMAX and WIN32_LEAN_AND_MEAN for windows.h")
+	# Disabling RTTI yields better performance overall for todds.
+	add_compile_options(/GR-)
+	message(STATUS "Disabling Run-Time Type Information for MSVC.")
 endif ()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
