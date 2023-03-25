@@ -18,7 +18,6 @@ enum class type : std::uint8_t {
 	cubic = 2U,
 	area = 3U,
 	lanczos = 4U,
-	nearest_exact = 6U,
 };
 
 [[nodiscard]] constexpr std::string_view name(type flt) noexcept {
@@ -28,7 +27,6 @@ enum class type : std::uint8_t {
 	case type::cubic: name_str = "CUBIC"; break;
 	case type::area: name_str = "AREA"; break;
 	case type::lanczos: name_str = "LANCZOS"; break;
-	case type::nearest_exact: name_str = "NEAREST_EXACT"; break;
 	}
 	return name_str;
 }

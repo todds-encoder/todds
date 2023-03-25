@@ -154,8 +154,6 @@ std::string get_help(std::size_t max_threads) {
 	print_string_argument(ostream, todds::filter::name(todds::filter::type::cubic), "Bicubic interpolation.");
 	print_string_argument(
 		ostream, todds::filter::name(todds::filter::type::area), "Resampling using pixel area relation.");
-	print_string_argument(
-		ostream, todds::filter::name(todds::filter::type::nearest_exact), "Bit exact nearest neighbor interpolation.");
 
 	const std::string threads_help = fmt::format(threads_arg.help, max_threads);
 	print_argument_impl(ostream, threads_arg.shorter, threads_arg.name, threads_help);
@@ -194,8 +192,6 @@ void filter_from_str(std::string_view argument, todds::args::data& parsed_argume
 		parsed_arguments.mipmap_filter = todds::filter::type::area;
 	} else if (argument_upper == todds::filter::name(todds::filter::type::lanczos)) {
 		parsed_arguments.mipmap_filter = todds::filter::type::lanczos;
-	} else if (argument_upper == todds::filter::name(todds::filter::type::nearest_exact)) {
-		parsed_arguments.mipmap_filter = todds::filter::type::nearest_exact;
 	} else {
 		parsed_arguments.error = true;
 		parsed_arguments.text = fmt::format("Unsupported mipmap_filter: {:s}", argument);

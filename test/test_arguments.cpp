@@ -204,16 +204,16 @@ TEST_CASE("todds::arguments mipmap_filter", "[arguments]") {
 		REQUIRE(arguments.mipmap_filter == todds::filter::type::lanczos);
 	}
 
-	SECTION("Parsing nearest_exact.") {
-		const auto arguments = get({binary, "--mipmap_filter", "nearest_exact", "."});
+	SECTION("Parsing nearest.") {
+		const auto arguments = get({binary, "--mipmap_filter", "nearest", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.mipmap_filter == todds::filter::type::nearest_exact);
+		REQUIRE(arguments.mipmap_filter == todds::filter::type::nearest);
 	}
 
-	SECTION("Parsing nearest_exact with alternate case.") {
-		const auto arguments = get({binary, "-mf", "nEArEst_ExAct", "."});
+	SECTION("Parsing nearest with alternate case.") {
+		const auto arguments = get({binary, "-mf", "nEArEst", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.mipmap_filter == todds::filter::type::nearest_exact);
+		REQUIRE(arguments.mipmap_filter == todds::filter::type::nearest);
 	}
 }
 
