@@ -40,14 +40,13 @@ namespace todds::pipeline::impl {
 
 class decode_png final {
 public:
-	explicit decode_png(vector<file_data>& files_data, const paths_vector& paths, bool vflip, bool mipmaps,
-		filter::type filter, error_queue& errors) noexcept
+	explicit decode_png(
+		vector<file_data>& files_data, const paths_vector& paths, bool vflip, bool mipmaps, error_queue& errors) noexcept
 		: _files_data{files_data}
 		, _paths{paths}
 		, _vflip{vflip}
 		, _errors{errors}
-		, _mipmaps{mipmaps}
-		, _filter{filter} {}
+		, _mipmaps{mipmaps} {}
 
 	std::unique_ptr<mipmap_image> operator()(const png_file& file) const {
 		std::unique_ptr<mipmap_image> result{};
@@ -60,7 +59,6 @@ public:
 				// Load the first image of the mipmap image and reserve the memory for the rest of the images.
 				result = png::decode(file.file_index, path, file.buffer, _vflip, file_data.width, file_data.height, _mipmaps);
 				file_data.mipmaps = result->mipmap_count();
-				process_image(*result, _filter);
 			} catch (const std::runtime_error& exc) {
 				_errors.push(fmt::format("PNG Decoding error {:s} -> {:s}", path, exc.what()));
 			}
@@ -75,13 +73,12 @@ private:
 	bool _vflip;
 	error_queue& _errors;
 	bool _mipmaps;
-	filter::type _filter;
 };
 
 oneapi::tbb::filter<png_file, std::unique_ptr<mipmap_image>> decode_png_filter(vector<file_data>& files_data,
-	const paths_vector& paths, bool vflip, bool mipmaps, filter::type filter, error_queue& errors) {
+	const paths_vector& paths, bool vflip, bool mipmaps, error_queue& errors) {
 	return oneapi::tbb::make_filter<png_file, std::unique_ptr<mipmap_image>>(
-		oneapi::tbb::filter_mode::serial_in_order, decode_png(files_data, paths, vflip, mipmaps, filter, errors));
+		oneapi::tbb::filter_mode::serial_in_order, decode_png(files_data, paths, vflip, mipmaps, errors));
 }
 
 } // namespace todds::pipeline::impl

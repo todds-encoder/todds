@@ -10,6 +10,8 @@ add_library(todds_pipeline STATIC
 	filter_decode_png.cpp
 	filter_encode_dds.hpp
 	filter_encode_dds.cpp
+	filter_generate_mipmaps.hpp
+	filter_generate_mipmaps.cpp
 	filter_load_png.hpp
 	filter_load_png.cpp
 	filter_pixel_blocks.hpp
@@ -17,7 +19,7 @@ add_library(todds_pipeline STATIC
 	filter_save_dds.hpp
 	filter_save_dds.cpp
 	pipeline.cpp
-	)
+		filter_generate_mipmaps.cpp filter_generate_mipmaps.hpp)
 
 target_include_directories(todds_pipeline PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include

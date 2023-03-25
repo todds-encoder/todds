@@ -20,6 +20,7 @@
 
 #include "filter_decode_png.hpp"
 #include "filter_encode_dds.hpp"
+#include "filter_generate_mipmaps.hpp"
 #include "filter_load_png.hpp"
 #include "filter_pixel_blocks.hpp"
 #include "filter_save_dds.hpp"
@@ -109,6 +110,47 @@ void error_reporting(otbb::concurrent_queue<std::string>& error_log, std::atomic
 
 namespace todds::pipeline {
 
+otbb::filter<void, void> pipeline_filters(const input& input_data, std::atomic<std::size_t>& counter,
+	std::atomic<bool>& force_finish, otbb::concurrent_queue<std::string>& error_log,
+	vector<impl::file_data>& files_data) {
+	return // Load PNG files into memory, one by one.
+		impl::load_png_filter(input_data.paths, counter, force_finish, error_log) &
+		// Decode a PNG file into pixels.
+		impl::decode_png_filter(files_data, input_data.paths, input_data.vflip, input_data.mipmaps, error_log) &
+		// Convert images into pixel block images. The pixels of these images are rearranged into 4x4 blocks,
+		// ready for the DDS encoding stage.
+		impl::pixel_blocks_filter() &
+		// Encode pixel block images as DDS files.
+		impl::encode_dds_filter(files_data, input_data.format, input_data.quality) &
+		// Save DDS files back into the file system, one by one.
+		impl::save_dds_filter(files_data, input_data.paths);
+}
+
+otbb::filter<void, void> pipeline_filters_mipmaps(const input& input_data, std::atomic<std::size_t>& counter,
+	std::atomic<bool>& force_finish, otbb::concurrent_queue<std::string>& error_log,
+	vector<impl::file_data>& files_data) {
+	return // Load PNG files into memory, one by one.
+		impl::load_png_filter(input_data.paths, counter, force_finish, error_log) &
+		// Decode a PNG file into pixels.
+		impl::decode_png_filter(files_data, input_data.paths, input_data.vflip, input_data.mipmaps, error_log) &
+		// Generate all mipmaps.
+		impl::generate_mipmaps_filter(input_data.mipmap_filter) &
+		// Convert images into pixel block images. The pixels of these images are rearranged into 4x4 blocks,
+		// ready for the DDS encoding stage.
+		impl::pixel_blocks_filter() &
+		// Encode pixel block images as DDS files.
+		impl::encode_dds_filter(files_data, input_data.format, input_data.quality) &
+		// Save DDS files back into the file system, one by one.
+		impl::save_dds_filter(files_data, input_data.paths);
+}
+
+otbb::filter<void, void> generate_pipeline_filters(const input& input_data, std::atomic<std::size_t>& counter,
+	std::atomic<bool>& force_finish, otbb::concurrent_queue<std::string>& error_log,
+	vector<impl::file_data>& files_data) {
+	const auto gen_func = input_data.mipmaps ? pipeline_filters_mipmaps : pipeline_filters;
+	return gen_func(input_data, counter, force_finish, error_log, files_data);
+}
+
 void encode_as_dds(const input& input_data) {
 	// Initialize encoders.
 	switch (input_data.format) {
@@ -144,18 +186,7 @@ void encode_as_dds(const input& input_data) {
 	}
 
 	const otbb::filter<void, void> filters =
-		// Load PNG files into memory, one by one.
-		impl::load_png_filter(input_data.paths, counter, force_finish, error_log) &
-		// Decode a PNG file into pixels. It will also calculate all mipmaps.
-		impl::decode_png_filter(
-			files_data, input_data.paths, input_data.vflip, input_data.mipmaps, input_data.mipmap_filter, error_log) &
-		// Convert images into pixel block images. The pixels of these images are rearranged into 4x4 blocks,
-		// ready for the DDS encoding stage.
-		impl::load_file_filter() &
-		// Encode pixel block images as DDS files.
-		impl::encode_dds_filter(files_data, input_data.format, input_data.quality) &
-		// Save DDS files back into the file system, one by one.
-		impl::save_dds_filter(files_data, input_data.paths);
+		generate_pipeline_filters(input_data, counter, force_finish, error_log, files_data);
 
 	// Sending the Ctrl+C signal will stop loading new files, but files being currently processed will carry on.
 	cancel_encoding_log = &error_log;

@@ -20,6 +20,6 @@ struct pixel_block_data {
 	std::size_t file_index;
 };
 
-oneapi::tbb::filter<std::unique_ptr<mipmap_image>, pixel_block_data> load_file_filter();
+oneapi::tbb::filter<std::unique_ptr<mipmap_image>, pixel_block_data> pixel_blocks_filter();
 
 } // namespace todds::pipeline::impl

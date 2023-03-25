@@ -17,7 +17,7 @@ public:
 	}
 };
 
-oneapi::tbb::filter<std::unique_ptr<mipmap_image>, pixel_block_data> load_file_filter() {
+oneapi::tbb::filter<std::unique_ptr<mipmap_image>, pixel_block_data> pixel_blocks_filter() {
 	return oneapi::tbb::make_filter<std::unique_ptr<mipmap_image>, pixel_block_data>(
 		oneapi::tbb::filter_mode::parallel, get_pixel_blocks{});
 }
