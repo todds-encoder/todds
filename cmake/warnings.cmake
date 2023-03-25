@@ -102,6 +102,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 		/w14906      # String literal cast to 'LPWSTR'.
 		/w14928      # Illegal copy-initialization; applied more than one user-defined conversion.
 		/analyze     # Code analysis.
+		/wd4530      # Allow code that may raise exceptions when exceptions are disabled.
 		/wd6011      # Triggered by OpenCV.
 		/wd6201      # Triggered by OpenCV.
 		/wd6239      # Triggered by code inside of fmt.
