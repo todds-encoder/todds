@@ -16,15 +16,15 @@
 namespace todds {
 
 /** Allocator to use in todds types. */
-template<typename Type>
-using allocator =
 #if defined(TODDS_TBB_ALLOCATOR)
-	tbb::scalable_allocator<Type>
+template<typename Type>
+using allocator = tbb::scalable_allocator<Type>;
 #elif defined(TODDS_MIMALLOC_ALLOCATOR)
-	mi_stl_allocator<Type>
+template<typename Type>
+using allocator = mi_stl_allocator<Type>;
 #else
-	std::allocator<Type>
-#endif //
-	;
+template<typename Type>
+using allocator = std::allocator<Type>;
+#endif
 
 } // namespace todds
