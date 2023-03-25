@@ -182,20 +182,22 @@ void format_from_str(std::string_view argument, todds::args::data& parsed_argume
 	}
 }
 
-void filter_from_str(std::string_view argument, todds::args::data& parsed_arguments) {
+todds::filter::type filter_from_str(std::string_view argument, todds::args::data& parsed_arguments) {
 	const std::string argument_upper = boost::to_upper_copy(std::string{argument});
+	todds::filter::type value = todds::filter::type::lanczos;
 	if (argument_upper == todds::filter::name(todds::filter::type::nearest)) {
-		parsed_arguments.mipmap_filter = todds::filter::type::nearest;
+		value = todds::filter::type::nearest;
 	} else if (argument_upper == todds::filter::name(todds::filter::type::cubic)) {
-		parsed_arguments.mipmap_filter = todds::filter::type::cubic;
+		value = todds::filter::type::cubic;
 	} else if (argument_upper == todds::filter::name(todds::filter::type::area)) {
-		parsed_arguments.mipmap_filter = todds::filter::type::area;
+		value = todds::filter::type::area;
 	} else if (argument_upper == todds::filter::name(todds::filter::type::lanczos)) {
-		parsed_arguments.mipmap_filter = todds::filter::type::lanczos;
+		value = todds::filter::type::lanczos;
 	} else {
 		parsed_arguments.error = true;
 		parsed_arguments.text = fmt::format("Unsupported mipmap_filter: {:s}", argument);
 	}
+	return value;
 }
 
 template<typename Type>
@@ -258,7 +260,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 			format_from_str(next_argument, parsed_arguments);
 		} else if (matches(argument, mipmap_filter_arg)) {
 			++index;
-			filter_from_str(next_argument, parsed_arguments);
+			parsed_arguments.mipmap_filter = filter_from_str(next_argument, parsed_arguments);
 		} else if (matches(argument, quality_arg)) {
 			++index;
 			unsigned int value{};
