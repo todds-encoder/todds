@@ -217,6 +217,70 @@ TEST_CASE("todds::arguments mipmap_filter", "[arguments]") {
 	}
 }
 
+TEST_CASE("todds::arguments scale", "[arguments]") {
+	SECTION("The default value of scale is 100%.") {
+		const auto arguments = get({binary, "."});
+		REQUIRE(arguments.scale == 100U);
+	}
+
+	SECTION("Scale is not a number") {
+		const auto arguments = get({binary, "--scale", "not_a_number", "."});
+		REQUIRE(has_error(arguments));
+	}
+
+	SECTION("Scale is negative") {
+		const auto arguments = get({binary, "--scale", "-4", "."});
+		REQUIRE(has_error(arguments));
+	}
+
+	SECTION("Scale is zero") {
+		const auto arguments = get({binary, "--scale", "0", "."});
+		REQUIRE(is_valid(arguments));
+		REQUIRE(arguments.scale == 1UL);
+	}
+
+	SECTION("Scale is too large.") {
+		const auto arguments = get({binary, "--scale", std::to_string(5000U), "."});
+		REQUIRE(is_valid(arguments));
+		REQUIRE(arguments.scale == 1000U);
+	}
+
+	SECTION("Scale is too large to be parsed") {
+		const auto arguments =
+			get({binary, "--scale", "4444444444444444444444444444444444444444444444444444444444444", "."});
+		REQUIRE(has_error(arguments));
+	}
+
+	SECTION("Valid number of threads") {
+		const auto arguments = get({binary, "--scale", std::to_string(150U), "."});
+		REQUIRE(is_valid(arguments));
+		REQUIRE(arguments.scale == 150U);
+		const auto shorter = get({binary, "-sc", std::to_string(150U), "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(shorter.scale == 150U);
+	}
+}
+
+TEST_CASE("todds::arguments scale_filter", "[arguments]") {
+	SECTION("The default value of scale_filter is lanczos.") {
+		const auto arguments = get({binary, "."});
+		REQUIRE(!has_error(arguments));
+		REQUIRE(arguments.scale_filter == todds::filter::type::lanczos);
+	}
+
+	SECTION("Parsing nearest.") {
+		const auto arguments = get({binary, "--scale_filter", "nearest", "."});
+		REQUIRE(!has_error(arguments));
+		REQUIRE(arguments.scale_filter == todds::filter::type::nearest);
+	}
+
+	SECTION("Parsing nearest with alternate case.") {
+		const auto arguments = get({binary, "-sf", "nEArEst", "."});
+		REQUIRE(!has_error(arguments));
+		REQUIRE(arguments.scale_filter == todds::filter::type::nearest);
+	}
+}
+
 TEST_CASE("todds::arguments threads", "[arguments]") {
 	const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
 	SECTION("The default value of threads is determined by the oneTBB library.") {
