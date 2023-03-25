@@ -39,7 +39,7 @@ void set_buffer(spng_context& context, const std::string& png, std::span<const s
 	spng_set_crc_action(context.get(), SPNG_CRC_USE, SPNG_CRC_USE);
 
 	/* Set memory usage limits for storing standard and unknown chunks. */
-	constexpr std::size_t limit = 1024UL * 1024UL * 64UL;
+	constexpr std::size_t limit = 1024ULL * 1024ULL * 64ULL;
 	spng_set_chunk_limits(context.get(), limit, limit);
 
 	if (const int ret = spng_set_png_buffer(context.get(), buffer.data(), buffer.size()); ret != 0) {
