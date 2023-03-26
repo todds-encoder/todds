@@ -21,7 +21,7 @@ add_library(todds_pipeline STATIC
 		filter_save_dds.hpp
 		filter_save_dds.cpp
 		pipeline.cpp
-		)
+		filter_scale_image.cpp filter_scale_image.hpp)
 
 target_include_directories(todds_pipeline PUBLIC
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
