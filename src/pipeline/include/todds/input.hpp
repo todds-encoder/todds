@@ -40,10 +40,10 @@ struct input {
 	todds::filter::type mipmap_filter{};
 
 	/** Image scaling in %. */
-	uint16_t scale;
+	uint16_t scale{};
 
 	/** Filter used to resize images during scaling. */
-	todds::filter::type scale_filter;
+	todds::filter::type scale_filter{};
 
 	/** Display progress messages. */
 	bool verbose{};
