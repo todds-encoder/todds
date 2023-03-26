@@ -15,7 +15,7 @@
 
 namespace todds::pipeline::impl {
 
-oneapi::tbb::filter<void, std::unique_ptr<mipmap_image>> png_decoding_filters(const input& input_data,
+inline oneapi::tbb::filter<void, std::unique_ptr<mipmap_image>> png_decoding_filters(const input& input_data,
 	std::atomic<std::size_t>& counter, std::atomic<bool>& force_finish,
 	oneapi::tbb::concurrent_queue<std::string>& error_log, vector<impl::file_data>& files_data) {
 	// If scale and mipmaps are enabled, space for mipmaps will be allocated by the scale filter.
@@ -26,7 +26,7 @@ oneapi::tbb::filter<void, std::unique_ptr<mipmap_image>> png_decoding_filters(co
 		impl::decode_png_filter(files_data, input_data.paths, input_data.vflip, should_allocate_mipmaps, error_log);
 }
 
-oneapi::tbb::filter<std::unique_ptr<mipmap_image>, void> dds_encoding_filters(
+inline oneapi::tbb::filter<std::unique_ptr<mipmap_image>, void> dds_encoding_filters(
 	const input& input_data, vector<impl::file_data>& files_data) {
 	return
 		// Convert images into pixel block images. The pixels of these images are rearranged into 4x4 blocks,
