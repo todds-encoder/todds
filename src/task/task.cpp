@@ -54,8 +54,10 @@ void process_directory(paths_vector& paths, const fs::path& input, const fs::pat
 	for (fs::recursive_directory_iterator itr{dir}; itr != fs::recursive_directory_iterator{}; ++itr) {
 		const fs::path& current_input = itr->path();
 		if (is_valid_source(current_input, regex, scratch)) {
-			const fs::path output_current = current_input.parent_path();
-			if (different_output) { current_output = output / fs::relative(current_input.parent_path(), input); }
+			if (different_output) {
+				const auto relative = fs::relative(current_input.parent_path(), input);
+				if (!relative.filename_is_dot()) { current_output = output / relative; }
+			}
 			const fs::path dds_path =
 				to_dds_path(current_input, different_output ? current_output : current_input.parent_path());
 			add_files(current_input, dds_path, paths, overwrite);
@@ -72,6 +74,7 @@ paths_vector get_paths(const todds::args::data& arguments) {
 	const fs::path& input = arguments.input;
 	const bool different_output = static_cast<bool>(arguments.output);
 	const fs::path output = different_output ? arguments.output.value() : input.parent_path();
+
 	const bool overwrite = arguments.overwrite;
 	const auto depth = arguments.depth;
 
