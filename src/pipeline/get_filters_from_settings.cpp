@@ -42,8 +42,8 @@ oneapi::tbb::filter<void, void> get_filters_from_settings(const input& input_dat
 	std::atomic<bool>& force_finish, oneapi::tbb::concurrent_queue<std::string>& error_log,
 	vector<impl::file_data>& files_data) {
 	auto prepare_image = png_decoding_filters(input_data, counter, force_finish, error_log, files_data);
-	if (input_data.scale != 100U) {
-		prepare_image &= impl::scale_image_filter(files_data, input_data.mipmaps, input_data.scale, input_data.scale_filter);
+	if (input_data.scale != 100U || input_data.max_size > 0U) {
+		prepare_image &= impl::scale_image_filter(files_data, input_data.mipmaps, input_data.scale, input_data.max_size, input_data.scale_filter);
 	}
 	if (input_data.mipmaps) { prepare_image &= impl::generate_mipmaps_filter(input_data.mipmap_filter); }
 	return prepare_image & dds_encoding_filters(input_data, files_data);

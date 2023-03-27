@@ -27,6 +27,7 @@ struct data {
 	bool mipmaps;
 	todds::filter::type mipmap_filter;
 	uint16_t scale;
+	uint32_t max_size;
 	todds::filter::type scale_filter;
 	std::size_t threads;
 	std::size_t depth;

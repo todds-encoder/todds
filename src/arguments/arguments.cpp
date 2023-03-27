@@ -48,8 +48,11 @@ constexpr auto mipmap_filter_arg =
 
 constexpr auto scale_arg = optional_arg{"--scale", "-sc", "Scale image size by a value given in %."};
 
+constexpr auto max_size_arg = optional_arg{
+	"--max-size", "-ms", "Downscale images with a width or height larger than this threshold to fit into it."};
+
 constexpr auto scale_filter_arg =
-	optional_arg{"--scale_filter", "-sf", "Filter used when the scale parameter is selected."};
+	optional_arg{"--scale_filter", "-sf", "Filter used to scale images when using the scale or max_size parameters."};
 
 constexpr auto threads_arg =
 	optional_arg{"--threads", "-th", "Number of threads used by the parallel pipeline, must be in [1, {:d}]."};
@@ -88,6 +91,7 @@ consteval std::size_t argument_name_total_space() {
 	max_space = std::max(max_space, no_mipmaps_arg.name.size() + no_mipmaps_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, mipmap_filter_arg.name.size() + mipmap_filter_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, scale_arg.name.size() + scale_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, max_size_arg.name.size() + max_size_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, scale_filter_arg.name.size() + scale_filter_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, threads_arg.name.size() + threads_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, depth_arg.name.size() + depth_arg.shorter.size() + 2UL);
@@ -163,6 +167,7 @@ std::string get_help(std::size_t max_threads) {
 		ostream, todds::filter::name(todds::filter::type::area), "Resampling using pixel area relation.");
 
 	print_optional_argument(ostream, scale_arg);
+	print_optional_argument(ostream, max_size_arg);
 	print_optional_argument(ostream, scale_filter_arg);
 	print_string_argument(ostream, todds::filter::name(todds::filter::type::lanczos),
 		"Lanczos interpolation over 8x8 neighborhood [Default].");
@@ -298,6 +303,9 @@ data get(const todds::vector<std::string_view>& arguments) {
 			++index;
 			argument_from_str(scale_arg.name, next_argument, parsed_arguments.scale, parsed_arguments);
 			parsed_arguments.scale = std::clamp<std::uint16_t>(parsed_arguments.scale, 1U, 1000U);
+		} else if (matches(argument, max_size_arg)) {
+			++index;
+			argument_from_str(max_size_arg.name, next_argument, parsed_arguments.max_size, parsed_arguments);
 		} else if (matches(argument, threads_arg)) {
 			++index;
 			argument_from_str(threads_arg.name, next_argument, parsed_arguments.threads, parsed_arguments);

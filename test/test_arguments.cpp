@@ -251,13 +251,45 @@ TEST_CASE("todds::arguments scale", "[arguments]") {
 		REQUIRE(has_error(arguments));
 	}
 
-	SECTION("Valid number of threads") {
+	SECTION("Valid scale value") {
 		const auto arguments = get({binary, "--scale", std::to_string(150U), "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.scale == 150U);
 		const auto shorter = get({binary, "-sc", std::to_string(150U), "."});
 		REQUIRE(is_valid(shorter));
 		REQUIRE(shorter.scale == 150U);
+	}
+}
+
+TEST_CASE("todds::arguments max_size", "[arguments]") {
+	SECTION("The default value of max_size is 0, which means default.") {
+		const auto arguments = get({binary, "."});
+		REQUIRE(arguments.max_size == 0U);
+	}
+
+	SECTION("max_size is not a number") {
+		const auto arguments = get({binary, "--max-size", "not_a_number", "."});
+		REQUIRE(has_error(arguments));
+	}
+
+	SECTION("max_size is negative") {
+		const auto arguments = get({binary, "--max-size", "-4", "."});
+		REQUIRE(has_error(arguments));
+	}
+
+	SECTION("max_size is too large to be parsed") {
+		const auto arguments =
+			get({binary, "--max-size", "4444444444444444444444444444444444444444444444444444444444444", "."});
+		REQUIRE(has_error(arguments));
+	}
+
+	SECTION("Valid max size value") {
+		const auto arguments = get({binary, "--max-size", std::to_string(150U), "."});
+		REQUIRE(is_valid(arguments));
+		REQUIRE(arguments.max_size == 150U);
+		const auto shorter = get({binary, "-ms", std::to_string(150U), "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(shorter.max_size == 150U);
 	}
 }
 

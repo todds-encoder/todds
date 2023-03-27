@@ -42,7 +42,10 @@ struct input {
 	/** Image scaling in %. */
 	uint16_t scale{};
 
-	/** Filter used to resize images during scaling. */
+	/** Maximum width and height of encoded images in pixels. */
+	uint32_t max_size{};
+
+	/** Filter used to resize images during scaling or max size changes. */
 	todds::filter::type scale_filter{};
 
 	/** Display progress messages. */
