@@ -8,6 +8,7 @@
 #include "todds/dds.hpp"
 
 #include <cassert>
+#include <limits>
 
 namespace todds::pipeline::impl {
 
@@ -45,9 +46,12 @@ private:
 
 // When using BC1_ALPHA_BC7, this function determines if a file should be encoded as BC7.
 static bool has_alpha(const todds::pixel_block_image& img) {
-	for (const std::uint32_t pixel : img) {
-		// Pixels are encoded as RGBA.
-		if ((pixel % 256) < 255) { return true; }
+	const auto* current_alpha = reinterpret_cast<const std::uint8_t*>(img.data()) + 3U;
+	const auto* end = reinterpret_cast<const std::uint8_t*>(&img.back());
+
+	while (current_alpha <= end) {
+		if (*current_alpha != std::numeric_limits<std::uint8_t>::max()) { return true; }
+		current_alpha += image::bytes_per_pixel;
 	}
 
 	return false;
@@ -65,7 +69,7 @@ public:
 		_files_data[pixel_data.file_index].format = format;
 
 		return {format == todds::format::type::bc7 ? todds::dds::bc7_encode(_params, pixel_data.image) :
-																									 todds::dds::bc1_encode(_quality, pixel_data.image),
+																								 todds::dds::bc1_encode(_quality, pixel_data.image),
 			pixel_data.file_index};
 	}
 
