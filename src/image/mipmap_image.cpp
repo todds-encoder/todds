@@ -7,6 +7,7 @@
 #include <cassert>
 
 namespace todds {
+
 mipmap_image::mipmap_image(std::size_t file_index, std::size_t width, std::size_t height, bool mipmaps)
 	: _file_index{file_index}
 	, _data{}
@@ -40,6 +41,21 @@ mipmap_image::mipmap_image(std::size_t file_index, std::size_t width, std::size_
 		memory_start += required_memory;
 	}
 
+	assert(memory_start == _data.size());
+}
+
+mipmap_image::mipmap_image(const mipmap_image& other)
+	: _file_index{other.file_index()}
+	, _data(other._data.size())
+	, _images{} {
+	std::size_t memory_start = 0ULL;
+	for (const auto& original_img : other._images) {
+		_images.emplace_back(original_img.width(), original_img.height());
+		image& current = _images.back();
+		const std::size_t required_memory = current.width() * current.height() * image::bytes_per_pixel;
+		current.set_data(std::span<std::uint8_t>(&_data[memory_start], required_memory));
+		memory_start += required_memory;
+	}
 	assert(memory_start == _data.size());
 }
 

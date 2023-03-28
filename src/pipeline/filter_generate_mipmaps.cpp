@@ -8,27 +8,26 @@
 #include "todds/filter.hpp"
 #include "todds/mipmap_image.hpp"
 
-#include <oneapi/tbb/parallel_for.h>
 #include <opencv2/imgproc.hpp>
 
 namespace {
 
 void process_image(todds::mipmap_image& mipmap_img, todds::filter::type filter) {
-	// constexpr std::uint8_t default_alpha_reference = 245U;
-	// const float desired_coverage = todds::alpha_coverage(default_alpha_reference, original_image);
-	const auto input = static_cast<cv::Mat>(mipmap_img.get_image(0UL));
+	// Used to store images with gaussian blur applied.
+	todds::mipmap_image mipmap_blur(mipmap_img);
 
-	using blocked_range = oneapi::tbb::blocked_range<size_t>;
-	oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(1UL, mipmap_img.mipmap_count()),
-		[&mipmap_img, &input, filter](const blocked_range& range) {
-			for (std::size_t mipmap_index = range.begin(); mipmap_index < range.end(); ++mipmap_index) {
-				todds::image& current_image = mipmap_img.get_image(mipmap_index);
-				auto output = static_cast<cv::Mat>(current_image);
-				cv::resize(input, output, output.size(), 0, 0, static_cast<int>(filter));
-				// ToDo Solve alpha coverage issues on Windows
-				// todds::scale_alpha_to_coverage(desired_coverage, default_alpha_reference, current_image);
-			}
-		});
+	for (std::size_t mipmap_index = 1UL; mipmap_index < mipmap_img.mipmap_count(); ++mipmap_index) {
+		// Calculate gaussian blur of the previous stage.
+		auto& input_current = mipmap_img.get_image(mipmap_index - 1UL);
+		auto& blur_current = mipmap_blur.get_image(mipmap_index - 1UL);
+		auto blur_mat = static_cast<cv::Mat>(blur_current);
+		cv::GaussianBlur(static_cast<cv::Mat>(input_current), blur_mat, {3, 3}, 0.0, 0.0);
+
+		// The current mipmap level is calculated by resizing the blurred version of the previous image.
+		auto& output_current = mipmap_img.get_image(mipmap_index);
+		auto output_mat = static_cast<cv::Mat>(output_current);
+		cv::resize(blur_mat, output_mat, output_mat.size(), 0, 0, static_cast<int>(filter));
+	}
 }
 
 } // Anonymous namespace

@@ -17,7 +17,11 @@ namespace todds {
 class mipmap_image final {
 public:
 	mipmap_image(std::size_t file_index, std::size_t width, std::size_t height, bool mipmaps);
-	mipmap_image(const mipmap_image&) = delete;
+	/**
+	 * Creates a mipmap image of the same size and with the same mipmaps, but it does not copy data.
+	 * @param other Image to copy.
+	 */
+	mipmap_image(const mipmap_image& other);
 	mipmap_image(mipmap_image&&) noexcept = default;
 	mipmap_image& operator=(const mipmap_image&) = delete;
 	mipmap_image& operator=(mipmap_image&&) noexcept = default;
