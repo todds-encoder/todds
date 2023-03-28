@@ -13,7 +13,6 @@ These tests are always performed on Windows because the [Texconv](https://github
 All encoders are set to use the BC7 format and to create mipmaps.
 
 * todds: Compiled following these steps: https://github.com/joseasoler/todds/wiki/Static-builds-on-Windows. Uses Lanczos interpolation to calculate mipmaps.
-* [NVIDIA Texture Tools](https://developer.nvidia.com/nvidia-texture-tools-exporter): Uses Kaiser to create mipmaps. Currently it does not use nvbatchcompress, as it generates incorrect images when the datasets contains a large number of images.
 * [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv): Uses WIC to create mipmaps.
 
 ### Tools
@@ -48,26 +47,19 @@ git clone https://github.com/biomes-team/BiomesPrehistoric.git
 python .\flatten.py [Path to checkout]\BiomesPrehistoric\Textures\ [Path to datasets]\01_biomes_prehistoric
 ```
 
-### [Tiles 101 2K](https://ambientcg.com/view?id=Tiles101)
+### [AmbientCG 2K](https://ambientcg.com/view?id=Tiles101)
 
-This dataset contains six 2K textures, including normal, displacement and roughness.
-
-```
-Invoke-WebRequest https://ambientcg.com/get?file=Tiles101_2K-PNG.zip -OutFile 02_Tiles101_2K.zip
-Expand-Archive .\02_Tiles101_2K.zip -DestinationPath 02_Tiles101_2K
-rm .\02_Tiles101_2K\*.usd*
-rm .\02_Tiles101_2K\Tiles101_PREVIEW.jpg
-```
-
-### [Tiles 101 2K](https://ambientcg.com/view?id=Tiles101)
-
-This dataset contains six 2K textures, including normal, displacement and roughness.
+This dataset contains multiple 2K textures, including normal, displacement and roughness.
 
 ```
-Invoke-WebRequest https://ambientcg.com/get?file=Tiles101_2K-PNG.zip -OutFile 02_Tiles101_2K.zip
-Expand-Archive .\02_Tiles101_2K.zip -DestinationPath 02_Tiles101_2K
-rm .\02_Tiles101_2K\*.usd*
-rm .\02_Tiles101_2K\Tiles101_PREVIEW.jpg
+Invoke-WebRequest https://ambientcg.com/get?file=Tiles101_2K-PNG.zip -OutFile Tiles101_2K.zip
+Expand-Archive .\Tiles101_2K.zip -DestinationPath 02_ambientCG_2K
+Invoke-WebRequest https://ambientcg.com/get?file=Ground054_2K-PNG.zip -OutFile Ground054_2K.zip
+Expand-Archive .\Ground054_2K.zip -DestinationPath 02_ambientCG_2K
+Invoke-WebRequest https://ambientcg.com/get?file=MetalPlates006_2K-PNG.zip -OutFile MetalPlates006_2K.zip
+Expand-Archive .\MetalPlates006_2K.zip -DestinationPath 02_ambientCG_2K
+rm .\02_ambientCG_2K\*.usd*
+rm .\02_ambientCG_2K\*.jpg
 ```
 
 ### [Metal Plates 014 4K](https://ambientcg.com/view?id=MetalPlates014)
@@ -94,7 +86,7 @@ rm .\04_Bricks075A_8K\Bricks075A_PREVIEW.jpg
 
 ### [Webb Space Telescope - “Cosmic Cliffs” in the Carina Nebula](https://webbtelescope.org/contents/media/images/2022/031/01G77PKB8NKR7S8Z6HBXMYATGJ)
 
-This dataset contains a single, huge image. todds design makes it more performant processing multiple files of small or medium size at once. This dataset checks if the performance of the encoder suffers when encountering the opposite case.
+This dataset contains a single, huge image. todds performs better when processing multiple files of small or medium size at once. This dataset checks how much the performance of the encoder suffers when encountering the opposite case.
 
 ```
 mkdir 05_cosmic_cliffs
