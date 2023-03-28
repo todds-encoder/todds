@@ -197,7 +197,7 @@ def texconv_execute(input_path, output_path):
 def batch_encode(arguments, input_files):
     current_module = sys.modules[__name__]
     csv_out = csv.writer(sys.stdout, lineterminator='\n')
-    csv_out.writerow(['Batch conversion', 'Time (ns)'])
+    csv_out.writerow(['Batch conversion', 'Time (s)'])
 
     for tool, data in encoder_data.items():
         if getattr(arguments, tool):
@@ -214,14 +214,14 @@ def batch_encode(arguments, input_files):
                 for process in processes:
                     process.wait()
 
-            batch_time = time.perf_counter_ns() - batch_start
+            batch_time = '{:.2f}'.format(round((time.perf_counter_ns() - batch_start) / 1000000000.0, 2))
             csv_out.writerow([tool, batch_time])
 
 
 def files_encode(arguments, input_files):
     current_module = sys.modules[__name__]
     csv_out = csv.writer(sys.stdout, lineterminator='\n')
-    csv_out.writerow(['File', 'Tool', 'Time (ns)', 'Size (%)'])
+    csv_out.writerow(['File', 'Tool', 'Time (s)', 'Size (%)'])
     for tool, data in encoder_data.items():
         if getattr(arguments, tool):
             output_path = os.path.join(args.output, tool)
@@ -232,7 +232,7 @@ def files_encode(arguments, input_files):
                 output_file = output_file_path(input_file, output_path) + '.dds'
                 execute_start = time.perf_counter_ns()
                 execute_func(input_file, output_file if data.filepath else output_path).wait()
-                execute_time = time.perf_counter_ns() - execute_start
+                execute_time = '{:.2f}'.format(round((time.perf_counter_ns() - execute_start) / 1000000000.0, 2))
                 input_file_size = os.path.getsize(input_file)
                 output_file_size = os.path.getsize(output_file)
                 size_percentage = (100.0 * output_file_size) / input_file_size
