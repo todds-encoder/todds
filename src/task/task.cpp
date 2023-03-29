@@ -124,6 +124,7 @@ void run(const args::data& arguments) {
 	input_data.quality = arguments.quality;
 	input_data.vflip = arguments.vflip;
 	input_data.mipmap_filter = arguments.mipmap_filter;
+	input_data.mipmap_blur = arguments.mipmap_blur;
 	input_data.scale = arguments.scale;
 	input_data.max_size = arguments.max_size;
 	input_data.scale_filter = arguments.scale_filter;

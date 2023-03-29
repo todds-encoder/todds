@@ -39,6 +39,9 @@ struct input {
 	/** Filter used to resize images during mipmap calculations. */
 	todds::filter::type mipmap_filter{};
 
+	/** Blur applied during mipmap calculations. Defaults to 0.55. */
+	double mipmap_blur{};
+
 	/** Image scaling in %. */
 	uint16_t scale{};
 
