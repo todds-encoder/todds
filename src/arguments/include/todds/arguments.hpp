@@ -26,6 +26,7 @@ struct data {
 	todds::format::quality quality;
 	bool mipmaps;
 	todds::filter::type mipmap_filter;
+	double mipmap_blur;
 	uint16_t scale;
 	uint32_t max_size;
 	todds::filter::type scale_filter;

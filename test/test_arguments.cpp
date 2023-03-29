@@ -217,6 +217,38 @@ TEST_CASE("todds::arguments mipmap_filter", "[arguments]") {
 	}
 }
 
+TEST_CASE("todds::arguments mipmap_blur", "[arguments]") {
+	SECTION("The default value of mipmap_blur is between 0 and 1.") {
+		const auto arguments = get({binary, "."});
+		REQUIRE(arguments.mipmap_blur > 0.0);
+		REQUIRE(arguments.mipmap_blur <= 1.0);
+	}
+
+	SECTION("mipmap_blur is not a number") {
+		const auto arguments = get({binary, "--mipmap_blur", "not_a_number", "."});
+		REQUIRE(has_error(arguments));
+	}
+
+	SECTION("mipmap_blur is negative") {
+		const auto arguments = get({binary, "--mipmap_blur", "-4.7", "."});
+		REQUIRE(has_error(arguments));
+	}
+
+	SECTION("mipmap_blur is zero") {
+		const auto arguments = get({binary, "--mipmap_blur", "0.0", "."});
+		REQUIRE(has_error(arguments));
+	}
+
+	SECTION("Valid mipmap_blur value") {
+		const auto arguments = get({binary, "--mipmap_blur", std::to_string(0.1), "."});
+		REQUIRE(is_valid(arguments));
+		REQUIRE(arguments.mipmap_blur == 0.1);
+		const auto shorter = get({binary, "-mb", std::to_string(0.1), "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(shorter.mipmap_blur == 0.1);
+	}
+}
+
 TEST_CASE("todds::arguments scale", "[arguments]") {
 	SECTION("The default value of scale is 100%.") {
 		const auto arguments = get({binary, "."});
@@ -359,9 +391,10 @@ TEST_CASE("todds::arguments threads", "[arguments]") {
 }
 
 TEST_CASE("todds::arguments depth", "[arguments]") {
-	SECTION("The default value of threads is the maximum possible value") {
+	SECTION("The default value of depth is the maximum possible value") {
 		const auto arguments = get({binary, "."});
-		REQUIRE(arguments.depth == std::numeric_limits<std::size_t>::max());
+		const auto value = std::numeric_limits<std::size_t>::max();
+		REQUIRE(arguments.depth == value);
 	}
 
 	SECTION("Depth is not a number") {

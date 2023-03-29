@@ -15,7 +15,6 @@ namespace {
 void process_image(todds::mipmap_image& mipmap_img, todds::filter::type filter) {
 	// Used to store images with gaussian blur applied.
 	todds::mipmap_image mipmap_blur(mipmap_img);
-	constexpr double default_blur = 0.55;
 
 	for (std::size_t mipmap_index = 1UL; mipmap_index < mipmap_img.mipmap_count(); ++mipmap_index) {
 		// Calculate gaussian blur of the previous stage.

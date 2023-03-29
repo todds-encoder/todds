@@ -46,6 +46,10 @@ constexpr auto no_mipmaps_arg = optional_arg{"--no-mipmaps", "-nm", "Disable mip
 constexpr auto mipmap_filter_arg =
 	optional_arg{"--mipmap_filter", "-mf", "Filter used to resize images during mipmap calculations."};
 
+constexpr double default_mipmap_blur = 0.55;
+constexpr auto mipmap_blur_arg =
+	optional_arg{"--mipmap_blur", "-mb", "Blur applied during mipmap calculations. Defaults to 0.55."};
+
 constexpr auto scale_arg = optional_arg{"--scale", "-sc", "Scale image size by a value given in %."};
 
 constexpr auto max_size_arg = optional_arg{
@@ -90,6 +94,7 @@ consteval std::size_t argument_name_total_space() {
 	max_space = std::max(max_space, quality_arg.name.size() + quality_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, no_mipmaps_arg.name.size() + no_mipmaps_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, mipmap_filter_arg.name.size() + mipmap_filter_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, mipmap_blur_arg.name.size() + mipmap_blur_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, scale_arg.name.size() + scale_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, max_size_arg.name.size() + max_size_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, scale_filter_arg.name.size() + scale_filter_arg.shorter.size() + 2UL);
@@ -166,6 +171,7 @@ std::string get_help(std::size_t max_threads) {
 	print_string_argument(
 		ostream, todds::filter::name(todds::filter::type::area), "Resampling using pixel area relation.");
 
+	print_optional_argument(ostream, mipmap_blur_arg);
 	print_optional_argument(ostream, scale_arg);
 	print_optional_argument(ostream, max_size_arg);
 	print_optional_argument(ostream, scale_filter_arg);
@@ -252,6 +258,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 	parsed_arguments.format = format::type::bc7;
 	parsed_arguments.mipmaps = true;
 	parsed_arguments.mipmap_filter = filter::type::lanczos;
+	parsed_arguments.mipmap_blur = default_mipmap_blur;
 	parsed_arguments.scale = 100U;
 	parsed_arguments.scale_filter = filter::type::lanczos;
 	const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
@@ -299,6 +306,13 @@ data get(const todds::vector<std::string_view>& arguments) {
 			}
 		} else if (matches(argument, no_mipmaps_arg)) {
 			parsed_arguments.mipmaps = false;
+		} else if (matches(argument, mipmap_blur_arg)) {
+			++index;
+			argument_from_str(mipmap_blur_arg.name, next_argument, parsed_arguments.mipmap_blur, parsed_arguments);
+			if (parsed_arguments.mipmap_blur <= 0.0) {
+				parsed_arguments.error = true;
+				parsed_arguments.text = fmt::format("{:s} must be larger than zero.", mipmap_blur_arg.name);
+			}
 		} else if (matches(argument, scale_arg)) {
 			++index;
 			argument_from_str(scale_arg.name, next_argument, parsed_arguments.scale, parsed_arguments);
