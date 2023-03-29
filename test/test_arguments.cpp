@@ -446,6 +446,27 @@ TEST_CASE("todds::arguments overwrite", "[arguments]") {
 	}
 }
 
+TEST_CASE("todds::arguments overwrite_new", "[arguments]") {
+	SECTION("The default value of overwrite is false") {
+		const auto arguments = get({binary, "."});
+		REQUIRE(!arguments.overwrite_new);
+	}
+
+	SECTION("Providing the overwrite_new parameter sets its value to true") {
+		const auto arguments = get({binary, "--overwrite_new", "."});
+		REQUIRE(is_valid(arguments));
+		REQUIRE(arguments.overwrite_new);
+		const auto shorter = get({binary, "-on", "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(shorter.overwrite_new);
+	}
+
+	SECTION("Setting overwrite and overwrite_new at the same time triggers an error.") {
+		const auto arguments = get({binary, "--overwrite", "--overwrite_new", "."});
+		REQUIRE(has_error(arguments));
+	}
+}
+
 TEST_CASE("todds::arguments vflip", "[arguments]") {
 	SECTION("The default value of vflip is false") {
 		const auto arguments = get({binary, "."});

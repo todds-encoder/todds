@@ -33,6 +33,7 @@ struct data {
 	std::size_t threads;
 	std::size_t depth;
 	bool overwrite;
+	bool overwrite_new;
 	bool vflip;
 	bool time;
 	bool verbose;

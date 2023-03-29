@@ -67,6 +67,9 @@ constexpr auto depth_arg =
 
 constexpr auto overwrite_arg = optional_argument("--overwrite", "Convert files even if an output file already exists.");
 
+constexpr auto overwrite_new_arg = optional_arg{
+	"--overwrite_new", "-on", "Convert files if an output file exists, but it is older than the input file."};
+
 constexpr auto vflip_arg = optional_arg{"--vflip", "-vf", "Flip source images vertically before encoding."};
 
 constexpr auto time_arg = optional_argument("--time", "Show total execution time.");
@@ -101,6 +104,7 @@ consteval std::size_t argument_name_total_space() {
 	max_space = std::max(max_space, threads_arg.name.size() + threads_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, depth_arg.name.size() + depth_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, overwrite_arg.name.size() + overwrite_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, overwrite_new_arg.name.size() + overwrite_new_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, vflip_arg.name.size() + vflip_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, time_arg.name.size() + time_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, verbose_arg.name.size() + verbose_arg.shorter.size() + 2UL);
@@ -186,6 +190,7 @@ std::string get_help(std::size_t max_threads) {
 	print_argument_impl(ostream, threads_arg.shorter, threads_arg.name, threads_help);
 	print_optional_argument(ostream, depth_arg);
 	print_optional_argument(ostream, overwrite_arg);
+	print_optional_argument(ostream, overwrite_new_arg);
 	print_optional_argument(ostream, vflip_arg);
 	print_optional_argument(ostream, time_arg);
 	print_optional_argument(ostream, regex_arg);
@@ -339,6 +344,8 @@ data get(const todds::vector<std::string_view>& arguments) {
 			}
 		} else if (matches(argument, overwrite_arg)) {
 			parsed_arguments.overwrite = true;
+		} else if (matches(argument, overwrite_new_arg)) {
+			parsed_arguments.overwrite_new = true;
 		} else if (matches(argument, vflip_arg)) {
 			parsed_arguments.vflip = true;
 		} else if (matches(argument, time_arg)) {
@@ -348,6 +355,12 @@ data get(const todds::vector<std::string_view>& arguments) {
 		} else {
 			parsed_arguments.error = true;
 			parsed_arguments.text = fmt::format("Invalid positional argument {:s}", argument);
+		}
+
+		if (parsed_arguments.overwrite && parsed_arguments.overwrite_new) {
+			parsed_arguments.error = true;
+			parsed_arguments.text =
+				fmt::format("{:s} and {:s} cannot be used together", overwrite_arg.name, overwrite_new_arg.name);
 		}
 
 		++index;
