@@ -27,7 +27,7 @@ public:
 		std::unique_ptr<mipmap_image> result{};
 
 		// If the data is empty, assume that load_png_file already reported an error.
-		if (!file.buffer.empty()) {
+		if (!file.buffer.empty()) [[likely]] {
 			const std::string& path = _paths[file.file_index].first.string();
 			try {
 				auto& file_data = _files_data[file.file_index];

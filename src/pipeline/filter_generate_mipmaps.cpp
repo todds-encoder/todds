@@ -41,7 +41,7 @@ public:
 		: _filter{filter} {}
 
 	std::unique_ptr<mipmap_image> operator()(std::unique_ptr<mipmap_image> img) const {
-		process_image(*img, _filter);
+		if (img != nullptr) [[likely]] { process_image(*img, _filter); }
 		return img;
 	}
 

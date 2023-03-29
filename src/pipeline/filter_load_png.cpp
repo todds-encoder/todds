@@ -38,7 +38,13 @@ public:
 			_errors.push(fmt::format("Load PNG file error in {:s} ", _paths[index].first.string()));
 		}
 
-		return {{std::istreambuf_iterator<char>{ifs}, {}}, index};
+		png_file result{{std::istreambuf_iterator<char>{ifs}, {}}, index};
+
+		if (result.buffer.empty()) [[unlikely]] {
+			_errors.push(fmt::format("Could not load any data for PNG file {:s} ", _paths[index].first.string()));
+		}
+
+		return result;
 	}
 
 private:
