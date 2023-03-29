@@ -23,6 +23,8 @@ public:
 		, _filter{filter} {}
 
 	std::unique_ptr<mipmap_image> operator()(std::unique_ptr<mipmap_image> img) const {
+		if (img == nullptr) [[unlikely]] { return img; }
+
 		auto& input_image = img->get_image(0U);
 		const auto input = static_cast<cv::Mat>(input_image);
 
