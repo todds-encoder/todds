@@ -43,12 +43,30 @@ fs::path to_dds_path(const fs::path& png_path, const fs::path& output) {
 	return (output / png_path.stem()) += dds_extension.data();
 }
 
-void add_files(const fs::path& png_path, const fs::path& dds_path, paths_vector& paths, bool overwrite) {
-	if (overwrite || !fs::exists(dds_path)) { paths.emplace_back(png_path, dds_path); }
+class should_generate_dds final {
+public:
+	should_generate_dds(bool overwrite, bool overwrite_new)
+		: _overwrite{overwrite}
+		, _overwrite_new{overwrite_new} {}
+
+	bool operator()(const fs::path& png_path, const fs::path& dds_path) const {
+		return _overwrite || !fs::exists(dds_path) ||
+					 _overwrite_new && (fs::last_write_time(png_path) > fs::last_write_time(dds_path));
+	}
+
+private:
+	bool _overwrite;
+	bool _overwrite_new;
+};
+
+void add_files(
+	const fs::path& png_path, const fs::path& dds_path, paths_vector& paths, const should_generate_dds& should_generate) {
+	if (should_generate(png_path, dds_path)) { paths.emplace_back(png_path, dds_path); }
 }
 
 void process_directory(paths_vector& paths, const fs::path& input, const fs::path& output, bool different_output,
-	const todds::regex& regex, todds::regex::scratch_type& scratch, bool overwrite, std::size_t depth) {
+	const todds::regex& regex, todds::regex::scratch_type& scratch, const should_generate_dds& should_generate,
+	std::size_t depth) {
 	fs::path current_output = output;
 	const fs::directory_entry dir{input};
 	for (fs::recursive_directory_iterator itr{dir}; itr != fs::recursive_directory_iterator{}; ++itr) {
@@ -60,7 +78,7 @@ void process_directory(paths_vector& paths, const fs::path& input, const fs::pat
 			}
 			const fs::path dds_path =
 				to_dds_path(current_input, different_output ? current_output : current_input.parent_path());
-			add_files(current_input, dds_path, paths, overwrite);
+			add_files(current_input, dds_path, paths, should_generate);
 			if (different_output && !fs::exists(current_output)) {
 				// Create the output folder if necessary.
 				fs::create_directories(current_output);
@@ -75,7 +93,7 @@ paths_vector get_paths(const todds::args::data& arguments) {
 	const bool different_output = static_cast<bool>(arguments.output);
 	const fs::path output = different_output ? arguments.output.value() : input.parent_path();
 
-	const bool overwrite = arguments.overwrite;
+	const should_generate_dds should_generate(arguments.overwrite, arguments.overwrite_new);
 	const auto depth = arguments.depth;
 
 	const auto& regex = arguments.regex;
@@ -83,20 +101,20 @@ paths_vector get_paths(const todds::args::data& arguments) {
 
 	paths_vector paths{};
 	if (fs::is_directory(input)) {
-		process_directory(paths, input, output, different_output, regex, scratch, overwrite, depth);
+		process_directory(paths, input, output, different_output, regex, scratch, should_generate, depth);
 	} else if (is_valid_source(input, arguments.regex, scratch)) {
 		const fs::path dds_path = to_dds_path(input, output);
-		add_files(input, dds_path, paths, overwrite);
+		add_files(input, dds_path, paths, should_generate);
 	} else if (has_extension(input, txt_extension)) {
 		boost::nowide::fstream stream{input};
 		std::string buffer;
 		while (std::getline(stream, buffer)) {
 			const fs::path current_path{buffer};
 			if (fs::is_directory(current_path)) {
-				process_directory(paths, current_path, current_path, false, regex, scratch, overwrite, depth);
+				process_directory(paths, current_path, current_path, false, regex, scratch, should_generate, depth);
 			} else if (is_valid_source(current_path, arguments.regex, scratch)) {
 				const fs::path dds_path = to_dds_path(current_path, current_path.parent_path());
-				add_files(current_path, dds_path, paths, overwrite);
+				add_files(current_path, dds_path, paths, should_generate);
 			} else {
 				boost::nowide::cerr << current_path.string() << " is not a PNG file or a directory.\n";
 			}
