@@ -11,7 +11,7 @@ public:
 	pixel_block_data operator()(std::unique_ptr<mipmap_image> image) const {
 		if (image == nullptr) [[unlikely]]
 		{
-			return {};
+			return {{}, error_file_index};
 		}
 		return pixel_block_data{todds::to_pixel_blocks(*image), image->file_index()};
 	}

@@ -19,6 +19,7 @@ public:
 		, _quality{quality} {}
 
 	dds_data operator()(const pixel_block_data& pixel_data) const {
+		if (pixel_data.file_index == error_file_index) [[unlikely]] { return {{}, error_file_index}; }
 		_files_data[pixel_data.file_index].format = todds::format::type::bc1;
 		return {todds::dds::bc1_encode(_quality, pixel_data.image), pixel_data.file_index};
 	}
@@ -35,6 +36,7 @@ public:
 		, _params{todds::dds::bc7_encode_params(quality)} {}
 
 	dds_data operator()(const pixel_block_data& pixel_data) const {
+		if (pixel_data.file_index == error_file_index) [[unlikely]] { return {{}, error_file_index}; }
 		_files_data[pixel_data.file_index].format = todds::format::type::bc7;
 		return {todds::dds::bc7_encode(_params, pixel_data.image), pixel_data.file_index};
 	}
@@ -65,6 +67,7 @@ public:
 		, _quality{quality} {}
 
 	dds_data operator()(const pixel_block_data& pixel_data) const {
+		if (pixel_data.file_index == error_file_index) [[unlikely]] { return {{}, error_file_index}; }
 		const auto format = has_alpha(pixel_data.image) ? todds::format::type::bc7 : todds::format::type::bc1;
 		_files_data[pixel_data.file_index].format = format;
 
