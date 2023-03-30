@@ -102,7 +102,7 @@ After the datasets have been obtained, the analysis can be performed by using th
 Generates a CSV file containing hardware and software information..
 
 ```
-python.exe .\comparedds.py --bc7enc --nvtt --todds --texconv --info > [Path to results]\info.csv
+python.exe .\comparedds.py --todds --texconv --info > [Path to results]\info.csv
 ```
 
 ### Dataset information
@@ -110,6 +110,6 @@ python.exe .\comparedds.py --bc7enc --nvtt --todds --texconv --info > [Path to r
 The following command should be executed once for each dataset.
 
 ```
-python.exe .\comparedds.py --bc7enc --nvtt --todds --texconv --batch [Path to datasets]\[Dataset] [Path to output files] > [Path to results]\[dataset]_batch.csv
-python.exe .\comparedds.py --bc7enc --nvtt --todds --texconv --metrics [Path to datasets]\[Dataset] [Path to output files] > [Path to results]\[dataset]_metrics.csv
+python.exe .\comparedds.py --todds --texconv --batch [Path to datasets]\[Dataset] [Path to output files] > [Path to results]\[dataset]_batch.csv
+python.exe .\comparedds.py --todds --texconv --metrics [Path to datasets]\[Dataset] [Path to output files] > [Path to results]\[dataset]_metrics.csv
 ```
