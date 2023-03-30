@@ -10,6 +10,7 @@ project(todds
 	HOMEPAGE_URL "https://github.com/joseasoler/todds"
 	)
 
+option(TODDS_TRACY_SUPPORT "Compile todds with Tracy Profiler support" OFF)
 option(TODDS_UNIT_TESTS "Build todds unit tests" OFF)
 option(TODDS_TBB_ALLOCATOR "Use OneAPI TBB scalable_allocator." OFF)
 option(TODDS_MIMALLOC_ALLOCATOR "Use mimalloc." OFF)
@@ -36,9 +37,16 @@ find_package(Hyperscan REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Threads REQUIRED)
 find_package(TBB REQUIRED)
-if(TODDS_MIMALLOC_ALLOCATOR)
+
+if (TODDS_TRACY_SUPPORT)
+	find_package(Tracy REQUIRED)
+	add_compile_definitions(TRACY_ENABLE)
+	link_libraries(Tracy::TracyClient)
+endif ()
+
+if (TODDS_MIMALLOC_ALLOCATOR)
 	find_package(mimalloc REQUIRED)
-endif()
+endif ()
 
 add_subdirectory(thirdparty)
 

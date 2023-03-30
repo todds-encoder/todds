@@ -41,7 +41,11 @@ public:
 		, _blur{blur} {}
 
 	std::unique_ptr<mipmap_image> operator()(std::unique_ptr<mipmap_image> img) const {
-		if (img != nullptr) [[likely]] { process_image(*img, _filter, _blur); }
+		TracyZoneScopedN("generate_mipmaps");
+		if (img != nullptr) [[likely]] {
+			TracyZoneFileIndex(img->file_index());
+			process_image(*img, _filter, _blur);
+		}
 		return img;
 	}
 

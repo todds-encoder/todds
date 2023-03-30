@@ -69,6 +69,8 @@ IncludeCategories:
     Priority: 15
   - Regex: '^"spng.*'
     Priority: 20
+  - Regex: '^<tracy.*'
+    Priority: 20
   - Regex: '^<catch2.*'
     Priority: 200
   - Regex: '^<todds.*'

@@ -25,8 +25,11 @@ public:
 		, _paths{paths} {}
 
 	void operator()(const dds_data& dds_img) const {
+		TracyZoneScopedN("save_file");
 		const std::size_t file_index = dds_img.file_index;
-		if (dds_img.file_index == error_file_index) [[unlikely]] { return; }
+		TracyZoneFileIndex(file_index);
+
+		if (file_index == error_file_index) [[unlikely]] { return; }
 
 #if BOOST_OS_WINDOWS
 		const boost::filesystem::path output{R"(\\?\)" + _paths[file_index].second.string()};

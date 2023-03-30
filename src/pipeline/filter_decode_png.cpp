@@ -24,6 +24,8 @@ public:
 		, _mipmaps{mipmaps} {}
 
 	std::unique_ptr<mipmap_image> operator()(const png_file& file) const {
+		TracyZoneScopedN("decode_png");
+		TracyZoneFileIndex(file.file_index);
 		std::unique_ptr<mipmap_image> result{};
 
 		// If the data is empty, assume that load_png_file already reported an error.
@@ -53,7 +55,7 @@ private:
 oneapi::tbb::filter<png_file, std::unique_ptr<mipmap_image>> decode_png_filter(
 	vector<file_data>& files_data, const paths_vector& paths, bool vflip, bool mipmaps, error_queue& errors) {
 	return oneapi::tbb::make_filter<png_file, std::unique_ptr<mipmap_image>>(
-		oneapi::tbb::filter_mode::serial_in_order, decode_png(files_data, paths, vflip, mipmaps, errors));
+		oneapi::tbb::filter_mode::parallel, decode_png(files_data, paths, vflip, mipmaps, errors));
 }
 
 } // namespace todds::pipeline::impl

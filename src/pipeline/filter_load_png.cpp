@@ -22,6 +22,9 @@ public:
 
 	png_file operator()(oneapi::tbb::flow_control& flow) const {
 		const std::size_t index = _counter++;
+		TracyZoneScopedN("load_file");
+		TracyZoneFileIndex(index);
+
 		if (index >= _paths.size() || _force_finish) [[unlikely]] {
 			flow.stop();
 			return {};
@@ -57,6 +60,6 @@ private:
 oneapi::tbb::filter<void, png_file> load_png_filter(
 	const paths_vector& paths, std::atomic<std::size_t>& counter, std::atomic<bool>& force_finish, error_queue& errors) {
 	return oneapi::tbb::make_filter<void, png_file>(
-		oneapi::tbb::filter_mode::serial_in_order, load_png_file(paths, counter, force_finish, errors));
+		oneapi::tbb::filter_mode::parallel, load_png_file(paths, counter, force_finish, errors));
 }
 } // namespace todds::pipeline::impl
