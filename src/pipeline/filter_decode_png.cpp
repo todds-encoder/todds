@@ -8,6 +8,7 @@
 #include "todds/filter.hpp"
 #include "todds/mipmap_image.hpp"
 #include "todds/png.hpp"
+#include "todds/profiler.hpp"
 
 #include <fmt/format.h>
 
@@ -24,7 +25,7 @@ public:
 		, _mipmaps{mipmaps} {}
 
 	std::unique_ptr<mipmap_image> operator()(const png_file& file) const {
-		TracyZoneScopedN("decode_png");
+		TracyZoneScopedN("decode");
 		TracyZoneFileIndex(file.file_index);
 		std::unique_ptr<mipmap_image> result{};
 

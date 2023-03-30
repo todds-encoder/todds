@@ -7,6 +7,7 @@
 
 #include "todds/filter.hpp"
 #include "todds/mipmap_image.hpp"
+#include "todds/profiler.hpp"
 
 #include <opencv2/imgproc.hpp>
 
@@ -23,7 +24,7 @@ public:
 		, _filter{filter} {}
 
 	std::unique_ptr<mipmap_image> operator()(std::unique_ptr<mipmap_image> img) const {
-		TracyZoneScopedN("scale_image");
+		TracyZoneScopedN("scale");
 		if (img == nullptr) [[unlikely]] { return img; }
 		TracyZoneFileIndex(img->file_index());
 

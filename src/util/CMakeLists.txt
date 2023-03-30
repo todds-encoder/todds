@@ -6,6 +6,7 @@ add_library(todds_util INTERFACE)
 
 target_sources(todds_util INTERFACE
 	include/todds/memory.hpp
+	include/todds/profiler.hpp
 	include/todds/util.hpp
 	include/todds/vector.hpp
 	)

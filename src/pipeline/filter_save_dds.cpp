@@ -6,6 +6,7 @@
 #include "filter_save_dds.hpp"
 
 #include "todds/dds.hpp"
+#include "todds/profiler.hpp"
 
 #include <boost/nowide/fstream.hpp>
 #include <boost/predef.h>
@@ -25,7 +26,7 @@ public:
 		, _paths{paths} {}
 
 	void operator()(const dds_data& dds_img) const {
-		TracyZoneScopedN("save_file");
+		TracyZoneScopedN("save");
 		const std::size_t file_index = dds_img.file_index;
 		TracyZoneFileIndex(file_index);
 

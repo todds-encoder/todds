@@ -8,9 +8,6 @@
 #include "todds/format.hpp"
 
 #include <oneapi/tbb/concurrent_queue.h>
-#if defined(TRACY_ENABLE)
-#include <tracy/Tracy.hpp>
-#endif
 
 #include <limits>
 #include <string>
@@ -32,16 +29,5 @@ struct file_data {
 	// DDS format of the image. Set during the encoding DDS stage.
 	todds::format::type format{};
 };
-
-#if defined(TRACY_ENABLE)
-#define TracyZoneFileIndex(file_index)                                                                                 \
-	const auto file_index_str = std::to_string(file_index);                                                              \
-	ZoneText(file_index_str.c_str(), file_index_str.size())
-
-#define TracyZoneScopedN(str) ZoneScopedN("decode_png")
-#else
-#define TracyZoneFileIndex(file_index)
-#define TracyZoneScopedN(str)
-#endif
 
 } // namespace todds::pipeline::impl

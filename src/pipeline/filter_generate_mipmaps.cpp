@@ -7,6 +7,7 @@
 
 #include "todds/filter.hpp"
 #include "todds/mipmap_image.hpp"
+#include "todds/profiler.hpp"
 
 #include <opencv2/imgproc.hpp>
 
@@ -41,7 +42,7 @@ public:
 		, _blur{blur} {}
 
 	std::unique_ptr<mipmap_image> operator()(std::unique_ptr<mipmap_image> img) const {
-		TracyZoneScopedN("generate_mipmaps");
+		TracyZoneScopedN("mipmap");
 		if (img != nullptr) [[likely]] {
 			TracyZoneFileIndex(img->file_index());
 			process_image(*img, _filter, _blur);

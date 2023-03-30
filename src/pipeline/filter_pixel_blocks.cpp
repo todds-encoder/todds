@@ -5,15 +5,14 @@
 
 #include "filter_pixel_blocks.hpp"
 
+#include "todds/profiler.hpp"
+
 namespace todds::pipeline::impl {
 class get_pixel_blocks final {
 public:
 	pixel_block_data operator()(std::unique_ptr<mipmap_image> image) const {
-		TracyZoneScopedN("pixel_blocks");
-		if (image == nullptr) [[unlikely]]
-		{
-			return {{}, error_file_index};
-		}
+		TracyZoneScopedN("blocks");
+		if (image == nullptr) [[unlikely]] { return {{}, error_file_index}; }
 		TracyZoneFileIndex(image->file_index());
 
 		return pixel_block_data{todds::to_pixel_blocks(*image), image->file_index()};

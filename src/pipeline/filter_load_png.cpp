@@ -5,6 +5,8 @@
 
 #include "filter_load_png.hpp"
 
+#include "todds/profiler.hpp"
+
 #include <boost/nowide/fstream.hpp>
 #include <boost/predef.h>
 #include <fmt/format.h>
@@ -22,7 +24,7 @@ public:
 
 	png_file operator()(oneapi::tbb::flow_control& flow) const {
 		const std::size_t index = _counter++;
-		TracyZoneScopedN("load_file");
+		TracyZoneScopedN("load");
 		TracyZoneFileIndex(index);
 
 		if (index >= _paths.size() || _force_finish) [[unlikely]] {
