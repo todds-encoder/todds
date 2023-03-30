@@ -117,7 +117,9 @@ void encode_as_dds(const input& input_data) {
 		break;
 	}
 
-	// Setup the pipeline.
+	// Ensure that OpenCV is working in sequential mode.
+	cv::setNumThreads(0);
+	// Setup the parallel pipeline.
 	const otbb::global_control control(otbb::global_control::max_allowed_parallelism, input_data.parallelism);
 	// Maximum number of files that the pipeline can process at the same time.
 	const std::size_t tokens = input_data.parallelism * 4UL;
