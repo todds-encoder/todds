@@ -5,6 +5,7 @@
 
 #include "todds/dds.hpp"
 
+#include "todds/profiler.hpp"
 #include "todds/util.hpp"
 
 #include <bc7e_ispc.h>
@@ -15,9 +16,6 @@
 #include <cassert>
 
 namespace {
-
-// Number of blocks to process on each BC7 encoding pass.
-constexpr std::size_t blocks_to_process = 64UL;
 
 constexpr std::size_t bc1_block_size = 1UL;
 
@@ -67,6 +65,7 @@ vector<std::uint64_t> bc1_encode(todds::format::quality quality, const vector<st
 	const std::size_t num_blocks = image.size() / pixel_block_size;
 	using blocked_range = oneapi::tbb::blocked_range<size_t>;
 	oneapi::tbb::parallel_for(blocked_range(0UL, num_blocks), [factors, &image, &result](const blocked_range& range) {
+		TracyZoneScopedN("bc1");
 		for (std::size_t block_index = range.begin(); block_index < range.end(); ++block_index) {
 			auto* dds_block = &result[block_index * bc1_block_size];
 			const auto* pixel_block = reinterpret_cast<const std::uint8_t*>(&image[block_index * pixel_block_size]);
@@ -97,24 +96,24 @@ bc7_params bc7_encode_params(todds::format::quality quality) noexcept {
 }
 
 vector<std::uint64_t> bc7_encode(const ispc::bc7e_compress_block_params& params, const vector<std::uint32_t>& image) {
+	constexpr std::size_t grain_size = 64ULL;
+	static oneapi::tbb::affinity_partitioner partitioner;
 	const std::size_t num_blocks = image.size() / pixel_block_size;
 
 	vector<std::uint64_t> result(num_blocks * bc7_block_size);
 
 	using blocked_range = oneapi::tbb::blocked_range<size_t>;
-	oneapi::tbb::parallel_for(blocked_range(0UL, num_blocks), [&params, &image, &result](const blocked_range& range) {
-		std::size_t block_index = range.begin();
-
-		while (block_index < range.end()) {
-			const std::size_t current_blocks_to_process = std::min(blocks_to_process, range.end() - block_index);
-
+	oneapi::tbb::parallel_for(
+		blocked_range(0UL, num_blocks, grain_size),
+		[&params, &image, &result](const blocked_range& range) {
+			TracyZoneScopedN("bc7");
+			const std::size_t block_index = range.begin();
+			const auto blocks_to_process = static_cast<std::uint32_t>(range.end() - block_index);
 			std::uint64_t* dds_block = &result[block_index * bc7_block_size];
 			const auto* pixel_block = &image[block_index * pixel_block_size];
-			ispc::bc7e_compress_blocks(
-				static_cast<std::uint32_t>(current_blocks_to_process), dds_block, pixel_block, &params);
-			block_index += current_blocks_to_process;
-		}
-	});
+			ispc::bc7e_compress_blocks(static_cast<std::uint32_t>(blocks_to_process), dds_block, pixel_block, &params);
+		},
+		partitioner);
 
 	return result;
 }
