@@ -98,11 +98,11 @@ bc7_params bc7_encode_params(todds::format::quality quality) noexcept {
 	case format::quality::really_slow: {
 		// Custom quality level that still provides high quality, while having better performance than slowest.
 		ispc::bc7e_compress_block_params_init_slowest(&params, perceptual);
-		params.m_opaque_settings.m_max_mode13_partitions_to_try = 3;
-		params.m_opaque_settings.m_max_mode0_partitions_to_try = 3;
-		params.m_opaque_settings.m_max_mode2_partitions_to_try = 3;
-		params.m_alpha_settings.m_max_mode7_partitions_to_try = 3;
-		params.m_uber_level = 3;
+		params.m_opaque_settings.m_max_mode13_partitions_to_try = 4;
+		params.m_opaque_settings.m_max_mode0_partitions_to_try = 4;
+		params.m_opaque_settings.m_max_mode2_partitions_to_try = 4;
+		params.m_alpha_settings.m_max_mode7_partitions_to_try = 4;
+		params.m_uber_level = 1;
 		break;
 	}
 	case format::quality::slowest: ispc::bc7e_compress_block_params_init_slowest(&params, perceptual); break;
