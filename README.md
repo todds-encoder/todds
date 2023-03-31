@@ -8,9 +8,9 @@ A CPU-based DDS encoder optimized for fast batch conversions with high encoding 
 
 todds is optimized for encoding multiple files at the same time, without compromising on encoding quality. todds can quickly encode a single file but the full benefits of its parallel pipeline are reached when encoding large numbers of files.
 
-todds also performs better with CPUs with a large number of cores. Depending on your hardware, it can perform better than GPU based texture encoders or it might be slower. Check the analysis results for details.
+todds also performs better with CPUs with a large number of cores. Depending on your hardware, it can perform better than GPU based texture encoders or it might be slower.
 
-https://github.com/joseasoler/todds/wiki/Performance
+Check the [Analysis documentation](ANALYSIS.md) for details.
 
 ### Supported encoding formats
 

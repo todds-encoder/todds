@@ -17,7 +17,7 @@ All encoders are set to use the BC7 format and to create mipmaps.
 
 ### Tools
 
-* [ImageMagick](https://imagemagick.org/index.php): PSNR, RMSE and SSIM metrics.
+* [ImageMagick](https://imagemagick.org/index.php): image metrics.
 
 ### Optional encoders
 
