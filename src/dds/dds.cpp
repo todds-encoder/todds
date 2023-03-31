@@ -21,6 +21,8 @@ constexpr std::size_t bc1_block_size = 1UL;
 
 constexpr std::size_t bc7_block_size = 2UL;
 
+using blocked_range = oneapi::tbb::blocked_range<size_t>;
+
 constexpr std::uint32_t format_fourcc(todds::format::type format_type) {
 	std::uint32_t fourcc{};
 	switch (format_type) {
@@ -57,20 +59,25 @@ namespace todds::dds {
 void initialize_bc1_encoding() { rgbcx::init(rgbcx::bc1_approx_mode::cBC1Ideal); }
 
 vector<std::uint64_t> bc1_encode(todds::format::quality quality, const vector<std::uint32_t>& image) {
+	constexpr std::size_t grain_size = 64ULL;
+	static oneapi::tbb::affinity_partitioner partitioner;
+
 	vector<std::uint64_t> result(image.size() * bc1_block_size);
 
 	const auto factors = rgbcx_todds::from_quality_level(static_cast<unsigned int>(quality));
 
 	const std::size_t num_blocks = image.size() / pixel_block_size;
-	using blocked_range = oneapi::tbb::blocked_range<size_t>;
-	oneapi::tbb::parallel_for(blocked_range(0UL, num_blocks), [factors, &image, &result](const blocked_range& range) {
-		TracyZoneScopedN("bc1");
-		for (std::size_t block_index = range.begin(); block_index < range.end(); ++block_index) {
-			auto* dds_block = &result[block_index * bc1_block_size];
-			const auto* pixel_block = reinterpret_cast<const std::uint8_t*>(&image[block_index * pixel_block_size]);
-			rgbcx::encode_bc1(dds_block, pixel_block, factors.flags, factors.total_orderings4, factors.total_orderings3);
-		}
-	});
+	oneapi::tbb::parallel_for(
+		blocked_range(0UL, num_blocks, grain_size),
+		[factors, &image, &result](const blocked_range& range) {
+			TracyZoneScopedN("bc1");
+			for (std::size_t block_index = range.begin(); block_index < range.end(); ++block_index) {
+				auto* dds_block = &result[block_index * bc1_block_size];
+				const auto* pixel_block = reinterpret_cast<const std::uint8_t*>(&image[block_index * pixel_block_size]);
+				rgbcx::encode_bc1(dds_block, pixel_block, factors.flags, factors.total_orderings4, factors.total_orderings3);
+			}
+		},
+		partitioner);
 
 	return result;
 }
@@ -111,7 +118,6 @@ vector<std::uint64_t> bc7_encode(const ispc::bc7e_compress_block_params& params,
 
 	vector<std::uint64_t> result(num_blocks * bc7_block_size);
 
-	using blocked_range = oneapi::tbb::blocked_range<size_t>;
 	oneapi::tbb::parallel_for(
 		blocked_range(0UL, num_blocks, grain_size),
 		[&params, &image, &result](const blocked_range& range) {
