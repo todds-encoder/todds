@@ -21,3 +21,4 @@ Developing todds is only made possible by people who share their work and expert
 * **[Vicky Brasseur](https://www.vmbrasseur.com)** - [Forge your future with Open Source](https://pragprog.com/titles/vbopens/forge-your-future-with-open-source)
 * **[Webb Space Telescope](https://webbtelescope.org/)** - [“Cosmic Cliffs” in the Carina Nebula](https://webbtelescope.org/contents/media/images/2022/031/01G77PKB8NKR7S8Z6HBXMYATGJ)
 * **[Wenru Dong](https://medium.com/@wenrudong)** - [What is OpenCV’s INTER_AREA Actually Doing?](https://medium.com/@wenrudong/what-is-opencvs-inter-area-actually-doing-282a626a09b3)
+* **[whuber](https://gis.stackexchange.com/users/664/whuber)** - [What is Lanczos resampling?](https://gis.stackexchange.com/questions/10931/what-is-lanczos-resampling-useful-for-in-a-spatial-context)

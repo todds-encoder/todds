@@ -39,22 +39,26 @@ constexpr bool matches(std::string_view argument, const optional_arg& optional_a
 
 constexpr auto format_arg = optional_argument("--format", "DDS encoding format.");
 
-constexpr auto quality_arg = optional_argument("--quality", "Encoder quality level, must be in [{:d}, {:d}].");
+constexpr auto default_quality = todds::format::quality::really_slow;
+constexpr auto quality_arg =
+	optional_argument("--quality", "Encoder quality level, must be in [{:d}, {:d}]. Defaults to {:d}.");
 
 constexpr auto no_mipmaps_arg = optional_arg{"--no-mipmaps", "-nm", "Disable mipmap generation."};
 
+constexpr auto default_mipmap_filter = todds::filter::type::lanczos;
 constexpr auto mipmap_filter_arg =
-	optional_arg{"--mipmap_filter", "-mf", "Filter used to resize images during mipmap calculations."};
+	optional_arg{"--mipmap_filter", "-mf", "Filter used to resize images during mipmap generation."};
 
 constexpr double default_mipmap_blur = 0.55;
 constexpr auto mipmap_blur_arg =
-	optional_arg{"--mipmap_blur", "-mb", "Blur applied during mipmap calculations. Defaults to 0.55."};
+	optional_arg{"--mipmap_blur", "-mb", "Blur applied during mipmap generation. Defaults to {:.2f}."};
 
 constexpr auto scale_arg = optional_arg{"--scale", "-sc", "Scale image size by a value given in %."};
 
 constexpr auto max_size_arg = optional_arg{
 	"--max-size", "-ms", "Downscale images with a width or height larger than this threshold to fit into it."};
 
+constexpr auto default_scale_filter = todds::filter::type::lanczos;
 constexpr auto scale_filter_arg =
 	optional_arg{"--scale_filter", "-sf", "Filter used to scale images when using the scale or max_size parameters."};
 
@@ -63,7 +67,7 @@ constexpr auto threads_arg =
 
 constexpr std::size_t max_depth = std::numeric_limits<std::size_t>::max();
 constexpr auto depth_arg =
-	optional_argument("--depth", "Maximum subdirectory depth to use when looking for source files.");
+	optional_argument("--depth", "Maximum subdirectory depth to use when looking for source files. Defaults to maximum.");
 
 constexpr auto overwrite_arg = optional_argument("--overwrite", "Convert files even if an output file already exists.");
 
@@ -74,7 +78,8 @@ constexpr auto vflip_arg = optional_arg{"--vflip", "-vf", "Flip source images ve
 
 constexpr auto time_arg = optional_argument("--time", "Show total execution time.");
 
-constexpr auto regex_arg = optional_argument("--regex", "Process only absolute paths matching this regex.");
+constexpr auto regex_arg =
+	optional_argument("--regex", "Process only absolute paths matching this regular expression.");
 
 constexpr auto verbose_arg = optional_argument("--verbose", "Display progress messages.");
 
@@ -140,6 +145,23 @@ void print_string_argument(std::ostringstream& ostream, std::string_view name, s
 	ostream << fmt::format("{:s}: {:s}\n", name, text);
 }
 
+void print_filter_options(std::ostringstream& ostream, todds::filter::type default_value) {
+	const std::string default_str = fmt::format("{:s} [Default]", todds::filter::description(default_value));
+	print_string_argument(ostream, todds::filter::name(default_value), default_str);
+
+	constexpr std::array<todds::filter::type, 5U> filter_types{
+		todds::filter::type::nearest,
+		todds::filter::type::linear,
+		todds::filter::type::cubic,
+		todds::filter::type::area,
+		todds::filter::type::lanczos,
+	};
+	for (auto filter_type : filter_types) {
+		if (filter_type == default_value) { continue; }
+		print_string_argument(ostream, todds::filter::name(filter_type), todds::filter::description(filter_type));
+	}
+}
+
 std::string get_help(std::size_t max_threads) {
 	std::ostringstream ostream;
 	ostream << todds::project::name() << ' ' << todds::project::version() << "\n\n"
@@ -163,28 +185,21 @@ std::string get_help(std::size_t max_threads) {
 
 	const std::string quality_help =
 		fmt::format(quality_arg.help, static_cast<unsigned int>(todds::format::quality::minimum),
-			static_cast<unsigned int>(todds::format::quality::maximum));
+			static_cast<unsigned int>(todds::format::quality::maximum), static_cast<unsigned int>(default_quality));
 	print_argument_impl(ostream, quality_arg.shorter, quality_arg.name, quality_help);
+
 	print_optional_argument(ostream, no_mipmaps_arg);
 
 	print_optional_argument(ostream, mipmap_filter_arg);
-	print_string_argument(ostream, todds::filter::name(todds::filter::type::lanczos),
-		"Lanczos interpolation over 8x8 neighborhood [Default].");
-	print_string_argument(ostream, todds::filter::name(todds::filter::type::nearest), "Nearest neighbor interpolation.");
-	print_string_argument(ostream, todds::filter::name(todds::filter::type::cubic), "Bicubic interpolation.");
-	print_string_argument(
-		ostream, todds::filter::name(todds::filter::type::area), "Resampling using pixel area relation.");
+	print_filter_options(ostream, default_mipmap_filter);
 
-	print_optional_argument(ostream, mipmap_blur_arg);
+	const std::string mipmap_blur_help = fmt::format(mipmap_blur_arg.help, default_mipmap_blur);
+	print_argument_impl(ostream, mipmap_blur_arg.shorter, mipmap_blur_arg.name, mipmap_blur_help);
+
 	print_optional_argument(ostream, scale_arg);
 	print_optional_argument(ostream, max_size_arg);
 	print_optional_argument(ostream, scale_filter_arg);
-	print_string_argument(ostream, todds::filter::name(todds::filter::type::lanczos),
-		"Lanczos interpolation over 8x8 neighborhood [Default].");
-	print_string_argument(ostream, todds::filter::name(todds::filter::type::nearest), "Nearest neighbor interpolation.");
-	print_string_argument(ostream, todds::filter::name(todds::filter::type::cubic), "Bicubic interpolation.");
-	print_string_argument(
-		ostream, todds::filter::name(todds::filter::type::area), "Resampling using pixel area relation.");
+	print_filter_options(ostream, default_scale_filter);
 
 	const std::string threads_help = fmt::format(threads_arg.help, max_threads);
 	print_argument_impl(ostream, threads_arg.shorter, threads_arg.name, threads_help);
@@ -210,7 +225,7 @@ void format_from_str(std::string_view argument, todds::args::data& parsed_argume
 		parsed_arguments.format = todds::format::type::bc1_alpha_bc7;
 	} else {
 		parsed_arguments.error = true;
-		parsed_arguments.text = fmt::format("Unsupported format: {:s}", argument);
+		parsed_arguments.text = fmt::format("Unsupported encoding format: {:s}", argument);
 	}
 }
 
@@ -269,7 +284,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 	const auto max_threads = static_cast<std::size_t>(oneapi::tbb::info::default_concurrency());
 	parsed_arguments.threads = max_threads;
 	parsed_arguments.depth = max_depth;
-	parsed_arguments.quality = todds::format::quality::maximum;
+	parsed_arguments.quality = default_quality;
 
 	std::size_t index = 1UL;
 
@@ -306,7 +321,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 			parsed_arguments.quality = static_cast<format::quality>(value);
 			if (parsed_arguments.quality > todds::format::quality::maximum) {
 				parsed_arguments.error = true;
-				parsed_arguments.text = fmt::format("Argument error: Unsupported encode quality level {:d}.",
+				parsed_arguments.text = fmt::format("Argument error: Unsupported encoding quality level {:d}.",
 					static_cast<unsigned int>(parsed_arguments.quality));
 			}
 		} else if (matches(argument, no_mipmaps_arg)) {

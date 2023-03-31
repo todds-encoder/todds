@@ -132,13 +132,13 @@ TEST_CASE("todds::arguments format", "[arguments]") {
 }
 
 TEST_CASE("todds::arguments quality", "[arguments]") {
-	SECTION("The default quality is set to maximum.") {
+	SECTION("The default quality is set to really_slow.") {
 		const auto arguments = get({binary, "."});
-		REQUIRE(arguments.quality == todds::format::quality::maximum);
+		REQUIRE(arguments.quality == todds::format::quality::really_slow);
 		const auto arguments_bc1 = get({binary, "-f", todds::format::name(todds::format::type::bc1), "."});
-		REQUIRE(arguments_bc1.quality == todds::format::quality::maximum);
+		REQUIRE(arguments_bc1.quality == todds::format::quality::really_slow);
 		const auto arguments_bc7 = get({binary, "-f", todds::format::name(todds::format::type::bc7), "."});
-		REQUIRE(arguments_bc7.quality == todds::format::quality::maximum);
+		REQUIRE(arguments_bc7.quality == todds::format::quality::really_slow);
 	}
 
 	SECTION("Error when the quality is not a number") {
@@ -152,7 +152,8 @@ TEST_CASE("todds::arguments quality", "[arguments]") {
 	}
 
 	SECTION("Quality is out of bounds") {
-		const auto arguments = get({binary, "--quality", "8", "."});
+		const auto arguments =
+			get({binary, "--quality", std::to_string(static_cast<int>(todds::format::quality::maximum) + 1), "."});
 		REQUIRE(has_error(arguments));
 	}
 
@@ -164,20 +165,13 @@ TEST_CASE("todds::arguments quality", "[arguments]") {
 
 	SECTION("Valid level") {
 		constexpr unsigned int level = 5U;
-		const auto arguments = get({binary, "--quality", std::to_string(level), "."});
+		constexpr std::string_view level_str = "5";
+		const auto arguments = get({binary, "--quality", level_str, "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(static_cast<unsigned int>(arguments.quality) == level);
-		const auto shorter = get({binary, "-q", std::to_string(level), "."});
+		const auto shorter = get({binary, "-q", level_str, "."});
 		REQUIRE(is_valid(shorter));
 		REQUIRE(static_cast<unsigned int>(shorter.quality) == level);
-	}
-
-	SECTION("Quality level is larger than the maximum") {
-		constexpr auto format_type = todds::format::type::bc1;
-		constexpr auto too_large_quality = static_cast<unsigned int>(todds::format::quality::maximum) + 1U;
-		const auto arguments =
-			get({binary, "-f", todds::format::name(format_type), "-q", std::to_string(too_large_quality), "."});
-		REQUIRE(has_error(arguments));
 	}
 }
 

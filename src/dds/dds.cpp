@@ -59,8 +59,7 @@ void initialize_bc1_encoding() { rgbcx::init(rgbcx::bc1_approx_mode::cBC1Ideal);
 vector<std::uint64_t> bc1_encode(todds::format::quality quality, const vector<std::uint32_t>& image) {
 	vector<std::uint64_t> result(image.size() * bc1_block_size);
 
-	// Since it allows quality between [0, 18], multiply todds's [0, 6] range by 3.
-	const auto factors = rgbcx_todds::from_quality_level(static_cast<unsigned int>(quality) * 3U);
+	const auto factors = rgbcx_todds::from_quality_level(static_cast<unsigned int>(quality));
 
 	const std::size_t num_blocks = image.size() / pixel_block_size;
 	using blocked_range = oneapi::tbb::blocked_range<size_t>;
@@ -89,6 +88,16 @@ bc7_params bc7_encode_params(todds::format::quality quality) noexcept {
 	case format::quality::basic: ispc::bc7e_compress_block_params_init_basic(&params, perceptual); break;
 	case format::quality::slow: ispc::bc7e_compress_block_params_init_slow(&params, perceptual); break;
 	case format::quality::very_slow: ispc::bc7e_compress_block_params_init_veryslow(&params, perceptual); break;
+	case format::quality::really_slow: {
+		// Custom quality level that still provides high quality, while having better performance than slowest.
+		ispc::bc7e_compress_block_params_init_slowest(&params, perceptual);
+		params.m_opaque_settings.m_max_mode13_partitions_to_try = 3;
+		params.m_opaque_settings.m_max_mode0_partitions_to_try = 3;
+		params.m_opaque_settings.m_max_mode2_partitions_to_try = 3;
+		params.m_alpha_settings.m_max_mode7_partitions_to_try = 3;
+		params.m_uber_level = 3;
+		break;
+	}
 	case format::quality::slowest: ispc::bc7e_compress_block_params_init_slowest(&params, perceptual); break;
 	}
 
