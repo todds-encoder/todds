@@ -15,6 +15,7 @@
 #include <oneapi/tbb/info.h>
 
 #include <algorithm>
+#include <array>
 #include <charconv>
 #include <sstream>
 #include <string_view>
