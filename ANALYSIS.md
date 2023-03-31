@@ -107,9 +107,10 @@ python.exe .\comparedds.py --todds --texconv --info > [Path to results]\info.csv
 
 ### Dataset information
 
-The following command should be executed once for each dataset.
+The following commands should be executed once for each dataset.
 
 ```
-python.exe .\comparedds.py --todds --texconv --batch [Path to datasets]\[Dataset] [Path to output files] > [Path to results]\[dataset]_batch.csv
-python.exe .\comparedds.py --todds --texconv --metrics [Path to datasets]\[Dataset] [Path to output files] > [Path to results]\[dataset]_metrics.csv
+python.exe .\comparedds.py --todds --texconv --batch [Path to datasets]\[Dataset] [Path to output files] > [Path to results]\[dataset_name]_batch.csv
+python.exe .\comparedds.py --todds --metrics [Path to datasets]\[Dataset] [Path to output files] > [Path to results]\[dataset_name]_metrics.csv
+python.exe .\comparedds.py --texconv --metrics [Path to datasets]\[Dataset] [Path to output files] > [Path to results]\[dataset_name]_metrics.csv
 ```
