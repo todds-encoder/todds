@@ -36,7 +36,7 @@ encoder_data = {
     # todds encodes with BC7 and uses Lanczos interpolation to generate mipmaps by default.
     todds_tool: EncoderData('todds', True, False, ('-o',)),
     # Texconv should use WIC to generate mipmaps with this setup.
-    texconv_tool: EncoderData('texconv', True, False, ('-y', '-f', 'BC7_UNORM', '-bc', 'x')),
+    texconv_tool: EncoderData('texconv', True, False, ('-y', '-f', 'BC7_UNORM')),
 }
 
 
