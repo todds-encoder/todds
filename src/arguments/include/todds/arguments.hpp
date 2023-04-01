@@ -24,6 +24,7 @@ struct data {
 	std::optional<boost::filesystem::path> output;
 	todds::format::type format;
 	todds::format::quality quality;
+	bool fix_size;
 	bool mipmaps;
 	todds::filter::type mipmap_filter;
 	double mipmap_blur;

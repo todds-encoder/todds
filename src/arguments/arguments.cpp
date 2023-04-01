@@ -52,7 +52,7 @@ constexpr auto mipmap_filter_arg =
 
 constexpr double default_mipmap_blur = 0.55;
 constexpr auto mipmap_blur_arg =
-	optional_arg{"--mipmap_blur", "-mb", "Blur applied during mipmap generation. Defaults to {:.2f}."};
+	optional_arg{"--mipmap-blur", "-mb", "Blur applied during mipmap generation. Defaults to {:.2f}."};
 
 constexpr auto scale_arg = optional_arg{"--scale", "-sc", "Scale image size by a value given in %."};
 
@@ -61,7 +61,7 @@ constexpr auto max_size_arg = optional_arg{
 
 constexpr auto default_scale_filter = todds::filter::type::lanczos;
 constexpr auto scale_filter_arg =
-	optional_arg{"--scale_filter", "-sf", "Filter used to scale images when using the scale or max_size parameters."};
+	optional_arg{"--scale-filter", "-sf", "Filter used to scale images when using the scale or max_size parameters."};
 
 constexpr auto threads_arg =
 	optional_arg{"--threads", "-th", "Number of threads used by the parallel pipeline, must be in [1, {:d}]."};

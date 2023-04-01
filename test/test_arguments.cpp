@@ -219,22 +219,22 @@ TEST_CASE("todds::arguments mipmap_blur", "[arguments]") {
 	}
 
 	SECTION("mipmap_blur is not a number") {
-		const auto arguments = get({binary, "--mipmap_blur", "not_a_number", "."});
+		const auto arguments = get({binary, "--mipmap-blur", "not_a_number", "."});
 		REQUIRE(has_error(arguments));
 	}
 
 	SECTION("mipmap_blur is negative") {
-		const auto arguments = get({binary, "--mipmap_blur", "-4.7", "."});
+		const auto arguments = get({binary, "--mipmap-blur", "-4.7", "."});
 		REQUIRE(has_error(arguments));
 	}
 
 	SECTION("mipmap_blur is zero") {
-		const auto arguments = get({binary, "--mipmap_blur", "0.0", "."});
+		const auto arguments = get({binary, "--mipmap-blur", "0.0", "."});
 		REQUIRE(has_error(arguments));
 	}
 
 	SECTION("Valid mipmap_blur value") {
-		const auto arguments = get({binary, "--mipmap_blur", std::to_string(0.1), "."});
+		const auto arguments = get({binary, "--mipmap-blur", std::to_string(0.1), "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.mipmap_blur == 0.1);
 		const auto shorter = get({binary, "-mb", std::to_string(0.1), "."});
@@ -327,7 +327,7 @@ TEST_CASE("todds::arguments scale_filter", "[arguments]") {
 	}
 
 	SECTION("Parsing nearest.") {
-		const auto arguments = get({binary, "--scale_filter", "nearest", "."});
+		const auto arguments = get({binary, "--scale-filter", "nearest", "."});
 		REQUIRE(!has_error(arguments));
 		REQUIRE(arguments.scale_filter == todds::filter::type::nearest);
 	}
