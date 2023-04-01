@@ -18,7 +18,7 @@ namespace todds::pipeline::impl {
 std::unique_ptr<mipmap_image> fix_image_size(mipmap_image& original, bool mipmaps) {
 	const auto& original_img = original.get_image(0UL);
 	const auto new_width = util::next_divisible_by_4(original_img.width());
-	const auto new_height = util::next_divisible_by_4(original_img.width());
+	const auto new_height = util::next_divisible_by_4(original_img.height());
 	std::unique_ptr<mipmap_image> resized =
 		std::make_unique<mipmap_image>(original.file_index(), new_width, new_height, mipmaps);
 
