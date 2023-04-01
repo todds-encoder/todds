@@ -140,6 +140,7 @@ void run(const args::data& arguments) {
 	input_data.mipmaps = arguments.mipmaps;
 	input_data.format = arguments.format;
 	input_data.quality = arguments.quality;
+	input_data.fix_size = arguments.fix_size;
 	input_data.vflip = arguments.vflip;
 	input_data.mipmap_filter = arguments.mipmap_filter;
 	input_data.mipmap_blur = arguments.mipmap_blur;

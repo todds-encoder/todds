@@ -46,6 +46,9 @@ constexpr auto quality_arg =
 
 constexpr auto no_mipmaps_arg = optional_arg{"--no-mipmaps", "-nm", "Disable mipmap generation."};
 
+constexpr auto fix_size_arg =
+	optional_arg{"--fix-size", "-fs", "Set image width and height to the next multiple of 4."};
+
 constexpr auto default_mipmap_filter = todds::filter::type::lanczos;
 constexpr auto mipmap_filter_arg =
 	optional_arg{"--mipmap_filter", "-mf", "Filter used to resize images during mipmap generation."};
@@ -102,6 +105,7 @@ consteval std::size_t argument_name_total_space() {
 	max_space = std::max(max_space, format_arg.name.size() + format_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, quality_arg.name.size() + quality_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, no_mipmaps_arg.name.size() + no_mipmaps_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, fix_size_arg.name.size() + fix_size_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, mipmap_filter_arg.name.size() + mipmap_filter_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, mipmap_blur_arg.name.size() + mipmap_blur_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, scale_arg.name.size() + scale_arg.shorter.size() + 2UL);
@@ -190,6 +194,8 @@ std::string get_help(std::size_t max_threads) {
 	print_argument_impl(ostream, quality_arg.shorter, quality_arg.name, quality_help);
 
 	print_optional_argument(ostream, no_mipmaps_arg);
+
+	print_optional_argument(ostream, fix_size_arg);
 
 	print_optional_argument(ostream, mipmap_filter_arg);
 	print_filter_options(ostream, default_mipmap_filter);
@@ -286,6 +292,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 	parsed_arguments.threads = max_threads;
 	parsed_arguments.depth = max_depth;
 	parsed_arguments.quality = default_quality;
+	parsed_arguments.fix_size = true;
 
 	std::size_t index = 1UL;
 
@@ -327,6 +334,8 @@ data get(const todds::vector<std::string_view>& arguments) {
 			}
 		} else if (matches(argument, no_mipmaps_arg)) {
 			parsed_arguments.mipmaps = false;
+		} else if (matches(argument, fix_size_arg)) {
+			parsed_arguments.fix_size = true;
 		} else if (matches(argument, mipmap_blur_arg)) {
 			++index;
 			argument_from_str(mipmap_blur_arg.name, next_argument, parsed_arguments.mipmap_blur, parsed_arguments);

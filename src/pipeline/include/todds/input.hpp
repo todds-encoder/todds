@@ -33,6 +33,9 @@ struct input {
 	/** Quality level to use in this encoding. */
 	todds::format::quality quality{};
 
+	/** Set image width and height to the next multiple of 4. */
+	bool fix_size{};
+
 	/** Flip source images vertically before encoding. */
 	bool vflip{};
 

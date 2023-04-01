@@ -23,7 +23,8 @@ inline oneapi::tbb::filter<void, std::unique_ptr<mipmap_image>> png_decoding_fil
 	return // Load PNG files into memory, one by one.
 		impl::load_png_filter(input_data.paths, counter, force_finish, error_log) &
 		// Decode a PNG file into pixels.
-		impl::decode_png_filter(files_data, input_data.paths, input_data.vflip, should_allocate_mipmaps, error_log);
+		impl::decode_png_filter(
+			files_data, input_data.paths, input_data.vflip, should_allocate_mipmaps, input_data.fix_size, error_log);
 }
 
 inline oneapi::tbb::filter<std::unique_ptr<mipmap_image>, void> dds_encoding_filters(
@@ -43,9 +44,12 @@ oneapi::tbb::filter<void, void> get_filters_from_settings(const input& input_dat
 	vector<impl::file_data>& files_data) {
 	auto prepare_image = png_decoding_filters(input_data, counter, force_finish, error_log, files_data);
 	if (input_data.scale != 100U || input_data.max_size > 0U) {
-		prepare_image &= impl::scale_image_filter(files_data, input_data.mipmaps, input_data.scale, input_data.max_size, input_data.scale_filter);
+		prepare_image &= impl::scale_image_filter(
+			files_data, input_data.mipmaps, input_data.scale, input_data.max_size, input_data.scale_filter);
 	}
-	if (input_data.mipmaps) { prepare_image &= impl::generate_mipmaps_filter(input_data.mipmap_filter, input_data.mipmap_blur); }
+	if (input_data.mipmaps) {
+		prepare_image &= impl::generate_mipmaps_filter(input_data.mipmap_filter, input_data.mipmap_blur);
+	}
 	return prepare_image & dds_encoding_filters(input_data, files_data);
 }
 

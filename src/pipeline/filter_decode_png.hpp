@@ -19,6 +19,6 @@
 #include "filter_load_png.hpp"
 
 namespace todds::pipeline::impl {
-oneapi::tbb::filter<png_file, std::unique_ptr<mipmap_image>> decode_png_filter(
-	vector<file_data>& files_data, const paths_vector& paths, bool vflip, bool mipmaps, error_queue& errors);
+oneapi::tbb::filter<png_file, std::unique_ptr<mipmap_image>> decode_png_filter(vector<file_data>& files_data,
+	const paths_vector& paths, bool vflip, bool mipmaps, bool fix_size, error_queue& errors);
 } // namespace todds::pipeline::impl

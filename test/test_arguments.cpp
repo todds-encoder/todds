@@ -191,6 +191,22 @@ TEST_CASE("todds::arguments mipmaps", "[arguments]") {
 	}
 }
 
+TEST_CASE("todds::arguments fix_size", "[arguments]") {
+	SECTION("The default value of fix_size is false") {
+		const auto arguments = get({binary, "."});
+		REQUIRE(!arguments.fix_size);
+	}
+
+	SECTION("Providing the fix_size parameter sets its value to true") {
+		const auto arguments = get({binary, "--fix_size", "."});
+		REQUIRE(is_valid(arguments));
+		REQUIRE(arguments.fix_size);
+		const auto shorter = get({binary, "-fs", "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(shorter.fix_size);
+	}
+}
+
 TEST_CASE("todds::arguments mipmap_filter", "[arguments]") {
 	SECTION("The default value of mipmap_filter is lanczos.") {
 		const auto arguments = get({binary, "."});
