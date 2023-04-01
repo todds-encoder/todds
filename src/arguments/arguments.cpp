@@ -38,6 +38,9 @@ constexpr bool matches(std::string_view argument, const optional_arg& optional_a
 	return argument == optional_arg.shorter || argument == optional_arg.name;
 }
 
+constexpr auto clean_arg =
+	optional_arg{"--clean", "-cl", "Deletes all DDS files matching input PNG files instead of encoding them."};
+
 constexpr auto format_arg = optional_argument("--format", "DDS encoding format.");
 
 constexpr auto default_quality = todds::format::quality::really_slow;
@@ -102,6 +105,7 @@ constexpr std::string_view output_help =
 
 consteval std::size_t argument_name_total_space() {
 	std::size_t max_space{};
+	max_space = std::max(max_space, clean_arg.name.size() + clean_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, format_arg.name.size() + format_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, quality_arg.name.size() + quality_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, no_mipmaps_arg.name.size() + no_mipmaps_arg.shorter.size() + 2UL);
@@ -180,6 +184,8 @@ std::string get_help(std::size_t max_threads) {
 	print_positional_argument(ostream, output_name, output_help);
 
 	ostream << "\nOPTIONS:\n";
+
+	print_optional_argument(ostream, clean_arg);
 
 	print_optional_argument(ostream, format_arg);
 	print_string_argument(
@@ -313,7 +319,9 @@ data get(const todds::vector<std::string_view>& arguments) {
 		}
 
 		const std::string_view next_argument = (index < arguments.size() - 1UL) ? arguments[index + 1UL] : "";
-		if (matches(argument, format_arg)) {
+		if (matches(argument, clean_arg)) {
+			parsed_arguments.clean = true;
+		} else if (matches(argument, format_arg)) {
 			++index;
 			format_from_str(next_argument, parsed_arguments);
 		} else if (matches(argument, mipmap_filter_arg)) {

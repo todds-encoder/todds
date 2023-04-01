@@ -128,6 +128,10 @@ paths_vector get_paths(const todds::args::data& arguments) {
 	return paths;
 }
 
+void clean_dds_files(const paths_vector& files) {
+	for (const auto& [_, dds_file] : files) { fs::remove(dds_file); }
+}
+
 } // anonymous namespace
 
 namespace todds {
@@ -136,6 +140,10 @@ void run(const args::data& arguments) {
 	pipeline::input input_data;
 	input_data.paths = get_paths(arguments);
 	if (input_data.paths.empty()) { return; }
+	if (arguments.clean) {
+		clean_dds_files(input_data.paths);
+		return;
+	}
 	input_data.parallelism = arguments.threads;
 	input_data.mipmaps = arguments.mipmaps;
 	input_data.format = arguments.format;

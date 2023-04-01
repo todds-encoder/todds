@@ -22,6 +22,7 @@ struct data {
 	std::string text;
 	boost::filesystem::path input;
 	std::optional<boost::filesystem::path> output;
+	bool clean;
 	todds::format::type format;
 	todds::format::quality quality;
 	bool fix_size;
