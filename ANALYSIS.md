@@ -99,7 +99,7 @@ After the datasets have been obtained, the analysis can be performed by using th
 
 ### System information
 
-Generates a CSV file containing hardware and software information..
+Generates a CSV file containing hardware and software information.
 
 ```
 python.exe .\comparedds.py --todds --texconv --info > [Path to results]\info.csv
