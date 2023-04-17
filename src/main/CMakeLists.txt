@@ -14,3 +14,5 @@ target_link_libraries(todds PRIVATE
 	fmt::fmt
 	TBB::tbb
 	)
+
+install(TARGETS todds RUNTIME)
