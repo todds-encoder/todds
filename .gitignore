@@ -34,3 +34,10 @@ out*
 *.exe
 *.out
 *.app
+
+# ispc
+ispc/
+.ispc
+
+# vcpkg
+vcpkg/
