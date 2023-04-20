@@ -69,7 +69,7 @@ Compiling todds requires a recent C++ compiler version, the [Intel® Implicit SP
 ### CMake options
 ```
 TODDS_CLANG_TIDY -> Analyze the project with clang-tidy. Off by default.
-TODDS_CPP_WARNINGS_AS_ERRORS -> Treat warnings as errors. On by default
+TODDS_CPP_WARNINGS_AS_ERRORS -> Treat warnings as errors. Off by default
 TODDS_UNIT_TESTS -> Build todds unit tests. Off by default.
 ```
 
