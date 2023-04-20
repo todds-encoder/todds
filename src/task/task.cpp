@@ -51,7 +51,7 @@ public:
 
 	bool operator()(const fs::path& png_path, const fs::path& dds_path) const {
 		return _overwrite || !fs::exists(dds_path) ||
-					 _overwrite_new && (fs::last_write_time(png_path) > fs::last_write_time(dds_path));
+					 (_overwrite_new && (fs::last_write_time(png_path) > fs::last_write_time(dds_path)));
 	}
 
 private:
