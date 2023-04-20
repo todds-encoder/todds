@@ -10,6 +10,7 @@ project(todds
 	HOMEPAGE_URL "https://github.com/joseasoler/todds"
 	)
 
+option(TODDS_HYPERSCAN_SUPPORT "Compile todds with Hyperscan support" ON)
 option(TODDS_TRACY_SUPPORT "Compile todds with Tracy Profiler support" OFF)
 option(TODDS_UNIT_TESTS "Build todds unit tests" OFF)
 option(TODDS_TBB_ALLOCATOR "Use OneAPI TBB scalable_allocator." OFF)
@@ -33,7 +34,9 @@ find_package(Boost 1.73 REQUIRED COMPONENTS
 	filesystem
 	)
 find_package(fmt REQUIRED)
-find_package(Hyperscan REQUIRED)
+if (TODDS_HYPERSCAN_SUPPORT)
+	find_package(Hyperscan REQUIRED)
+endif ()
 find_package(OpenCV REQUIRED)
 find_package(Threads REQUIRED)
 find_package(TBB REQUIRED)

@@ -31,11 +31,10 @@ bool has_extension(const fs::path& path, std::string_view extension) {
  * Checks if a source path is a valid input.
  * @param path Source path to be checked.
  * @param regex A regex constructed with an empty pattern will always return true.
- * @param scratch Scratch used for regular expression evaluation.
  * @return True if the path should be processed.
  */
-bool is_valid_source(const fs::path& path, const todds::regex& regex, todds::regex::scratch_type& scratch) {
-	return has_extension(path, png_extension) && regex.match(scratch, path.string());
+bool is_valid_source(const fs::path& path, const todds::regex& regex) {
+	return has_extension(path, png_extension) && regex.match(path.string());
 }
 
 fs::path to_dds_path(const fs::path& png_path, const fs::path& output) {
@@ -65,13 +64,13 @@ void add_files(
 }
 
 void process_directory(paths_vector& paths, const fs::path& input, const fs::path& output, bool different_output,
-	const todds::regex& regex, todds::regex::scratch_type& scratch, const should_generate_dds& should_generate,
+	const todds::regex& regex, const should_generate_dds& should_generate,
 	std::size_t depth) {
 	fs::path current_output = output;
 	const fs::directory_entry dir{input};
 	for (fs::recursive_directory_iterator itr{dir}; itr != fs::recursive_directory_iterator{}; ++itr) {
 		const fs::path& current_input = itr->path();
-		if (is_valid_source(current_input, regex, scratch)) {
+		if (is_valid_source(current_input, regex)) {
 			if (different_output) {
 				const auto relative = fs::relative(current_input.parent_path(), input);
 				if (!relative.filename_is_dot()) { current_output = output / relative; }
@@ -97,12 +96,11 @@ paths_vector get_paths(const todds::args::data& arguments) {
 	const auto depth = arguments.depth;
 
 	const auto& regex = arguments.regex;
-	todds::regex::scratch_type scratch = regex.allocate_scratch();
 
 	paths_vector paths{};
 	if (fs::is_directory(input)) {
-		process_directory(paths, input, output, different_output, regex, scratch, should_generate, depth);
-	} else if (is_valid_source(input, arguments.regex, scratch)) {
+		process_directory(paths, input, output, different_output, regex, should_generate, depth);
+	} else if (is_valid_source(input, arguments.regex)) {
 		const fs::path dds_path = to_dds_path(input, output);
 		add_files(input, dds_path, paths, should_generate);
 	} else if (has_extension(input, txt_extension)) {
@@ -111,8 +109,8 @@ paths_vector get_paths(const todds::args::data& arguments) {
 		while (std::getline(stream, buffer)) {
 			const fs::path current_path{buffer};
 			if (fs::is_directory(current_path)) {
-				process_directory(paths, current_path, current_path, false, regex, scratch, should_generate, depth);
-			} else if (is_valid_source(current_path, arguments.regex, scratch)) {
+				process_directory(paths, current_path, current_path, false, regex, should_generate, depth);
+			} else if (is_valid_source(current_path, arguments.regex)) {
 				const fs::path dds_path = to_dds_path(current_path, current_path.parent_path());
 				add_files(current_path, dds_path, paths, should_generate);
 			} else {

@@ -14,27 +14,27 @@ ARGS:
 OPTIONS:
   -cl, --clean          Deletes all DDS files matching input PNG files instead of encoding them.
   -f, --format          DDS encoding format.
-                          BC7: High-quality compression supporting alpha. [Default]
-                          BC1: Highly compressed RGB data.
-                          BC1_ALPHA_BC7: Files with alpha are encoded as BC7. Others are encoded as BC1.
+                            BC7: High-quality compression supporting alpha. [Default]
+                            BC1: Highly compressed RGB data.
+                            BC1_ALPHA_BC7: Files with alpha are encoded as BC7. Others are encoded as BC1.
   -q, --quality         Encoder quality level, must be in [0, 7]. Defaults to 6.
   -nm, --no-mipmaps     Disable mipmap generation.
-  -fs, --fix-size       Set image width and height to the next multiple of 4.
+  -fs, --fix_size       Set image width and height to the next multiple of 4.
   -mf, --mipmap_filter  Filter used to resize images during mipmap generation.
-                          LANCZOS: Lanczos interpolation. Preserves edges and details better than other filters when dowsncaling images. [Default]
-                          NEAREST: Nearest neighbor interpolation. Very fast, but it does not produce great results.
-                          LINEAR: Bilinear interpolation. Fast, and with reasonable quality.
-                          CUBIC: Bicubic interpolation. Recommended filter for upscaling images.
-                          AREA: Resampling using pixel area relation. Good for downscaling images and mipmap generation.
+                            LANCZOS: Lanczos interpolation. Preserves edges and details better than other filters when dowsncaling images. [Default]
+                            NEAREST: Nearest neighbor interpolation. Very fast, but it does not produce great results.
+                            LINEAR: Bilinear interpolation. Fast, and with reasonable quality.
+                            CUBIC: Bicubic interpolation. Recommended filter for upscaling images.
+                            AREA: Resampling using pixel area relation. Good for downscaling images and mipmap generation.
   -mb, --mipmap-blur    Blur applied during mipmap generation. Defaults to 0.55.
   -sc, --scale          Scale image size by a value given in %.
   -ms, --max-size       Downscale images with a width or height larger than this threshold to fit into it.
   -sf, --scale-filter   Filter used to scale images when using the scale or max_size parameters.
-                          LANCZOS: Lanczos interpolation. Preserves edges and details better than other filters when dowsncaling images. [Default]
-                          NEAREST: Nearest neighbor interpolation. Very fast, but it does not produce great results.
-                          LINEAR: Bilinear interpolation. Fast, and with reasonable quality.
-                          CUBIC: Bicubic interpolation. Recommended filter for upscaling images.
-                          AREA: Resampling using pixel area relation. Good for downscaling images and mipmap generation.
+                            LANCZOS: Lanczos interpolation. Preserves edges and details better than other filters when dowsncaling images. [Default]
+                            NEAREST: Nearest neighbor interpolation. Very fast, but it does not produce great results.
+                            LINEAR: Bilinear interpolation. Fast, and with reasonable quality.
+                            CUBIC: Bicubic interpolation. Recommended filter for upscaling images.
+                            AREA: Resampling using pixel area relation. Good for downscaling images and mipmap generation.
   -th, --threads        Number of threads used by the parallel pipeline, must be in [1, 32].
   -d, --depth           Maximum subdirectory depth to use when looking for source files. Defaults to maximum.
   -o, --overwrite       Convert files even if an output file already exists.
@@ -80,8 +80,8 @@ To compile todds, the following dependencies must be available as development li
 * [Boost.Filesystem](https://www.boost.org/doc/libs/master/libs/filesystem/doc/index.htm)
 * [Boost.NoWide](https://www.boost.org/doc/libs/master/libs/nowide/doc/html/index.html)
 * [Boost.String](https://www.boost.org/doc/libs/master/doc/html/string_algo.html)
-* [Catch2](https://github.com/catchorg/Catch2): Only required if TODDS_UNIT_TESTS is on.
-* [Hyperscan](https://www.hyperscan.io)
+* [Catch2](https://github.com/catchorg/Catch2): Only required if `TODDS_UNIT_TESTS` is set to on.
+* [Hyperscan](https://www.hyperscan.io): Required for regex support. Can be disabled with `TODDS_HYPERSCAN_SUPPORT=OFF`.
 * [fmt](https://fmt.dev/latest/index.html)
 * [oneTBB](https://github.com/oneapi-src/oneTBB)
 * [OpenCV](https://opencv.org/)
@@ -96,7 +96,7 @@ The following third party library dependencies are contained as source code in t
 
 todds encourages community involvement and contributions. Check the [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) files for details. You can check all contributors in the [contributors list](https://github.com/joseasoler/todds/graphs/contributors).
 
-You should enable the TODDS_CLANG_TIDY option to ensure that your contribution will pass static analysis.
+You should enable the `TODDS_CPP_WARNINGS_AS_ERRORS` and `TODDS_CLANG_TIDY` CMake options to ensure that your contribution will pass static analysis.
 
 ## License
 

@@ -526,31 +526,39 @@ TEST_CASE("todds::arguments verbose", "[arguments]") {
 }
 
 TEST_CASE("todds::arguments regex", "[arguments]") {
+#if defined(TODDS_HYPERSCAN_SUPPORT)
 	SECTION("By default regex is empty") {
 		const auto arguments = get({binary, "."});
 		REQUIRE(arguments.regex.error().empty());
-		REQUIRE(arguments.regex.database() == nullptr);
-		REQUIRE(arguments.regex.allocate_scratch().get() == nullptr);
 	}
 
-	SECTION("Compilation errors are reported. The regex is empty") {
+	SECTION("Compilation errors are reported.") {
 		const auto arguments = get({binary, "--regex", "(()", "."});
 		REQUIRE(has_error(arguments));
 		REQUIRE(!arguments.regex.error().empty());
-		REQUIRE(arguments.regex.database() == nullptr);
-		REQUIRE(arguments.regex.allocate_scratch().get() == nullptr);
 	}
 
 	SECTION("Compiled regular expression") {
 		const auto arguments = get({binary, "--regex", utf_characters, "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.regex.error().empty());
-		REQUIRE(arguments.regex.database() != nullptr);
-		REQUIRE(arguments.regex.allocate_scratch().get() != nullptr);
 		const auto shorter = get({binary, "-r", utf_characters, "."});
 		REQUIRE(is_valid(shorter));
 		REQUIRE(shorter.regex.error().empty());
-		REQUIRE(shorter.regex.database() != nullptr);
-		REQUIRE(shorter.regex.allocate_scratch().get() != nullptr);
 	}
+#else
+	SECTION("By default regex reports a Hyperscan support missing error.") {
+		const auto arguments = get({binary, "."});
+		REQUIRE(!arguments.regex.error().empty());
+	}
+
+	SECTION("Regex is not a valid argument without Hyperscan support") {
+		const auto arguments = get({binary, "--regex", "utf_characters", "."});
+		REQUIRE(has_error(arguments));
+		REQUIRE(!arguments.regex.error().empty());
+		const auto shorter = get({binary, "-r", utf_characters, "."});
+		REQUIRE(has_error(arguments));
+		REQUIRE(!shorter.regex.error().empty());
+	}
+#endif // defined(TODDS_HYPERSCAN_SUPPORT)
 }

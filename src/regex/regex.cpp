@@ -31,6 +31,12 @@ void free_database(hs_database* database) {
 	hs_free_database(database);
 }
 
+hs_scratch* create_scratch(hs_database& database) {
+	hs_scratch* scratch = nullptr;
+	hs_alloc_scratch(&database, &scratch);
+	return scratch;
+}
+
 void free_scratch(hs_scratch* scratch) {
 	assert(scratch != nullptr);
 	hs_free_scratch(scratch);
@@ -47,31 +53,47 @@ int handle_match(
 
 namespace todds {
 
-regex::regex()
-	: _error{}
-	, _database{nullptr, free_database} {}
+class regex_pimpl final {
+public:
+	using scratch_ptr = std::unique_ptr<hs_scratch, void (*)(hs_scratch*)>;
+	using database_ptr = std::unique_ptr<hs_database, void (*)(hs_database*)>;
+
+	explicit regex_pimpl(std::string_view pattern)
+		: _error{}
+		, _database{compile(pattern, _error), free_database}
+		, _scratch{_database != nullptr ? create_scratch(*_database) : nullptr, free_scratch} {}
+
+	[[nodiscard]] std::string_view error() const noexcept { return _error; }
+
+	bool match(std::string_view input) {
+		bool has_match{_database == nullptr || _scratch == nullptr};
+		if (!has_match) {
+			hs_scan(_database.get(), input.data(), static_cast<unsigned int>(input.size()), 0, _scratch.get(), handle_match,
+				static_cast<void*>(&has_match));
+		}
+		return has_match;
+	}
+
+private:
+	std::string _error;
+	database_ptr _database;
+	scratch_ptr _scratch;
+};
 
 regex::regex(std::string_view pattern)
-	: _error{}
-	, _database{compile(pattern, _error), free_database} {}
+	: _pimpl{std::make_unique<regex_pimpl>(pattern)} {}
 
-const hs_database* regex::database() const noexcept { return _database.get(); }
+regex::regex()
+	: regex("") {}
 
-std::string_view regex::error() const noexcept { return _error; }
+regex::regex(regex&& other) noexcept = default;
 
-regex::scratch_type regex::allocate_scratch() const {
-	hs_scratch* scratch = nullptr;
-	if (_database) { hs_alloc_scratch(_database.get(), &scratch); }
-	return {scratch, free_scratch};
-}
+regex& regex::operator=(regex&& other) noexcept = default;
 
-bool regex::match(regex::scratch_type& scratch, std::string_view input) const {
-	bool has_match{_database == nullptr || scratch == nullptr};
-	if (!has_match) {
-		hs_scan(_database.get(), input.data(), static_cast<unsigned int>(input.size()), 0, scratch.get(), handle_match,
-			static_cast<void*>(&has_match));
-	}
-	return has_match;
-}
+regex::~regex() = default;
+
+std::string_view regex::error() const noexcept { return _pimpl->error(); }
+
+bool regex::match(std::string_view input) const { return _pimpl->match(input); }
 
 } // namespace todds

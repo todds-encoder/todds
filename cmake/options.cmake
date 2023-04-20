@@ -4,6 +4,10 @@
 
 include_guard(GLOBAL)
 
+if (TODDS_HYPERSCAN_SUPPORT)
+	add_compile_definitions(TODDS_HYPERSCAN_SUPPORT)
+endif ()
+
 if (TODDS_TBB_ALLOCATOR)
 	add_compile_definitions(TODDS_TBB_ALLOCATOR)
 elseif (TODDS_MIMALLOC_ALLOCATOR)

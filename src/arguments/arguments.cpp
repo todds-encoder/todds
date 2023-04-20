@@ -221,7 +221,9 @@ std::string get_help(std::size_t max_threads) {
 	print_optional_argument(ostream, overwrite_new_arg);
 	print_optional_argument(ostream, vflip_arg);
 	print_optional_argument(ostream, time_arg);
+#if defined(TODDS_HYPERSCAN_SUPPORT)
 	print_optional_argument(ostream, regex_arg);
+#endif // defined(TODDS_HYPERSCAN_SUPPORT)
 	print_optional_argument(ostream, verbose_arg);
 	print_optional_argument(ostream, help_arg);
 
@@ -365,6 +367,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 			++index;
 			argument_from_str(depth_arg.name, next_argument, parsed_arguments.depth, parsed_arguments);
 			if (parsed_arguments.depth == 0UL) { parsed_arguments.depth = max_depth; }
+#if defined(TODDS_HYPERSCAN_SUPPORT)
 		} else if (matches(argument, regex_arg)) {
 			++index;
 			parsed_arguments.regex = todds::regex{next_argument};
@@ -374,6 +377,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 				parsed_arguments.text =
 					fmt::format("Could not compile regular expression {:s}: {:s}", next_argument, regex_err);
 			}
+#endif // defined(TODDS_HYPERSCAN_SUPPORT)
 		} else if (matches(argument, overwrite_arg)) {
 			parsed_arguments.overwrite = true;
 		} else if (matches(argument, overwrite_new_arg)) {
