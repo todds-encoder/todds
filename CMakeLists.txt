@@ -39,7 +39,7 @@ if (TODDS_HYPERSCAN_SUPPORT)
 endif ()
 find_package(OpenCV REQUIRED)
 find_package(Threads REQUIRED)
-find_package(TBB REQUIRED)
+find_package(TBB 2021.5.0 REQUIRED)
 
 if (TODDS_TRACY_SUPPORT)
 	find_package(Tracy REQUIRED)
