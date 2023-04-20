@@ -50,7 +50,7 @@ constexpr auto quality_arg =
 constexpr auto no_mipmaps_arg = optional_arg{"--no-mipmaps", "-nm", "Disable mipmap generation."};
 
 constexpr auto fix_size_arg =
-	optional_arg{"--fix-size", "-fs", "Set image width and height to the next multiple of 4."};
+	optional_arg{"--fix_size", "-fs", "Set image width and height to the next multiple of 4."};
 
 constexpr auto default_mipmap_filter = todds::filter::type::lanczos;
 constexpr auto mipmap_filter_arg =
@@ -298,7 +298,6 @@ data get(const todds::vector<std::string_view>& arguments) {
 	parsed_arguments.threads = max_threads;
 	parsed_arguments.depth = max_depth;
 	parsed_arguments.quality = default_quality;
-	parsed_arguments.fix_size = true;
 
 	std::size_t index = 1UL;
 
