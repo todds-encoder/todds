@@ -198,7 +198,7 @@ TEST_CASE("todds::arguments fix_size", "[arguments]") {
 	}
 
 	SECTION("Providing the fix_size parameter sets its value to true") {
-		const auto arguments = get({binary, "--fix_size", "."});
+		const auto arguments = get({binary, "--fix-size", "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.fix_size);
 		const auto shorter = get({binary, "-fs", "."});
@@ -215,7 +215,7 @@ TEST_CASE("todds::arguments mipmap_filter", "[arguments]") {
 	}
 
 	SECTION("Parsing nearest.") {
-		const auto arguments = get({binary, "--mipmap_filter", "nearest", "."});
+		const auto arguments = get({binary, "--mipmap-filter", "nearest", "."});
 		REQUIRE(!has_error(arguments));
 		REQUIRE(arguments.mipmap_filter == todds::filter::type::nearest);
 	}
@@ -463,7 +463,7 @@ TEST_CASE("todds::arguments overwrite_new", "[arguments]") {
 	}
 
 	SECTION("Providing the overwrite_new parameter sets its value to true") {
-		const auto arguments = get({binary, "--overwrite_new", "."});
+		const auto arguments = get({binary, "--overwrite-new", "."});
 		REQUIRE(is_valid(arguments));
 		REQUIRE(arguments.overwrite_new);
 		const auto shorter = get({binary, "-on", "."});
@@ -472,7 +472,7 @@ TEST_CASE("todds::arguments overwrite_new", "[arguments]") {
 	}
 
 	SECTION("Setting overwrite and overwrite_new at the same time triggers an error.") {
-		const auto arguments = get({binary, "--overwrite", "--overwrite_new", "."});
+		const auto arguments = get({binary, "--overwrite", "--overwrite-new", "."});
 		REQUIRE(has_error(arguments));
 	}
 }

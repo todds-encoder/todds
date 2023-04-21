@@ -50,11 +50,11 @@ constexpr auto quality_arg =
 constexpr auto no_mipmaps_arg = optional_arg{"--no-mipmaps", "-nm", "Disable mipmap generation."};
 
 constexpr auto fix_size_arg =
-	optional_arg{"--fix_size", "-fs", "Set image width and height to the next multiple of 4."};
+	optional_arg{"--fix-size", "-fs", "Set image width and height to the next multiple of 4."};
 
 constexpr auto default_mipmap_filter = todds::filter::type::lanczos;
 constexpr auto mipmap_filter_arg =
-	optional_arg{"--mipmap_filter", "-mf", "Filter used to resize images during mipmap generation."};
+	optional_arg{"--mipmap-filter", "-mf", "Filter used to resize images during mipmap generation."};
 
 constexpr double default_mipmap_blur = 0.55;
 constexpr auto mipmap_blur_arg =
@@ -79,7 +79,7 @@ constexpr auto depth_arg =
 constexpr auto overwrite_arg = optional_argument("--overwrite", "Convert files even if an output file already exists.");
 
 constexpr auto overwrite_new_arg = optional_arg{
-	"--overwrite_new", "-on", "Convert files if an output file exists, but it is older than the input file."};
+	"--overwrite-new", "-on", "Convert files if an output file exists, but it is older than the input file."};
 
 constexpr auto vflip_arg = optional_arg{"--vflip", "-vf", "Flip source images vertically before encoding."};
 
