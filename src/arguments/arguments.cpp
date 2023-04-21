@@ -88,7 +88,12 @@ constexpr auto time_arg = optional_argument("--time", "Show total execution time
 constexpr auto regex_arg =
 	optional_argument("--regex", "Process only absolute paths matching this regular expression.");
 
-constexpr auto verbose_arg = optional_argument("--verbose", "Display progress messages.");
+constexpr auto dry_run_arg =
+	optional_arg{"--dry-run", "-dr", "Calculate all files that would be affected but do not make any changes."};
+
+constexpr auto progress_arg = optional_argument("--progress", "Display progress messages.");
+
+constexpr auto verbose_arg = optional_argument("--verbose", "Display all input files of the current operation.");
 
 constexpr auto help_arg = optional_argument("--help", "Show usage information.");
 
@@ -121,6 +126,8 @@ consteval std::size_t argument_name_total_space() {
 	max_space = std::max(max_space, overwrite_new_arg.name.size() + overwrite_new_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, vflip_arg.name.size() + vflip_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, time_arg.name.size() + time_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, dry_run_arg.name.size() + dry_run_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, progress_arg.name.size() + progress_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, verbose_arg.name.size() + verbose_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, regex_arg.name.size() + regex_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, help_arg.name.size() + help_arg.shorter.size() + 2UL);
@@ -224,6 +231,8 @@ std::string get_help(std::size_t max_threads) {
 #if defined(TODDS_HYPERSCAN_SUPPORT)
 	print_optional_argument(ostream, regex_arg);
 #endif // defined(TODDS_HYPERSCAN_SUPPORT)
+	print_optional_argument(ostream, dry_run_arg);
+	print_optional_argument(ostream, progress_arg);
 	print_optional_argument(ostream, verbose_arg);
 	print_optional_argument(ostream, help_arg);
 
@@ -386,6 +395,10 @@ data get(const todds::vector<std::string_view>& arguments) {
 			parsed_arguments.vflip = true;
 		} else if (matches(argument, time_arg)) {
 			parsed_arguments.time = true;
+		} else if (matches(argument, dry_run_arg)) {
+			parsed_arguments.dry_run = true;
+		} else if (matches(argument, progress_arg)) {
+			parsed_arguments.progress = true;
 		} else if (matches(argument, verbose_arg)) {
 			parsed_arguments.verbose = true;
 		} else {

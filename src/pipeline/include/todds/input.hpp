@@ -55,7 +55,7 @@ struct input {
 	todds::filter::type scale_filter{};
 
 	/** Display progress messages. */
-	bool verbose{};
+	bool progress{};
 };
 
 } // namespace todds::pipeline

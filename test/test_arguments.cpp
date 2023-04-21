@@ -509,6 +509,38 @@ TEST_CASE("todds::arguments time", "[arguments]") {
 	}
 }
 
+TEST_CASE("todds::arguments dry_run", "[arguments]") {
+	SECTION("The default value of dry_run is false") {
+		const auto arguments = get({binary, "."});
+		REQUIRE(!arguments.dry_run);
+	}
+
+	SECTION("Providing the dry_run parameter sets its value to true") {
+		const auto arguments = get({binary, "--dry-run", "."});
+		REQUIRE(is_valid(arguments));
+		REQUIRE(arguments.dry_run);
+		const auto shorter = get({binary, "-dr", "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(shorter.dry_run);
+	}
+}
+
+TEST_CASE("todds::arguments progress", "[arguments]") {
+	SECTION("The default value of progress is false") {
+		const auto arguments = get({binary, "."});
+		REQUIRE(!arguments.progress);
+	}
+
+	SECTION("Providing the progress parameter sets its value to true") {
+		const auto arguments = get({binary, "--progress", "."});
+		REQUIRE(is_valid(arguments));
+		REQUIRE(arguments.progress);
+		const auto shorter = get({binary, "-p", "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(shorter.progress);
+	}
+}
+
 TEST_CASE("todds::arguments verbose", "[arguments]") {
 	SECTION("The default value of verbose is false") {
 		const auto arguments = get({binary, "."});

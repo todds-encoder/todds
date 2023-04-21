@@ -37,7 +37,7 @@ find_package(fmt REQUIRED)
 if (TODDS_HYPERSCAN_SUPPORT)
 	find_package(Hyperscan REQUIRED)
 endif ()
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 4.0 REQUIRED)
 find_package(Threads REQUIRED)
 find_package(TBB 2021.5.0 REQUIRED)
 

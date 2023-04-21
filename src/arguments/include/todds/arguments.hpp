@@ -40,6 +40,8 @@ struct data {
 	bool time;
 	bool verbose;
 	todds::regex regex;
+	bool dry_run;
+	bool progress;
 };
 
 /**

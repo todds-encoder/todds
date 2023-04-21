@@ -126,6 +126,13 @@ paths_vector get_paths(const todds::args::data& arguments) {
 	return paths;
 }
 
+void verbose_output(const paths_vector& files, bool clean) {
+	for (const auto& [png_file, dds_file] : files) {
+		const std::string& path = clean ? dds_file.string() : png_file.string();
+		boost::nowide::cerr << path << '\n';
+	}
+}
+
 void clean_dds_files(const paths_vector& files) {
 	for (const auto& [_, dds_file] : files) { fs::remove(dds_file); }
 }
@@ -138,10 +145,21 @@ void run(const args::data& arguments) {
 	pipeline::input input_data;
 	input_data.paths = get_paths(arguments);
 	if (input_data.paths.empty()) { return; }
+
+	// Process arguments that affect the input.
+	if (arguments.verbose)
+	{
+		verbose_output(input_data.paths, arguments.clean);
+	}
+	if (arguments.dry_run)
+	{
+		return;
+	}
 	if (arguments.clean) {
 		clean_dds_files(input_data.paths);
 		return;
 	}
+
 	input_data.parallelism = arguments.threads;
 	input_data.mipmaps = arguments.mipmaps;
 	input_data.format = arguments.format;
@@ -153,7 +171,7 @@ void run(const args::data& arguments) {
 	input_data.scale = arguments.scale;
 	input_data.max_size = arguments.max_size;
 	input_data.scale_filter = arguments.scale_filter;
-	input_data.verbose = arguments.verbose;
+	input_data.progress = arguments.progress;
 
 	// Launch the parallel pipeline.
 	pipeline::encode_as_dds(input_data);

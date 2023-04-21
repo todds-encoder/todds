@@ -42,7 +42,9 @@ OPTIONS:
   -vf, --vflip          Flip source images vertically before encoding.
   -t, --time            Show total execution time.
   -r, --regex           Process only absolute paths matching this regular expression.
-  -v, --verbose         Display progress messages.
+  -dr, --dry-run        Calculate all files that would be affected but do not make any changes.
+  -p, --progress        Display progress messages.
+  -v, --verbose         Display all input files of the current operation.
   -h, --help            Show usage information.
 ```
 

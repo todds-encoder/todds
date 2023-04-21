@@ -137,7 +137,7 @@ void encode_as_dds(const input& input_data) {
 	std::atomic<bool> force_finish;
 
 	std::future<void> error_report{};
-	if (input_data.verbose) {
+	if (input_data.progress) {
 		error_report = std::async(std::launch::async, error_reporting, std::ref(error_log), std::ref(counter),
 			input_data.paths.size(), std::ref(force_finish));
 	}
