@@ -19,8 +19,8 @@ OPTIONS:
                             BC1_ALPHA_BC7: Files with alpha are encoded as BC7. Others are encoded as BC1.
   -q, --quality         Encoder quality level, must be in [0, 7]. Defaults to 6.
   -nm, --no-mipmaps     Disable mipmap generation.
-  -fs, --fix_size       Set image width and height to the next multiple of 4.
-  -mf, --mipmap_filter  Filter used to resize images during mipmap generation.
+  -fs, --fix-size       Set image width and height to the next multiple of 4.
+  -mf, --mipmap-filter  Filter used to resize images during mipmap generation.
                             LANCZOS: Lanczos interpolation. Preserves edges and details better than other filters when dowsncaling images. [Default]
                             NEAREST: Nearest neighbor interpolation. Very fast, but it does not produce great results.
                             LINEAR: Bilinear interpolation. Fast, and with reasonable quality.
@@ -38,7 +38,7 @@ OPTIONS:
   -th, --threads        Number of threads used by the parallel pipeline, must be in [1, 32].
   -d, --depth           Maximum subdirectory depth to use when looking for source files. Defaults to maximum.
   -o, --overwrite       Convert files even if an output file already exists.
-  -on, --overwrite_new  Convert files if an output file exists, but it is older than the input file.
+  -on, --overwrite-new  Convert files if an output file exists, but it is older than the input file.
   -vf, --vflip          Flip source images vertically before encoding.
   -t, --time            Show total execution time.
   -r, --regex           Process only absolute paths matching this regular expression.
