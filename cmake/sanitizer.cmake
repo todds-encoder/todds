@@ -3,6 +3,6 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-	add_compile_options(-fsanitize=undefined,address)
-	add_link_options(-fsanitize=undefined,address)
+	add_compile_options("$<$<CONFIG:DEBUG>:-fsanitize=undefined,address>")
+	add_link_options("$<$<CONFIG:DEBUG>:-fsanitize=undefined,address>")
 endif ()
