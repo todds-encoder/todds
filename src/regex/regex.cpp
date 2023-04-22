@@ -8,6 +8,7 @@
 #include <hs.h>
 
 #include <cassert>
+#include <string>
 
 namespace {
 hs_database* compile(std::string_view pattern, std::string& error) {
@@ -61,7 +62,9 @@ public:
 	explicit regex_pimpl(std::string_view pattern)
 		: _error{}
 		, _database{compile(pattern, _error), free_database}
-		, _scratch{_database != nullptr ? create_scratch(*_database) : nullptr, free_scratch} {}
+		, _scratch{nullptr, free_scratch} {
+		_scratch = {_database != nullptr ? create_scratch(*_database) : nullptr, free_scratch};
+	}
 
 	[[nodiscard]] std::string_view error() const noexcept { return _error; }
 
