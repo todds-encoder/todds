@@ -1,12 +1,38 @@
 {
-    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-    "dependencies": [
-        "boost-filesystem",
-        "boost-nowide",
-        "fmt",
-        "hyperscan",
-        "hwloc",
-        "opencv",
-        "tbb"
-    ]
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "todds",
+  "dependencies": [
+    "boost-filesystem",
+    "boost-nowide",
+    "fmt",
+    "hwloc",
+    "opencv",
+    "tbb"
+  ],
+  "features": {
+    "mimalloc": {
+      "description": "Use mimalloc instead of the standard allocator",
+      "dependencies": [
+        "mimalloc"
+      ]
+    },
+    "profiling": {
+      "description": "Tracy profiler support",
+      "dependencies": [
+        "tracy"
+      ]
+    },
+    "regex": {
+      "description": "Regular expression parameter support",
+      "dependencies": [
+        "hyperscan"
+      ]
+    },
+    "tests": {
+      "description": "Build tests",
+      "dependencies": [
+        "catch2"
+      ]
+    }
+  }
 }
