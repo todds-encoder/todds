@@ -7,10 +7,10 @@
 
 include_guard(GLOBAL)
 
-option(TODDS_CPP_WARNINGS_AS_ERRORS "Treat TODDS_CPP_WARNING_FLAGS as errors." OFF)
+option(TODDS_WARNINGS_AS_ERRORS "Treat TODDS_CPP_WARNING_FLAGS as errors." OFF)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-	option(TODDS_CPP_CLANG_ALL_WARNINGS
+	option(TODDS_CLANG_ALL_WARNINGS
 		"Include most Clang warnings. This may trigger unexpected positives when using newer Clang versions." OFF)
 endif ()
 
@@ -18,7 +18,7 @@ message(STATUS "Defining TODDS_CPP_WARNING_FLAGS")
 
 set(TODDS_CPP_WARNING_FLAGS)
 
-if (TODDS_CPP_CLANG_ALL_WARNINGS AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+if (TODDS_CLANG_ALL_WARNINGS AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	list(APPEND TODDS_CPP_WARNING_FLAGS
 		-Weverything                          # Enable every Clang warning except for the following exceptions.
 		-Wno-c++98-compat                     # This project is not compatible with C++98.
@@ -115,7 +115,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif ()
 
 # Enable warnings as errors.
-if (TODDS_CPP_WARNINGS_AS_ERRORS)
+if (TODDS_WARNINGS_AS_ERRORS)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		list(APPEND TODDS_CPP_WARNING_FLAGS -Werror)
 	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")

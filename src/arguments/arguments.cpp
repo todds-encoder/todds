@@ -228,9 +228,9 @@ std::string get_help(std::size_t max_threads) {
 	print_optional_argument(ostream, overwrite_new_arg);
 	print_optional_argument(ostream, vflip_arg);
 	print_optional_argument(ostream, time_arg);
-#if defined(TODDS_HYPERSCAN_SUPPORT)
+#if defined(TODDS_REGULAR_EXPRESSIONS)
 	print_optional_argument(ostream, regex_arg);
-#endif // defined(TODDS_HYPERSCAN_SUPPORT)
+#endif // defined(TODDS_REGULAR_EXPRESSIONS)
 	print_optional_argument(ostream, dry_run_arg);
 	print_optional_argument(ostream, progress_arg);
 	print_optional_argument(ostream, verbose_arg);
@@ -290,7 +290,8 @@ void argument_from_str<double>(
 		value = std::stod(std::string{argument});
 	} catch (const std::logic_error& exception) {
 		parsed_arguments.error = true;
-		parsed_arguments.text = fmt::format("Argument error: {:s} must be a floating-point number.", argument_name);
+		parsed_arguments.text = fmt::format(
+			"Argument error: {:s} must be a floating-point number. Exception: {:s}", argument_name, exception.what());
 	}
 }
 
@@ -389,7 +390,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 			++index;
 			argument_from_str(depth_arg.name, next_argument, parsed_arguments.depth, parsed_arguments);
 			if (parsed_arguments.depth == 0UL) { parsed_arguments.depth = max_depth; }
-#if defined(TODDS_HYPERSCAN_SUPPORT)
+#if defined(TODDS_REGULAR_EXPRESSIONS)
 		} else if (matches(argument, regex_arg)) {
 			++index;
 			parsed_arguments.regex = todds::regex{next_argument};
@@ -399,7 +400,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 				parsed_arguments.text =
 					fmt::format("Could not compile regular expression {:s}: {:s}", next_argument, regex_err);
 			}
-#endif // defined(TODDS_HYPERSCAN_SUPPORT)
+#endif // defined(TODDS_REGULAR_EXPRESSIONS)
 		} else if (matches(argument, overwrite_arg)) {
 			parsed_arguments.overwrite = true;
 		} else if (matches(argument, overwrite_new_arg)) {

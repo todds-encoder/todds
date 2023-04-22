@@ -558,7 +558,7 @@ TEST_CASE("todds::arguments verbose", "[arguments]") {
 }
 
 TEST_CASE("todds::arguments regex", "[arguments]") {
-#if defined(TODDS_HYPERSCAN_SUPPORT)
+#if defined(TODDS_REGULAR_EXPRESSIONS)
 	SECTION("By default regex is empty") {
 		const auto arguments = get({binary, "."});
 		REQUIRE(arguments.regex.error().empty());
@@ -592,5 +592,5 @@ TEST_CASE("todds::arguments regex", "[arguments]") {
 		REQUIRE(has_error(arguments));
 		REQUIRE(!shorter.regex.error().empty());
 	}
-#endif // defined(TODDS_HYPERSCAN_SUPPORT)
+#endif // defined(TODDS_REGULAR_EXPRESSIONS)
 }

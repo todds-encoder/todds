@@ -4,8 +4,8 @@
 
 include_guard(GLOBAL)
 
-if (TODDS_HYPERSCAN_SUPPORT)
-	add_compile_definitions(TODDS_HYPERSCAN_SUPPORT)
+if (TODDS_REGULAR_EXPRESSIONS)
+	add_compile_definitions(TODDS_REGULAR_EXPRESSIONS)
 endif ()
 
 if (TODDS_TBB_ALLOCATOR)

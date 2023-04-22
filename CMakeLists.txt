@@ -4,17 +4,31 @@
 
 cmake_minimum_required(VERSION 3.22)
 
+option(TODDS_MIMALLOC_ALLOCATOR "Use mimalloc." OFF)
+option(TODDS_REGULAR_EXPRESSIONS "Compile todds with Hyperscan support" ON)
+option(TODDS_TBB_ALLOCATOR "Use OneAPI TBB scalable_allocator." OFF)
+option(TODDS_TRACY "Compile todds with Tracy Profiler support" OFF)
+option(TODDS_UNIT_TESTS "Build todds unit tests" OFF)
+
+# Update vcpkg manifest features depending on the chosen todds CMake options.
+if (TODDS_MIMALLOC_ALLOCATOR)
+	list(APPEND VCPKG_MANIFEST_FEATURES "mimalloc")
+endif ()
+if (TODDS_REGULAR_EXPRESSIONS)
+	list(APPEND VCPKG_MANIFEST_FEATURES "regex")
+endif ()
+if (TODDS_TRACY)
+	list(APPEND VCPKG_MANIFEST_FEATURES "profiling")
+endif ()
+if (TODDS_UNIT_TESTS)
+	list(APPEND VCPKG_MANIFEST_FEATURES "tests")
+endif ()
+
 project(todds
 	VERSION 0.2.0
 	DESCRIPTION "A CPU-based DDS encoder optimized for fast batch conversions with high encoding quality."
 	HOMEPAGE_URL "https://github.com/joseasoler/todds"
 	)
-
-option(TODDS_HYPERSCAN_SUPPORT "Compile todds with Hyperscan support" ON)
-option(TODDS_TRACY_SUPPORT "Compile todds with Tracy Profiler support" OFF)
-option(TODDS_UNIT_TESTS "Build todds unit tests" OFF)
-option(TODDS_TBB_ALLOCATOR "Use OneAPI TBB scalable_allocator." OFF)
-option(TODDS_MIMALLOC_ALLOCATOR "Use mimalloc." OFF)
 
 # Set the C++ standard used by this project.
 set(CMAKE_CXX_STANDARD 20)
@@ -34,14 +48,14 @@ find_package(Boost 1.73 REQUIRED COMPONENTS
 	filesystem
 	)
 find_package(fmt REQUIRED)
-if (TODDS_HYPERSCAN_SUPPORT)
+if (TODDS_REGULAR_EXPRESSIONS)
 	find_package(Hyperscan REQUIRED)
 endif ()
 find_package(OpenCV 4.0 REQUIRED)
 find_package(Threads REQUIRED)
 find_package(TBB 2021.5.0 REQUIRED)
 
-if (TODDS_TRACY_SUPPORT)
+if (TODDS_TRACY)
 	find_package(Tracy REQUIRED)
 	add_compile_definitions(TRACY_ENABLE)
 	link_libraries(Tracy::TracyClient)

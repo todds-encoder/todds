@@ -68,13 +68,6 @@ Check the [Analysis documentation](ANALYSIS.md) for details.
 
 Compiling todds requires a recent C++ compiler version, the [Intel® Implicit SPMD Program Compiler](https://github.com/ispc/ispc) and [CMake](https://cmake.org/).
 
-### CMake options
-```
-TODDS_CLANG_TIDY -> Analyze the project with clang-tidy. Off by default.
-TODDS_CPP_WARNINGS_AS_ERRORS -> Treat warnings as errors. Off by default
-TODDS_UNIT_TESTS -> Build todds unit tests. Off by default.
-```
-
 ### Dependencies
 
 To compile todds, the following dependencies must be available as development libraries. All dependencies are available through [vcpkg](https://github.com/microsoft/vcpkg).
@@ -83,7 +76,7 @@ To compile todds, the following dependencies must be available as development li
 * [Boost.NoWide](https://www.boost.org/doc/libs/master/libs/nowide/doc/html/index.html)
 * [Boost.String](https://www.boost.org/doc/libs/master/doc/html/string_algo.html)
 * [Catch2](https://github.com/catchorg/Catch2): Only required if `TODDS_UNIT_TESTS` is set to on.
-* [Hyperscan](https://www.hyperscan.io): Required for regex support. Can be disabled with `TODDS_HYPERSCAN_SUPPORT=OFF`.
+* [Hyperscan](https://www.hyperscan.io): Required for regular expression support. Only required when `TODDS_REGULAR_EXPRESSIONS` is set to `ON`.
 * [fmt](https://fmt.dev/latest/index.html)
 * [oneTBB](https://github.com/oneapi-src/oneTBB)
 * [OpenCV](https://opencv.org/)
@@ -94,11 +87,22 @@ The following third party library dependencies are contained as source code in t
 * [libspng](https://libspng.org/)
 * [miniz](https://github.com/richgel999/miniz)
 
+### CMake options
+
+* `TODDS_CLANG_ALL_WARNINGS`: This option is only available when the clang compiler is in use. This enables almost every Clang warning, except for a few that cause issues with todds. This may trigger unexpected positives when using newer Clang versions. Off by default.
+* `TODDS_CLANG_TIDY`: If [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) is available, it will be used to analyze the project. Off by default.
+* `TODDS_MIMALLOC_ALLOCATOR`: todds will use the [mimalloc](https://github.com/microsoft/mimalloc) allocator instead of the standard allocator.
+* `TODDS_REGULAR_EXPRESSIONS`: Enables the regular expression parameter for todds. Requires the [Hyperscan](https://github.com/intel/hyperscan) library.
+* `TODDS_TBB_ALLOCATOR` todds will use the [scalable_allocator](https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Memory_Allocation.html) from [oneTBB](https://github.com/oneapi-src/oneTBB) instead of the standard allocator.
+* `TODDS_UNIT_TESTS` -> Build todds unit tests. Requires the [Catch2](https://github.com/catchorg/Catch2) library. Off by default.
+* `TODDS_WARNINGS_AS_ERRORS`: Treat all compiler warnings as errors. Off by default.
+* `TODDS_TRACY`: Compiles todds with [Tracy Profiler](https://github.com/wolfpld/tracy) support. todds will use a custom allocator that will expose allocation data to Tracy.
+
 ## Contributing
 
 todds encourages community involvement and contributions. Check the [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) files for details. You can check all contributors in the [contributors list](https://github.com/joseasoler/todds/graphs/contributors).
 
-You should enable the `TODDS_CPP_WARNINGS_AS_ERRORS` and `TODDS_CLANG_TIDY` CMake options to ensure that your contribution will pass static analysis.
+You should enable the `TODDS_UNIT_TESTS`, ``TODDS_WARNINGS_AS_ERRORS` and `TODDS_CLANG_TIDY` CMake options to ensure that your contribution will pass static analysis.
 
 ## License
 
