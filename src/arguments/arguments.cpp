@@ -7,7 +7,6 @@
 
 #include "todds/format.hpp"
 #include "todds/project.hpp"
-#include "todds/vector.hpp"
 
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/nowide/args.hpp>
@@ -18,6 +17,7 @@
 #include <array>
 #include <charconv>
 #include <sstream>
+#include <string>
 #include <string_view>
 
 namespace fs = boost::filesystem;
@@ -277,7 +277,20 @@ void argument_from_str(
 	const auto [_, error] = std::from_chars(argument.data(), argument.data() + argument.size(), value);
 	if (error == std::errc::invalid_argument || error == std::errc::result_out_of_range) {
 		parsed_arguments.error = true;
-		parsed_arguments.text = fmt::format("Argument error: {:s} must be a positive number.", argument_name);
+		parsed_arguments.text = fmt::format("Argument error: {:s} must be a number.", argument_name);
+	}
+}
+
+// libc++ (used on MacOS by default) lacks support for the floating-point part of P0067R5.
+// Until that is addressed, it is not possible to use from_chars with variables of type double.
+template<>
+void argument_from_str<double>(
+	std::string_view argument_name, std::string_view argument, double& value, todds::args::data& parsed_arguments) {
+	try {
+		value = std::stod(std::string{argument});
+	} catch (const std::logic_error& exception) {
+		parsed_arguments.error = true;
+		parsed_arguments.text = fmt::format("Argument error: {:s} must be a floating-point number.", argument_name);
 	}
 }
 
