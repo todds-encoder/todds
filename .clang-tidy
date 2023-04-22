@@ -3,6 +3,7 @@
 #
 # altera-*: Disable FPGA checks.
 # bugprone-easily-swappable-parameters: Allow adjacent parameters of the same type.
+# bugprone-exception-escape: Allow using fields which may throw exceptions in todds::args::data.
 # clang-diagnostic-c++20-compat: todds only supports c++20
 # clang-diagnostic-unknown-warning-option: Triggered by GCC-only warnings.
 # clang-diagnostic-unused-command-line-argument: Ignore unused command line arguments.
@@ -33,6 +34,7 @@ Checks: '*,
 -altera-*,
 -clang-diagnostic-c++20-compat,
 -bugprone-easily-swappable-parameters,
+-bugprone-exception-escape,
 -clang-diagnostic-unknown-warning-option,
 -clang-diagnostic-unused-command-line-argument,
 -cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,
