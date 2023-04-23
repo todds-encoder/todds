@@ -111,6 +111,6 @@ The following commands should be executed once for each dataset.
 
 ```
 python.exe .\comparedds.py --todds --texconv --batch [Path to datasets]\[Dataset] [Path to output files] > [Path to results]\[dataset_name]_batch.csv
-python.exe .\comparedds.py --todds --metrics [Path to datasets]\[Dataset] [Path to output files] > [Path to results]\[dataset_name]_metrics.csv
-python.exe .\comparedds.py --texconv --metrics [Path to datasets]\[Dataset] [Path to output files] > [Path to results]\[dataset_name]_metrics.csv
+python.exe .\comparedds.py --todds --metrics [Path to datasets]\[Dataset] [Path to output files] > [Path to results]\[dataset_name]_todds_metrics.csv
+python.exe .\comparedds.py --texconv --metrics [Path to datasets]\[Dataset] [Path to output files] > [Path to results]\[dataset_name]_texconv_metrics.csv
 ```

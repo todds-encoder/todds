@@ -267,7 +267,7 @@ def calculate_metrics(arguments, input_files):
     csv_out = csv.writer(sys.stdout, lineterminator='\n')
     # ToDo FLIP fails on every data set.
     # csv_out.writerow(['File', 'Tool', 'FLIP (Mean)', 'PSNR'])
-    csv_out.writerow(['File', 'Tool', 'PSNR'])
+    csv_out.writerow(['File', 'Tool', 'PSNR', 'SSIM'])
     for tool, data in encoder_data.items():
         if getattr(arguments, tool):
             output_path = os.path.join(args.output, tool)
@@ -278,10 +278,11 @@ def calculate_metrics(arguments, input_files):
                 decode_png(dds_file, png_file)
                 # flip_mean = calculate_flip(input_file, png_file)
                 psnr = calculate_metric(input_file, png_file, 'PSNR')
+                ssim = calculate_metric(input_file, png_file, 'SSIM')
                 if os.sep in input_file:
                     input_file = input_file.rpartition(os.sep)[-1]
                 # csv_out.writerow([input_file, tool, flip_mean, psnr])
-                csv_out.writerow([input_file, tool, psnr])
+                csv_out.writerow([input_file, tool, psnr, ssim])
 
 
 if __name__ == '__main__':
