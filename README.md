@@ -72,6 +72,7 @@ Compiling todds requires a recent C++ compiler version, the [Intel® Implicit SP
 
 To compile todds, the following dependencies must be available as development libraries. All dependencies are available through [vcpkg](https://github.com/microsoft/vcpkg).
 
+* [Boost.Algorithm](https://www.boost.org/doc/libs/master/libs/algorithm/doc/html/index.html)
 * [Boost.Filesystem](https://www.boost.org/doc/libs/master/libs/filesystem/doc/index.htm)
 * [Boost.NoWide](https://www.boost.org/doc/libs/master/libs/nowide/doc/html/index.html)
 * [Boost.String](https://www.boost.org/doc/libs/master/doc/html/string_algo.html)
