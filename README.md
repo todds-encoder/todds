@@ -93,6 +93,7 @@ The following third party library dependencies are contained as source code in t
 * `TODDS_CLANG_ALL_WARNINGS`: This option is only available when the clang compiler is in use. This enables almost every Clang warning, except for a few that cause issues with todds. This may trigger unexpected positives when using newer Clang versions. Off by default.
 * `TODDS_CLANG_TIDY`: If [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) is available, it will be used to analyze the project. Off by default.
 * `TODDS_MIMALLOC_ALLOCATOR`: todds will use the [mimalloc](https://github.com/microsoft/mimalloc) allocator instead of the standard allocator.
+* `TODDS_NEON_SIMD`: Use NEON SIMD instructions instead of x64 SIMD instructions. Intended for compiling for ARM platforms.
 * `TODDS_REGULAR_EXPRESSIONS`: Enables the regular expression parameter for todds. Requires the [Hyperscan](https://github.com/intel/hyperscan) library.
 * `TODDS_TBB_ALLOCATOR` todds will use the [scalable_allocator](https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Memory_Allocation.html) from [oneTBB](https://github.com/oneapi-src/oneTBB) instead of the standard allocator.
 * `TODDS_UNIT_TESTS` -> Build todds unit tests. Requires the [Catch2](https://github.com/catchorg/Catch2) library. Off by default.
