@@ -5,6 +5,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 option(TODDS_MIMALLOC_ALLOCATOR "Use mimalloc." OFF)
+option(TODDS_NEON_SIMD "Use Neon SIMD instructions instead of defaulting to x64 ones." OFF)
 option(TODDS_REGULAR_EXPRESSIONS "Compile todds with Hyperscan support" ON)
 option(TODDS_TBB_ALLOCATOR "Use OneAPI TBB scalable_allocator." OFF)
 option(TODDS_TRACY "Compile todds with Tracy Profiler support" OFF)
