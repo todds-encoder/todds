@@ -23,8 +23,10 @@ namespace {
 constexpr std::string_view png_extension{".png"};
 constexpr std::string_view txt_extension{".txt"};
 
-bool has_extension(const fs::path& path, std::string_view extension) {
-	return boost::to_lower_copy(path.extension().string()) == extension;
+bool has_extension(const fs::path& path, const std::string_view extension) {
+	const std::string path_extension = path.extension().string();
+	if (path_extension.size() != extension.size()) { return false; }
+	return boost::to_lower_copy(path_extension) == extension;
 }
 
 /**
@@ -64,8 +66,7 @@ void add_files(
 }
 
 void process_directory(paths_vector& paths, const fs::path& input, const fs::path& output, bool different_output,
-	const todds::regex& regex, const should_generate_dds& should_generate,
-	std::size_t depth) {
+	const todds::regex& regex, const should_generate_dds& should_generate, std::size_t depth) {
 	fs::path current_output = output;
 	const fs::directory_entry dir{input};
 	for (fs::recursive_directory_iterator itr{dir}; itr != fs::recursive_directory_iterator{}; ++itr) {
@@ -146,15 +147,13 @@ void run(const args::data& arguments) {
 	input_data.paths = get_paths(arguments);
 	if (input_data.paths.empty()) { return; }
 
+#if defined(TODDS_PIPELINE_DUMP)
+	// Limit to a single file to avoid overwriting memory dumps, and any potential concurrency issues.
+	if (input_data.paths.size() > 1U) { input_data.paths = paths_vector{input_data.paths[0]}; }
+#endif // defined(TODDS_PIPELINE_DUMP)
 	// Process arguments that affect the input.
-	if (arguments.verbose)
-	{
-		verbose_output(input_data.paths, arguments.clean);
-	}
-	if (arguments.dry_run)
-	{
-		return;
-	}
+	if (arguments.verbose) { verbose_output(input_data.paths, arguments.clean); }
+	if (arguments.dry_run) { return; }
 	if (arguments.clean) {
 		clean_dds_files(input_data.paths);
 		return;

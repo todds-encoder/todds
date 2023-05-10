@@ -13,6 +13,11 @@
 
 #include <fmt/format.h>
 
+#if defined(TODDS_PIPELINE_DUMP)
+#include <boost/dll/runtime_symbol_info.hpp>
+#include <boost/nowide/fstream.hpp>
+#endif // defined(TODDS_PIPELINE_DUMP)
+
 namespace todds::pipeline::impl {
 
 static std::unique_ptr<mipmap_image> fix_image_size(mipmap_image& original, bool mipmaps) {
@@ -62,6 +67,13 @@ public:
 					file_data.height = new_first.height();
 				}
 				file_data.mipmaps = result->mipmap_count();
+
+#if defined(TODDS_PIPELINE_DUMP)
+				const auto dmp_path = boost::dll::program_location().parent_path() / "decode_png.dmp";
+				boost::nowide::ofstream dmp{dmp_path, std::ios::out | std::ios::binary};
+				const std::uint8_t* image_start = result->get_image(0).data().data();
+				dmp.write(reinterpret_cast<const char*>(image_start), static_cast<std::ptrdiff_t>(result->data_size()));
+#endif // defined(TODDS_PIPELINE_DUMP)
 			} catch (const std::runtime_error& exc) {
 				_errors.push(fmt::format("PNG Decoding error {:s} -> {:s}", path, exc.what()));
 			}

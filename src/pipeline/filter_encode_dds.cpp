@@ -10,7 +10,24 @@
 #include <cassert>
 #include <limits>
 
+#if defined(TODDS_PIPELINE_DUMP)
+#include <boost/dll/runtime_symbol_info.hpp>
+#include <boost/nowide/fstream.hpp>
+#endif // defined(TODDS_PIPELINE_DUMP)
+
 namespace todds::pipeline::impl {
+
+static dds_data create_dds_data(dds_image image, std::size_t file_index) {
+	dds_data data{std::move(image), file_index};
+#if defined(TODDS_PIPELINE_DUMP)
+	const auto dmp_path = boost::dll::program_location().parent_path() / "encode_dds.dmp";
+	boost::nowide::ofstream dmp{dmp_path, std::ios::out | std::ios::binary};
+	const std::uint64_t* image_start = data.image.data();
+	dmp.write(
+		reinterpret_cast<const char*>(image_start), static_cast<std::ptrdiff_t>(data.image.size() * sizeof(std::uint64_t)));
+#endif // defined(TODDS_PIPELINE_DUMP)
+	return data;
+}
 
 class encode_bc1_image final {
 public:
@@ -21,7 +38,7 @@ public:
 	dds_data operator()(const pixel_block_data& pixel_data) const {
 		if (pixel_data.file_index == error_file_index) [[unlikely]] { return {{}, error_file_index}; }
 		_files_data[pixel_data.file_index].format = todds::format::type::bc1;
-		return {todds::dds::bc1_encode(_quality, pixel_data.image), pixel_data.file_index};
+		return create_dds_data(todds::dds::bc1_encode(_quality, pixel_data.image), pixel_data.file_index);
 	}
 
 private:
@@ -38,7 +55,7 @@ public:
 	dds_data operator()(const pixel_block_data& pixel_data) const {
 		if (pixel_data.file_index == error_file_index) [[unlikely]] { return {{}, error_file_index}; }
 		_files_data[pixel_data.file_index].format = todds::format::type::bc7;
-		return {todds::dds::bc7_encode(_params, pixel_data.image), pixel_data.file_index};
+		return create_dds_data(todds::dds::bc7_encode(_params, pixel_data.image), pixel_data.file_index);
 	}
 
 private:
@@ -71,9 +88,9 @@ public:
 		const auto format = has_alpha(pixel_data.image) ? todds::format::type::bc7 : todds::format::type::bc1;
 		_files_data[pixel_data.file_index].format = format;
 
-		return {format == todds::format::type::bc7 ? todds::dds::bc7_encode(_params, pixel_data.image) :
-																								 todds::dds::bc1_encode(_quality, pixel_data.image),
-			pixel_data.file_index};
+		return create_dds_data(format == todds::format::type::bc7 ? todds::dds::bc7_encode(_params, pixel_data.image) :
+																																todds::dds::bc1_encode(_quality, pixel_data.image),
+			pixel_data.file_index);
 	}
 
 private:

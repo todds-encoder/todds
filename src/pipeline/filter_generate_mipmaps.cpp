@@ -11,6 +11,11 @@
 
 #include <opencv2/imgproc.hpp>
 
+#if defined(TODDS_PIPELINE_DUMP)
+#include <boost/dll/runtime_symbol_info.hpp>
+#include <boost/nowide/fstream.hpp>
+#endif // defined(TODDS_PIPELINE_DUMP)
+
 namespace {
 
 void process_image(todds::mipmap_image& mipmap_img, todds::filter::type filter, double blur) {
@@ -46,6 +51,13 @@ public:
 		if (img != nullptr) [[likely]] {
 			TracyZoneFileIndex(img->file_index());
 			process_image(*img, _filter, _blur);
+
+#if defined(TODDS_PIPELINE_DUMP)
+			const auto dmp_path = boost::dll::program_location().parent_path() / "generate_mipmaps.dmp";
+			boost::nowide::ofstream dmp{dmp_path, std::ios::out | std::ios::binary};
+			const std::uint8_t* image_start = img->get_image(0).data().data();
+			dmp.write(reinterpret_cast<const char*>(image_start), static_cast<std::ptrdiff_t>(img->data_size()));
+#endif // defined(TODDS_PIPELINE_DUMP)
 		}
 		return img;
 	}

@@ -11,6 +11,10 @@
 #include <boost/predef.h>
 #include <fmt/format.h>
 
+#if defined(TODDS_PIPELINE_DUMP)
+#include <boost/dll/runtime_symbol_info.hpp>
+#endif // defined(TODDS_PIPELINE_DUMP)
+
 namespace todds::pipeline::impl {
 
 class load_png_file final {
@@ -48,6 +52,14 @@ public:
 		if (result.buffer.empty()) [[unlikely]] {
 			_errors.push(fmt::format("Could not load any data for PNG file {:s} ", _paths[index].first.string()));
 		}
+#if defined(TODDS_PIPELINE_DUMP)
+		else {
+			const auto dmp_path = boost::dll::program_location().parent_path() / "load_png.dmp";
+			boost::nowide::ofstream dmp{dmp_path, std::ios::out | std::ios::binary};
+			const std::uint8_t* file_start = result.buffer.data();
+			dmp.write(reinterpret_cast<const char*>(file_start), static_cast<std::ptrdiff_t>(result.buffer.size()));
+		}
+#endif // defined(TODDS_PIPELINE_DUMP)
 
 		return result;
 	}
