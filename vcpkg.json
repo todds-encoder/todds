@@ -26,6 +26,12 @@
         "tracy"
       ]
     },
+    "program-location": {
+      "description": "Find the location of todds executable during runtime",
+      "dependencies": [
+        "boost-dll"
+      ]
+    },
     "regex": {
       "description": "Regular expression parameter support",
       "dependencies": [
