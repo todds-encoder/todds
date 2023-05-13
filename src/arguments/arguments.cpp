@@ -70,7 +70,7 @@ constexpr auto scale_filter_arg =
 	optional_arg{"--scale-filter", "-sf", "Filter used to scale images when using the scale or max_size parameters."};
 
 constexpr auto threads_arg =
-	optional_arg{"--threads", "-th", "Number of threads used by the parallel pipeline, must be in [1, {:d}]."};
+	optional_arg{"--threads", "-th", "Number of threads used by the parallel pipeline, must be in [1, {:d}]. Defaults to maximum."};
 
 constexpr std::size_t max_depth = std::numeric_limits<std::size_t>::max();
 constexpr auto depth_arg =

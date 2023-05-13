@@ -35,7 +35,7 @@ OPTIONS:
                             LINEAR: Bilinear interpolation. Fast, and with reasonable quality.
                             CUBIC: Bicubic interpolation. Recommended filter for upscaling images.
                             AREA: Resampling using pixel area relation. Good for downscaling images and mipmap generation.
-  -th, --threads        Number of threads used by the parallel pipeline, must be in [1, 32].
+  -th, --threads        Number of threads used by the parallel pipeline, must be in [1, N]. Defaults to maximum.
   -d, --depth           Maximum subdirectory depth to use when looking for source files. Defaults to maximum.
   -o, --overwrite       Convert files even if an output file already exists.
   -on, --overwrite-new  Convert files if an output file exists, but it is older than the input file.
