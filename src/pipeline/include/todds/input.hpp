@@ -56,6 +56,8 @@ struct input {
 
 	/** Display progress messages. */
 	bool progress{};
+
+	bool alpha_black{};
 };
 
 } // namespace todds::pipeline

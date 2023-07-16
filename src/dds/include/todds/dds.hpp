@@ -27,9 +27,10 @@ void initialize_bc1_encoding();
  * Encode an image to BC1.
  * @param quality DDS encoding quality level.
  * @param image Source pixel block image.
+ * @param alpha_black Will use use 3 color blocks for blocks containing black or very dark pixels.
  * @return BC1 encoded image.
  */
-[[nodiscard]] dds_image bc1_encode(todds::format::quality quality, const pixel_block_image& image);
+[[nodiscard]] dds_image bc1_encode(todds::format::quality quality, bool alpha_black, const pixel_block_image& image);
 
 /**
  * Initialize the BC7 DDS encoder.

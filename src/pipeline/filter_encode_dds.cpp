@@ -31,19 +31,21 @@ static dds_data create_dds_data(dds_image image, std::size_t file_index) {
 
 class encode_bc1_image final {
 public:
-	encode_bc1_image(vector<file_data>& files_data, todds::format::quality quality) noexcept
+	encode_bc1_image(vector<file_data>& files_data, const todds::format::quality quality, const bool alpha_black) noexcept
 		: _files_data{files_data}
-		, _quality{quality} {}
+		, _quality{quality}
+		, _alpha_black{alpha_black} {}
 
 	dds_data operator()(const pixel_block_data& pixel_data) const {
 		if (pixel_data.file_index == error_file_index) [[unlikely]] { return {{}, error_file_index}; }
 		_files_data[pixel_data.file_index].format = todds::format::type::bc1;
-		return create_dds_data(todds::dds::bc1_encode(_quality, pixel_data.image), pixel_data.file_index);
+		return create_dds_data(todds::dds::bc1_encode(_quality, _alpha_black, pixel_data.image), pixel_data.file_index);
 	}
 
 private:
 	vector<file_data>& _files_data;
 	todds::format::quality _quality;
+	bool _alpha_black;
 };
 
 class encode_bc7_image final {
@@ -78,18 +80,21 @@ static bool has_alpha(const todds::pixel_block_image& img) {
 
 class encode_bc1_alpha_bc7_image final {
 public:
-	explicit encode_bc1_alpha_bc7_image(vector<file_data>& files_data, todds::format::quality quality) noexcept
+	explicit encode_bc1_alpha_bc7_image(
+		vector<file_data>& files_data, const todds::format::quality quality, const bool alpha_black) noexcept
 		: _files_data{files_data}
 		, _params{todds::dds::bc7_encode_params(quality)}
-		, _quality{quality} {}
+		, _quality{quality}
+		, _alpha_black{alpha_black} {}
 
 	dds_data operator()(const pixel_block_data& pixel_data) const {
 		if (pixel_data.file_index == error_file_index) [[unlikely]] { return {{}, error_file_index}; }
 		const auto format = has_alpha(pixel_data.image) ? todds::format::type::bc7 : todds::format::type::bc1;
 		_files_data[pixel_data.file_index].format = format;
 
-		return create_dds_data(format == todds::format::type::bc7 ? todds::dds::bc7_encode(_params, pixel_data.image) :
-																																todds::dds::bc1_encode(_quality, pixel_data.image),
+		return create_dds_data(format == todds::format::type::bc7 ?
+														 todds::dds::bc7_encode(_params, pixel_data.image) :
+														 todds::dds::bc1_encode(_quality, _alpha_black, pixel_data.image),
 			pixel_data.file_index);
 	}
 
@@ -97,20 +102,22 @@ private:
 	vector<file_data>& _files_data;
 	dds::bc7_params _params;
 	format::quality _quality;
+	bool _alpha_black;
 };
 
-oneapi::tbb::filter<pixel_block_data, dds_data> encode_dds_filter(
-	vector<file_data>& files_data, todds::format::type format_type, todds::format::quality quality) {
+oneapi::tbb::filter<pixel_block_data, dds_data> encode_dds_filter(vector<file_data>& files_data,
+	todds::format::type format_type, const todds::format::quality quality, const bool alpha_black) {
 	using oneapi::tbb::filter_mode;
 	using oneapi::tbb::make_filter;
 	switch (format_type) {
 	case todds::format::type::bc1:
-		return make_filter<pixel_block_data, dds_data>(filter_mode::parallel, encode_bc1_image{files_data, quality});
+		return make_filter<pixel_block_data, dds_data>(
+			filter_mode::parallel, encode_bc1_image{files_data, quality, alpha_black});
 	case todds::format::type::bc7:
 		return make_filter<pixel_block_data, dds_data>(filter_mode::parallel, encode_bc7_image{files_data, quality});
 	case todds::format::type::bc1_alpha_bc7:
 		return make_filter<pixel_block_data, dds_data>(
-			filter_mode::parallel, encode_bc1_alpha_bc7_image{files_data, quality});
+			filter_mode::parallel, encode_bc1_alpha_bc7_image{files_data, quality, alpha_black});
 	}
 	assert(false);
 	return {};

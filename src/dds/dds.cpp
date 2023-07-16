@@ -58,13 +58,14 @@ namespace todds::dds {
 
 void initialize_bc1_encoding() { rgbcx::init(rgbcx::bc1_approx_mode::cBC1Ideal); }
 
-vector<std::uint64_t> bc1_encode(todds::format::quality quality, const vector<std::uint32_t>& image) {
+vector<std::uint64_t> bc1_encode(
+	const todds::format::quality quality, const bool alpha_black, const vector<std::uint32_t>& image) {
 	constexpr std::size_t grain_size = 64ULL;
 	static oneapi::tbb::affinity_partitioner partitioner;
 
 	vector<std::uint64_t> result(image.size() * bc1_block_size);
 
-	const auto factors = rgbcx_todds::from_quality_level(static_cast<unsigned int>(quality));
+	const auto factors = rgbcx_todds::from_quality_level(static_cast<unsigned int>(quality), alpha_black);
 
 	const std::size_t num_blocks = image.size() / pixel_block_size;
 	oneapi::tbb::parallel_for(

@@ -18,14 +18,14 @@ struct factor_values {
 
 // encode_bc1(uint32_t level... calculates multiple factors depending on current quality level for each block.
 // This function calculates the same factors, allowing to calculate them only once.
-// Assumes that allow_3color and allow_transparent_texels_for_black are always true.
+// Assumes that allow_3color is always true.
 // Expects levels in the [0, 7] range, and maps them to rgbcx's [0-18] range.
-static factor_values from_quality_level(std::uint32_t level) {
+// Quality level 7 is just a copy of level 6.
+static factor_values from_quality_level(std::uint32_t level, const bool alpha_black) {
 	std::uint32_t flags = 0;
 	std::uint32_t total_orderings4 = 1;
 	std::uint32_t total_orderings3 = 1;
 	constexpr bool allow_3color = true;
-	constexpr bool allow_transparent_texels_for_black = true;
 
 	switch (level) {
 	case 1U:
@@ -35,19 +35,19 @@ static factor_values from_quality_level(std::uint32_t level) {
 	case 2U:
 		flags = cEncodeBC1TwoLeastSquaresPasses | cEncodeBC1UseFasterMSEEval | cEncodeBC1UseLikelyTotalOrderings;
 		flags |= (allow_3color ? cEncodeBC1Use3ColorBlocks : 0) |
-						 (allow_transparent_texels_for_black ? cEncodeBC1Use3ColorBlocksForBlackPixels : 0);
+						 (alpha_black ? cEncodeBC1Use3ColorBlocksForBlackPixels : 0);
 		break;
 	case 3U:
 		flags = cEncodeBC1TwoLeastSquaresPasses | cEncodeBC1UseLikelyTotalOrderings;
 		flags |= (allow_3color ? cEncodeBC1Use3ColorBlocks : 0) |
-						 (allow_transparent_texels_for_black ? cEncodeBC1Use3ColorBlocksForBlackPixels : 0);
+						 (alpha_black ? cEncodeBC1Use3ColorBlocksForBlackPixels : 0);
 		total_orderings4 = 11;
 		total_orderings3 = 3;
 		break;
 	case 4U:
 		flags = cEncodeBC1TwoLeastSquaresPasses | cEncodeBC1UseLikelyTotalOrderings;
 		flags |= (allow_3color ? cEncodeBC1Use3ColorBlocks : 0) |
-						 (allow_transparent_texels_for_black ? cEncodeBC1Use3ColorBlocksForBlackPixels : 0);
+						 (alpha_black ? cEncodeBC1Use3ColorBlocksForBlackPixels : 0);
 		total_orderings4 = 32;
 		total_orderings3 = 32;
 		break;
@@ -55,7 +55,7 @@ static factor_values from_quality_level(std::uint32_t level) {
 		flags = cEncodeBC1TwoLeastSquaresPasses | cEncodeBC1UseFullMSEEval | cEncodeBC1UseLikelyTotalOrderings |
 						cEncodeBC1Use6PowerIters | (32U << cEncodeBC1EndpointSearchRoundsShift) | cEncodeBC1TryAllInitialEndponts;
 		flags |= (allow_3color ? cEncodeBC1Use3ColorBlocks : 0) |
-						 (allow_transparent_texels_for_black ? cEncodeBC1Use3ColorBlocksForBlackPixels : 0);
+						 (alpha_black ? cEncodeBC1Use3ColorBlocksForBlackPixels : 0);
 		total_orderings4 = ((((32 + MAX_TOTAL_ORDERINGS4) / 2) + 32) / 2);
 		total_orderings3 = 32;
 		break;
@@ -65,7 +65,7 @@ static factor_values from_quality_level(std::uint32_t level) {
 						cEncodeBC1Use6PowerIters | cEncodeBC1Iterative | (256U << cEncodeBC1EndpointSearchRoundsShift) |
 						cEncodeBC1TryAllInitialEndponts;
 		flags |= (allow_3color ? cEncodeBC1Use3ColorBlocks : 0) |
-						 (allow_transparent_texels_for_black ? cEncodeBC1Use3ColorBlocksForBlackPixels : 0);
+						 (alpha_black ? cEncodeBC1Use3ColorBlocksForBlackPixels : 0);
 		total_orderings4 = MAX_TOTAL_ORDERINGS4;
 		total_orderings3 = 32;
 		break;
