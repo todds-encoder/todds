@@ -42,6 +42,7 @@ struct data {
 	todds::regex regex;
 	bool dry_run;
 	bool progress;
+	bool alpha_black;
 };
 
 /**

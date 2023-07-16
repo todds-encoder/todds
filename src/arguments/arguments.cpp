@@ -69,8 +69,8 @@ constexpr auto default_scale_filter = todds::filter::type::lanczos;
 constexpr auto scale_filter_arg =
 	optional_arg{"--scale-filter", "-sf", "Filter used to scale images when using the scale or max_size parameters."};
 
-constexpr auto threads_arg =
-	optional_arg{"--threads", "-th", "Number of threads used by the parallel pipeline, must be in [1, {:d}]. Defaults to maximum."};
+constexpr auto threads_arg = optional_arg{
+	"--threads", "-th", "Number of threads used by the parallel pipeline, must be in [1, {:d}]. Defaults to maximum."};
 
 constexpr std::size_t max_depth = std::numeric_limits<std::size_t>::max();
 constexpr auto depth_arg =
@@ -108,6 +108,10 @@ constexpr std::string_view output_help =
 	"Write DDS files to this folder instead of creating them next to input PNGs. This argument is ignored if input "
 	"points to a TXT file.";
 
+constexpr auto alpha_black_arg = optional_arg{"--bc1-alpha-black", "-bc1-ab",
+	"The BC1 encoder will use use 3 color blocks for blocks containing black or very dark pixels. Increases texture "
+	"quality substantially, but programs using these textures must ignore the alpha channel."};
+
 consteval std::size_t argument_name_total_space() {
 	std::size_t max_space{};
 	max_space = std::max(max_space, clean_arg.name.size() + clean_arg.shorter.size() + 2UL);
@@ -133,6 +137,7 @@ consteval std::size_t argument_name_total_space() {
 	max_space = std::max(max_space, help_arg.name.size() + help_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, input_name.size());
 	max_space = std::max(max_space, output_name.size());
+	max_space = std::max(max_space, alpha_black_arg.name.size() + alpha_black_arg.shorter.size() + 2UL);
 
 	return max_space + 2UL;
 }
@@ -235,6 +240,10 @@ std::string get_help(std::size_t max_threads) {
 	print_optional_argument(ostream, progress_arg);
 	print_optional_argument(ostream, verbose_arg);
 	print_optional_argument(ostream, help_arg);
+
+	ostream << "\nADVANCED OPTIONS:\n";
+
+	print_optional_argument(ostream, alpha_black_arg);
 
 	return std::move(ostream).str();
 }
@@ -415,6 +424,8 @@ data get(const todds::vector<std::string_view>& arguments) {
 			parsed_arguments.progress = true;
 		} else if (matches(argument, verbose_arg)) {
 			parsed_arguments.verbose = true;
+		} else if (matches(argument, alpha_black_arg)) {
+			parsed_arguments.alpha_black = true;
 		} else {
 			parsed_arguments.error = true;
 			parsed_arguments.text = fmt::format("Invalid positional argument {:s}", argument);

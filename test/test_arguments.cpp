@@ -593,4 +593,20 @@ TEST_CASE("todds::arguments regex", "[arguments]") {
 		REQUIRE(!shorter.regex.error().empty());
 	}
 #endif // defined(TODDS_REGULAR_EXPRESSIONS)
+
+	TEST_CASE("todds::arguments alpha_black", "[arguments]") {
+		SECTION("The default value of alpha_black is false") {
+			const auto arguments = get({binary, "."});
+			REQUIRE(!arguments.alpha_black);
+		}
+
+		SECTION("Providing the alpha_black parameter sets its value to true") {
+			const auto arguments = get({binary, "--bc1-alpha-black", "."});
+			REQUIRE(is_valid(arguments));
+			REQUIRE(arguments.verbose);
+			const auto shorter = get({binary, "-bc1-ab", "."});
+			REQUIRE(is_valid(shorter));
+			REQUIRE(shorter.verbose);
+		}
+	}
 }
