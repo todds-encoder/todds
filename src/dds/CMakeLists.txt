@@ -5,10 +5,13 @@
 add_library(todds_dds STATIC
 	include/todds/dds.hpp
 	dds.cpp
+	rgbcx_todds.hpp
 	)
 
 target_include_directories(todds_dds PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
+	PRIVATE
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
 	)
 
 target_compile_options(todds_dds PRIVATE ${TODDS_CPP_WARNING_FLAGS})

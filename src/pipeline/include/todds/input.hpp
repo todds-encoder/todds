@@ -57,6 +57,10 @@ struct input {
 	/** Display progress messages. */
 	bool progress{};
 
+	/**
+	 * The BC1 encoder will use 3 color blocks for blocks containing black or very dark pixels. Increases texture quality
+	 * substantially, but programs using these textures must ignore the alpha channel.
+	 */
 	bool alpha_black{};
 };
 

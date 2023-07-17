@@ -6,4 +6,4 @@ Repository: https://github.com/richgel999/bc7enc_rdo
 
 The CMakeLists.txt file of each submodule has been created for todds.
 
-Only includes the ISPC version of the bc7e library and the DDS header definitions.
+Includes the ISPC version of the bc7e library, the DDS header definitions, and the rgbcx library for BC1 encoding.

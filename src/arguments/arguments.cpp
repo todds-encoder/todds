@@ -109,8 +109,8 @@ constexpr std::string_view output_help =
 	"points to a TXT file.";
 
 constexpr auto alpha_black_arg = optional_arg{"--bc1-alpha-black", "-bc1-ab",
-	"The BC1 encoder will use use 3 color blocks for blocks containing black or very dark pixels. Increases texture "
-	"quality substantially, but programs using these textures must ignore the alpha channel."};
+	"The BC1 encoder will use 3 color blocks for blocks containing black or very dark pixels. Increases texture quality "
+	"substantially, but programs using these textures must ignore the alpha channel."};
 
 consteval std::size_t argument_name_total_space() {
 	std::size_t max_space{};

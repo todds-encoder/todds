@@ -11,9 +11,10 @@
 #include <bc7e_ispc.h>
 #include <dds_defs.h>
 #include <oneapi/tbb/parallel_for.h>
-#include <rgbcx_todds.h>
 
 #include <cassert>
+
+#include "rgbcx_todds.hpp"
 
 namespace {
 
@@ -65,7 +66,7 @@ vector<std::uint64_t> bc1_encode(
 
 	vector<std::uint64_t> result(image.size() * bc1_block_size);
 
-	const auto factors = rgbcx_todds::from_quality_level(static_cast<unsigned int>(quality), alpha_black);
+	const auto factors = impl::from_quality_level(static_cast<unsigned int>(quality), alpha_black);
 
 	const std::size_t num_blocks = image.size() / pixel_block_size;
 	oneapi::tbb::parallel_for(
