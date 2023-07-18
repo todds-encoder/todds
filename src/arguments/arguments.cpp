@@ -97,6 +97,15 @@ constexpr auto verbose_arg = optional_argument("--verbose", "Display all input f
 
 constexpr auto help_arg = optional_argument("--help", "Show usage information.");
 
+// Advanced options.
+constexpr auto alpha_black_arg = optional_arg{"--bc1-alpha-black", "-bc1-ab",
+	"The BC1 encoder will use 3 color blocks for blocks containing black or very dark pixels. Increases texture quality "
+	"substantially, but programs using these textures must ignore the alpha channel."};
+
+constexpr auto report_arg =
+	optional_arg{"--report", "-rp", "Prints information about the encoding process of each file."};
+
+// Positional arguments.
 constexpr std::string_view input_name = "input";
 constexpr std::string_view input_help =
 	"Encode all PNG files inside of this folder as DDS. It can also point to a single PNG file. "
@@ -107,10 +116,6 @@ constexpr std::string_view output_name = "output";
 constexpr std::string_view output_help =
 	"Write DDS files to this folder instead of creating them next to input PNGs. This argument is ignored if input "
 	"points to a TXT file.";
-
-constexpr auto alpha_black_arg = optional_arg{"--bc1-alpha-black", "-bc1-ab",
-	"The BC1 encoder will use 3 color blocks for blocks containing black or very dark pixels. Increases texture quality "
-	"substantially, but programs using these textures must ignore the alpha channel."};
 
 consteval std::size_t argument_name_total_space() {
 	std::size_t max_space{};
@@ -135,9 +140,10 @@ consteval std::size_t argument_name_total_space() {
 	max_space = std::max(max_space, verbose_arg.name.size() + verbose_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, regex_arg.name.size() + regex_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, help_arg.name.size() + help_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, alpha_black_arg.name.size() + alpha_black_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, report_arg.name.size() + report_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, input_name.size());
 	max_space = std::max(max_space, output_name.size());
-	max_space = std::max(max_space, alpha_black_arg.name.size() + alpha_black_arg.shorter.size() + 2UL);
 
 	return max_space + 2UL;
 }
@@ -244,6 +250,7 @@ std::string get_help(std::size_t max_threads) {
 	ostream << "\nADVANCED OPTIONS:\n";
 
 	print_optional_argument(ostream, alpha_black_arg);
+	print_optional_argument(ostream, report_arg);
 
 	return std::move(ostream).str();
 }
@@ -307,7 +314,6 @@ void argument_from_str<double>(
 } // anonymous namespace
 
 namespace todds::args {
-
 data get(int argc, char** argv) {
 	const boost::nowide::args nowide_args(argc, argv);
 	todds::vector<std::string_view> arguments;
@@ -426,6 +432,8 @@ data get(const todds::vector<std::string_view>& arguments) {
 			parsed_arguments.verbose = true;
 		} else if (matches(argument, alpha_black_arg)) {
 			parsed_arguments.alpha_black = true;
+		} else if (matches(argument, report_arg)) {
+			parsed_arguments.report = true;
 		} else {
 			parsed_arguments.error = true;
 			parsed_arguments.text = fmt::format("Invalid positional argument {:s}", argument);

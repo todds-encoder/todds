@@ -39,6 +39,7 @@ struct data {
 	bool vflip;
 	bool time;
 	bool verbose;
+	bool report;
 	todds::regex regex;
 	bool dry_run;
 	bool progress;

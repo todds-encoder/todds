@@ -62,6 +62,9 @@ struct input {
 	 * substantially, but programs using these textures must ignore the alpha channel.
 	 */
 	bool alpha_black{};
+
+	/** Prints information about the encoding process of each file. */
+	bool report{};
 };
 
 } // namespace todds::pipeline

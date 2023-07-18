@@ -610,3 +610,19 @@ TEST_CASE("todds::arguments alpha_black", "[arguments]") {
 		REQUIRE(shorter.alpha_black);
 	}
 }
+
+TEST_CASE("todds::arguments report", "[arguments]") {
+	SECTION("The default value of report is false") {
+		const auto arguments = get({binary, "."});
+		REQUIRE(!arguments.report);
+	}
+
+	SECTION("Providing the report parameter sets its value to true") {
+		const auto arguments = get({binary, "--report", "."});
+		REQUIRE(is_valid(arguments));
+		REQUIRE(arguments.report);
+		const auto shorter = get({binary, "-rp", "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(shorter.report);
+	}
+}

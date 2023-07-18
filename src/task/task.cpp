@@ -172,6 +172,7 @@ void run(const args::data& arguments) {
 	input_data.scale_filter = arguments.scale_filter;
 	input_data.progress = arguments.progress;
 	input_data.alpha_black = arguments.alpha_black;
+	input_data.report = arguments.report;
 
 	// Launch the parallel pipeline.
 	pipeline::encode_as_dds(input_data);

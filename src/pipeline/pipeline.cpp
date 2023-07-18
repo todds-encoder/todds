@@ -164,6 +164,16 @@ void encode_as_dds(const input& input_data) {
 
 	cancel_encoding_log = nullptr;
 	force_finish_flag = nullptr;
+
+	if (input_data.report) {
+		boost::nowide::cout << "File;Width;Height;Mipmaps;Format\n";
+		for (std::size_t index = 0U; index < input_data.paths.size(); ++index) {
+			const std::string& dds_path = input_data.paths[index].second.string();
+			const auto& data = files_data[index];
+			boost::nowide::cout << fmt::format(
+				"{:s};{:d};{:d};{:d};{:s}\n", dds_path, data.width, data.height, data.mipmaps, format::name(data.format));
+		}
+	}
 }
 
 } // namespace todds::pipeline
