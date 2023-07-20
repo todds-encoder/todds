@@ -30,7 +30,7 @@ if (TODDS_UNIT_TESTS)
 endif ()
 
 project(todds
-	VERSION 0.2.0
+	VERSION 0.2.2
 	DESCRIPTION "A CPU-based DDS encoder optimized for fast batch conversions with high encoding quality."
 	HOMEPAGE_URL "https://github.com/joseasoler/todds"
 	)
