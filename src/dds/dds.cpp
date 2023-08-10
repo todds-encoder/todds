@@ -63,12 +63,12 @@ vector<std::uint64_t> bc1_encode(
 	const todds::format::quality quality, const bool alpha_black, const vector<std::uint32_t>& image) {
 	constexpr std::size_t grain_size = 64ULL;
 	static oneapi::tbb::affinity_partitioner partitioner;
+	const std::size_t num_blocks = image.size() / pixel_block_size;
 
-	vector<std::uint64_t> result(image.size() * bc1_block_size);
+	vector<std::uint64_t> result(num_blocks * bc1_block_size);
 
 	const auto factors = impl::from_quality_level(static_cast<unsigned int>(quality), alpha_black);
 
-	const std::size_t num_blocks = image.size() / pixel_block_size;
 	oneapi::tbb::parallel_for(
 		blocked_range(0UL, num_blocks, grain_size),
 		[factors, &image, &result](const blocked_range& range) {
