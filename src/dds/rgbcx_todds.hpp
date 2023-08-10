@@ -14,11 +14,11 @@ struct factor_values {
 };
 
 constexpr std::uint32_t quality_flags(const std::uint32_t level) {
-	using namespace rgbcx;
+	using namespace rgbcx; // NOLINT
 	switch (level) {
 	case 1U: return cEncodeBC1TwoLeastSquaresPasses;
 	case 2U: return cEncodeBC1TwoLeastSquaresPasses | cEncodeBC1UseFasterMSEEval | cEncodeBC1UseLikelyTotalOrderings;
-	case 3U: return cEncodeBC1TwoLeastSquaresPasses | cEncodeBC1UseLikelyTotalOrderings;
+	case 3U:
 	case 4U: return cEncodeBC1TwoLeastSquaresPasses | cEncodeBC1UseLikelyTotalOrderings;
 	case 5U:
 		return cEncodeBC1TwoLeastSquaresPasses | cEncodeBC1UseFullMSEEval | cEncodeBC1UseLikelyTotalOrderings |
@@ -34,7 +34,7 @@ constexpr std::uint32_t quality_flags(const std::uint32_t level) {
 
 constexpr std::uint32_t quality_total_orderings4(const std::uint32_t level) {
 	switch (level) {
-	case 1U: return 1U;
+	case 1U:
 	case 2U: return 1U;
 	case 3U: return 11U;
 	case 4U: return 32U;
@@ -47,7 +47,7 @@ constexpr std::uint32_t quality_total_orderings4(const std::uint32_t level) {
 
 constexpr std::uint32_t quality_total_orderings3(const std::uint32_t level) {
 	switch (level) {
-	case 1U: return 1U;
+	case 1U:
 	case 2U: return 1U;
 	case 3U: return 3U;
 	default:
