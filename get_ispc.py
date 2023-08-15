@@ -67,7 +67,7 @@ if is_zip:
 else:
     target_archive_extracted = target_archive.replace(".tar.gz", "")
     try:
-        print(f"Downloading & extracting steamcmd release from: {browser_download_url}")
+        print(f"Downloading and extracting ISPC release from: {browser_download_url}")
         with get(browser_download_url, stream=True) as rx, tarfile.open(
             fileobj=rx.raw, mode="r:gz"
         ) as tarobj:
