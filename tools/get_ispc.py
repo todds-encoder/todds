@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 from io import BytesIO
 from os import getcwd, path, rename
 from requests import get
@@ -23,7 +27,6 @@ json_response = raw.json()
 tag_name = json_response["tag_name"]
 
 print(f"Latest release: {tag_name}\n")
-# print(f'{json_response["body"]}\n')
 
 if system == "Darwin":
     if processor == "arm":
@@ -69,7 +72,7 @@ else:
     try:
         print(f"Downloading and extracting ISPC release from: {browser_download_url}")
         with get(browser_download_url, stream=True) as rx, tarfile.open(
-            fileobj=rx.raw, mode="r:gz"
+                fileobj=rx.raw, mode="r:gz"
         ) as tarobj:
             tarobj.extractall(ispc_path)
     except:
