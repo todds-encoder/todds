@@ -13,6 +13,7 @@ Developing todds is only made possible by people who share their work and expert
 * **[Martin Helmut Fieber](https://martin-fieber.de)** - [GUI Development with C++, SDL2, and Dear ImGui](https://martin-fieber.de/blog/gui-development-with-cpp-sdl2-and-dear-imgui)
 * **[Michael Sharanda](https://www.gent.media/about)** - [Manrope font](https://www.gent.media/manrope)
 * **[Nadia Eghbal](https://github.com/nayafia)** - [Contributing Guides: A Template](https://github.com/nayafia/contributing-template)
+* **[Nathan Reed](https://www.reedbeta.com/about/)** - [Understanding BCn Texture Compression Formats](https://www.reedbeta.com/blog/understanding-bcn-texture-compression-formats/)
 * **[NVIDIA Corporation](https://www.nvidia.com)** - [Non-Power-of-Two Mipmapping](http://nvidia.com/object/np2_mipmapping.html)
 * **[randy408](https://github.com/randy408)** - [libspng](https://libspng.org)
 * **[Richard Geldreich](https://richg42.blogspot.com)** - [bc7enc_rdo](https://github.com/richgel999/bc7enc_rdo), [miniz](https://github.com/richgel999/miniz)
