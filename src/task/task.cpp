@@ -162,6 +162,7 @@ void run(const args::data& arguments) {
 	input_data.parallelism = arguments.threads;
 	input_data.mipmaps = arguments.mipmaps;
 	input_data.format = arguments.format;
+	input_data.alpha_format = arguments.alpha_format;
 	input_data.quality = arguments.quality;
 	input_data.fix_size = arguments.fix_size;
 	input_data.vflip = arguments.vflip;

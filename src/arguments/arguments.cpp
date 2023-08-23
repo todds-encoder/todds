@@ -43,6 +43,9 @@ constexpr auto clean_arg =
 
 constexpr auto format_arg = optional_argument("--format", "DDS encoding format.");
 
+constexpr auto alpha_format_arg = optional_arg{"--alpha-format", "-af",
+	"Use a different DDS encoding format for files with alpha. Defaults to using the value in --format unconditionally."};
+
 constexpr auto default_quality = todds::format::quality::really_slow;
 constexpr auto quality_arg =
 	optional_argument("--quality", "Encoder quality level, must be in [{:d}, {:d}]. Defaults to {:d}.");
@@ -121,6 +124,7 @@ consteval std::size_t argument_name_total_space() {
 	std::size_t max_space{};
 	max_space = std::max(max_space, clean_arg.name.size() + clean_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, format_arg.name.size() + format_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, alpha_format_arg.name.size() + alpha_format_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, quality_arg.name.size() + quality_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, no_mipmaps_arg.name.size() + no_mipmaps_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, fix_size_arg.name.size() + fix_size_arg.shorter.size() + 2UL);
@@ -209,8 +213,9 @@ std::string get_help(std::size_t max_threads) {
 	print_string_argument(
 		ostream, todds::format::name(todds::format::type::bc7), "High-quality compression supporting alpha. [Default]");
 	print_string_argument(ostream, todds::format::name(todds::format::type::bc1), "Highly compressed RGB data.");
-	print_string_argument(ostream, todds::format::name(todds::format::type::bc1_alpha_bc7),
-		"Files with alpha are encoded as BC7. Others are encoded as BC1.");
+	print_optional_argument(ostream, alpha_format_arg);
+	print_string_argument(
+		ostream, todds::format::name(todds::format::type::bc7), "High-quality compression supporting alpha. [Default]");
 
 	const std::string quality_help =
 		fmt::format(quality_arg.help, static_cast<unsigned int>(todds::format::quality::minimum),
@@ -255,17 +260,53 @@ std::string get_help(std::size_t max_threads) {
 	return std::move(ostream).str();
 }
 
+/**
+ * Obtains a format value from its string representation.
+ * @param argument Format string in upper-case.
+ * @return Format value.
+ */
+todds::format::type parse_format(std::string_view argument) {
+	if (argument == todds::format::name(todds::format::type::bc1)) {
+		return todds::format::type::bc1;
+	} else if (argument == todds::format::name(todds::format::type::bc7)) {
+		return todds::format::type::bc7;
+	}
+
+	return todds::format::type::invalid;
+}
+
 void format_from_str(std::string_view argument, todds::args::data& parsed_arguments) {
 	const std::string argument_upper = boost::to_upper_copy(std::string{argument});
-	if (argument_upper == todds::format::name(todds::format::type::bc1)) {
-		parsed_arguments.format = todds::format::type::bc1;
-	} else if (argument_upper == todds::format::name(todds::format::type::bc7)) {
-		parsed_arguments.format = todds::format::type::bc7;
-	} else if (argument_upper == todds::format::name(todds::format::type::bc1_alpha_bc7)) {
-		parsed_arguments.format = todds::format::type::bc1_alpha_bc7;
+	const auto format = parse_format(argument_upper);
+	if (format != todds::format::type::invalid) {
+		parsed_arguments.format = format;
 	} else {
+		// ToDo remove support for BC1_ALPHA_BC7.
+		constexpr std::string_view bc1_alpha_bc7{"BC1_ALPHA_BC7"};
+		if (argument_upper == bc1_alpha_bc7) {
+			parsed_arguments.format = todds::format::type::bc1;
+			parsed_arguments.alpha_format = todds::format::type::bc7;
+			parsed_arguments.text = fmt::format("Using {:s} {:s} is deprecated. Use {:s} {:s} {:s} {:s} instead.\n",
+				format_arg.name, bc1_alpha_bc7, format_arg.name, todds::format::name(todds::format::type::bc1),
+				alpha_format_arg.name, todds::format::name(todds::format::type::bc7));
+		} else {
+			parsed_arguments.error = true;
+			parsed_arguments.text = fmt::format("Invalid encoding format: {:s}", argument);
+		}
+	}
+}
+
+void alpha_format_from_str(std::string_view argument, todds::args::data& parsed_arguments) {
+	const std::string argument_upper = boost::to_upper_copy(std::string{argument});
+	const auto format = parse_format(argument_upper);
+	if (format == todds::format::type::invalid) {
 		parsed_arguments.error = true;
-		parsed_arguments.text = fmt::format("Unsupported encoding format: {:s}", argument);
+		parsed_arguments.text = fmt::format("Invalid encoding alpha format: {:s}", argument);
+	} else if (!todds::format::has_alpha(format)) {
+		parsed_arguments.error = true;
+		parsed_arguments.text = fmt::format("Chosen encoding alpha format lacks transparency support: {:s}", argument);
+	} else {
+		parsed_arguments.alpha_format = format;
 	}
 }
 
@@ -329,6 +370,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 	data parsed_arguments{};
 	// Set default values.
 	parsed_arguments.format = format::type::bc7;
+	parsed_arguments.alpha_format = format::type::invalid;
 	parsed_arguments.mipmaps = true;
 	parsed_arguments.mipmap_filter = filter::type::lanczos;
 	parsed_arguments.mipmap_blur = default_mipmap_blur;
@@ -363,6 +405,9 @@ data get(const todds::vector<std::string_view>& arguments) {
 		} else if (matches(argument, format_arg)) {
 			++index;
 			format_from_str(next_argument, parsed_arguments);
+		} else if (matches(argument, alpha_format_arg)) {
+			++index;
+			alpha_format_from_str(next_argument, parsed_arguments);
 		} else if (matches(argument, mipmap_filter_arg)) {
 			++index;
 			parsed_arguments.mipmap_filter = filter_from_str(next_argument, parsed_arguments);
@@ -448,7 +493,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 		++index;
 	}
 
-	if (parsed_arguments.text.empty()) {
+	if (!parsed_arguments.error) {
 		if (index < arguments.size()) {
 			boost::system::error_code error_code;
 			parsed_arguments.input = fs::canonical(arguments[index].data(), error_code);

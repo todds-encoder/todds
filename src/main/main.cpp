@@ -30,7 +30,8 @@ int main(int argc, char** argv) {
 		if (!data.text.empty()) {
 			auto& stream = data.error ? cerr : cout;
 			stream << data.text;
-		} else if (!data.error) {
+		}
+		if (!data.error) {
 			todds::run(data);
 			execution_status = EXIT_SUCCESS;
 			if (data.time) {

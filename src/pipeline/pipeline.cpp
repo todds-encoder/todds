@@ -107,15 +107,7 @@ void error_reporting(otbb::concurrent_queue<std::string>& error_log, std::atomic
 namespace todds::pipeline {
 
 void encode_as_dds(const input& input_data) {
-	// Initialize encoders.
-	switch (input_data.format) {
-	case format::type::bc1: dds::initialize_bc1_encoding(); break;
-	case format::type::bc7: dds::initialize_bc7_encoding(); break;
-	case format::type::bc1_alpha_bc7:
-		dds::initialize_bc1_encoding();
-		dds::initialize_bc7_encoding();
-		break;
-	}
+	dds::initialize_encoding(input_data.format, input_data.alpha_format);
 
 	// Ensure that OpenCV is working in sequential mode.
 	cv::setNumThreads(0);

@@ -6,7 +6,7 @@ Developing todds is only made possible by people who share their work and expert
 * **[Amit Dhamu](https://amitd.co/)** - [Flatten a directory](https://amitd.co/code/python/flatten-a-directory)
 * **[Aras Pranckevičius](https://aras-p.info)** - [Texture Compression in 2020](https://aras-p.info/blog/2020/12/08/Texture-Compression-in-2020)
 * **[Biomes! Team](https://github.com/biomes-team/)** - [Biomes! Prehistoric](https://github.com/biomes-team/BiomesPrehistoric) data set.
-* **[bbradson](https://github.com/bbradson)** - [DDSgenerator](https://github.com/bbradson/DDSgenerator): Basis for the BC1_ALPHA_BC7 encoding format.
+* **[bbradson](https://github.com/bbradson)** - [DDSgenerator](https://github.com/bbradson/DDSgenerator): Using different DDS encoding formats for alpha and non-alpha source files.
 * **[Dungeon Crawl: Stone Soup development team](https://github.com/crawl/)** - [Crawl Stone Soup](https://github.com/crawl/tiles) data set.
 * **[Ignacio Castaño](http://www.ludicon.com/castano/blog/)** - [NVIDIA Texture Tools](https://github.com/castano/nvidia-texture-tools), [Computing Alpha Mipmaps](http://www.ludicon.com/castano/blog/articles/computing-alpha-mipmaps/)
 * **[Jonathan Blow](http://number-none.com/blow/index.html)** - [Mipmapping, part 1](http://number-none.com/product/Mipmapping,%20Part%201/index.html)

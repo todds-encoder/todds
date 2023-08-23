@@ -20,9 +20,11 @@ constexpr std::size_t pixel_block_size = todds::pixel_block_side * todds::pixel_
 
 } // namespace
 
-namespace todds::dds {
-
+namespace todds::dds::impl {
 void initialize_bc1_encoding() { rgbcx::init(rgbcx::bc1_approx_mode::cBC1Ideal); }
+} // namespace todds::dds::impl
+
+namespace todds::dds {
 
 vector<std::uint64_t> bc1_encode(
 	const todds::format::quality quality, const bool alpha_black, const vector<std::uint32_t>& image) {

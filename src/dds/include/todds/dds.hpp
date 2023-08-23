@@ -18,10 +18,12 @@ namespace todds::dds {
 using bc7_params = ispc::bc7e_compress_block_params;
 
 /**
- * Initialize the BC1 DDS encoder.
+ * Initialize the DDS encoders.
  * This function is not thread safe and it should be called only once.
+ * @param format DDS file format to use for encoding.
+ * @param alpha_format Use a different DDS encoding format for files with alpha.
  */
-void initialize_bc1_encoding();
+void initialize_encoding(format::type format, format::type alpha_format);
 
 /**
  * Encode an image to BC1.
@@ -31,12 +33,6 @@ void initialize_bc1_encoding();
  * @return BC1 encoded image.
  */
 [[nodiscard]] dds_image bc1_encode(todds::format::quality quality, bool alpha_black, const pixel_block_image& image);
-
-/**
- * Initialize the BC7 DDS encoder.
- * This function is not thread safe and it should be called only once.
- */
-void initialize_bc7_encoding();
 
 /**
  * Generate the parameters to use for BC7 DDS encoding.

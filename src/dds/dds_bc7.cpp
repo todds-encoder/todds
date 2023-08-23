@@ -19,8 +19,11 @@ constexpr std::size_t pixel_block_size = todds::pixel_block_side * todds::pixel_
 
 } // namespace
 
-namespace todds::dds {
+namespace todds::dds::impl {
 void initialize_bc7_encoding() { ispc::bc7e_compress_block_init(); }
+} // namespace todds::dds::impl
+
+namespace todds::dds {
 
 bc7_params bc7_encode_params(todds::format::quality quality) noexcept {
 	// Perceptual is currently not supported.

@@ -34,7 +34,8 @@ inline oneapi::tbb::filter<std::unique_ptr<mipmap_image>, void> dds_encoding_fil
 		// ready for the DDS encoding stage.
 		impl::pixel_blocks_filter() &
 		// Encode pixel block images as DDS files.
-		impl::encode_dds_filter(files_data, input_data.format, input_data.quality, input_data.alpha_black) &
+		impl::encode_dds_filter(
+			files_data, input_data.format, input_data.alpha_format, input_data.quality, input_data.alpha_black) &
 		// Save DDS files back into the file system, one by one.
 		impl::save_dds_filter(files_data, input_data.paths);
 }

@@ -129,6 +129,38 @@ TEST_CASE("todds::arguments format", "[arguments]") {
 		REQUIRE(!has_error(arguments));
 		REQUIRE(arguments.format == todds::format::type::bc7);
 	}
+
+	// ToDo remove support for BC1_ALPHA_BC7.
+	SECTION("Parsing BC1_ALPHA_BC7.") {
+		const auto arguments = get({binary, "-f", "BC1_ALPHA_BC7", "."});
+		REQUIRE(!has_error(arguments));
+		REQUIRE(arguments.format == todds::format::type::bc1);
+		REQUIRE(arguments.alpha_format == todds::format::type::bc7);
+	}
+}
+
+TEST_CASE("todds::arguments alpha_format", "[arguments]") {
+	SECTION("The default value of alpha_format is invalid.") {
+		const auto arguments = get({binary, "."});
+		REQUIRE(arguments.alpha_format == todds::format::type::invalid);
+	}
+
+	SECTION("Parsing formats without alpha results in an error.") {
+		const auto arguments = get({binary, "--alpha-format", "bc1", "."});
+		REQUIRE(has_error(arguments));
+	}
+
+	SECTION("Parsing bc7.") {
+		const auto arguments = get({binary, "-af", "bc7", "."});
+		REQUIRE(!has_error(arguments));
+		REQUIRE(arguments.alpha_format == todds::format::type::bc7);
+	}
+
+	SECTION("Parsing bc7 with alternate case.") {
+		const auto arguments = get({binary, "--alpha-format", "bC7", "."});
+		REQUIRE(!has_error(arguments));
+		REQUIRE(arguments.alpha_format == todds::format::type::bc7);
+	}
 }
 
 TEST_CASE("todds::arguments quality", "[arguments]") {

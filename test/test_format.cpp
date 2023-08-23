@@ -7,11 +7,18 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+using todds::format::has_alpha;
 using todds::format::name;
 using todds::format::type;
 
 TEST_CASE("todds::format::name", "[format]") {
 	STATIC_REQUIRE(!name(type::bc1).empty());
 	STATIC_REQUIRE(!name(type::bc7).empty());
-	STATIC_REQUIRE(!name(type::bc1_alpha_bc7).empty());
+	STATIC_REQUIRE(name(type::invalid).empty());
+}
+
+TEST_CASE("todds::format::has_alpha", "[format]") {
+	STATIC_REQUIRE(!has_alpha(type::bc1));
+	STATIC_REQUIRE(has_alpha(type::bc7));
+	STATIC_REQUIRE(!has_alpha(type::invalid));
 }

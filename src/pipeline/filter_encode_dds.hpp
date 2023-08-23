@@ -19,5 +19,5 @@ struct dds_data {
 };
 
 oneapi::tbb::filter<pixel_block_data, dds_data> encode_dds_filter(todds::vector<file_data>& files_data,
-	todds::format::type format_type, todds::format::quality quality, bool alpha_black);
+	todds::format::type format, todds::format::type alpha_format, todds::format::quality quality, bool alpha_black);
 } // namespace todds::pipeline::impl

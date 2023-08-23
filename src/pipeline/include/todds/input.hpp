@@ -30,6 +30,9 @@ struct input {
 	/** DDS file format to use for encoding. */
 	todds::format::type format{};
 
+	/** Use a different DDS encoding format for files with alpha. */
+	todds::format::type alpha_format{};
+
 	/** Quality level to use in this encoding. */
 	todds::format::quality quality{};
 

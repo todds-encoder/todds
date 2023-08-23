@@ -5,13 +5,13 @@
 
 #include "todds/dds.hpp"
 
-#include "todds/profiler.hpp"
 #include "todds/util.hpp"
 
 #include <dds_defs.h>
-#include <oneapi/tbb/parallel_for.h>
 
 #include <cassert>
+
+#include "dds_impl.hpp"
 
 namespace {
 
@@ -20,7 +20,7 @@ constexpr std::uint32_t format_fourcc(todds::format::type format_type) {
 	switch (format_type) {
 	case todds::format::type::bc1: fourcc = PIXEL_FMT_FOURCC('D', 'X', 'T', '1'); break;
 	case todds::format::type::bc7: fourcc = PIXEL_FMT_FOURCC('D', 'X', '1', '0'); break;
-	case todds::format::type::bc1_alpha_bc7: assert(false); break;
+	case todds::format::type::invalid: assert(false); break;
 	}
 	return fourcc;
 }
@@ -45,6 +45,11 @@ constexpr DDSURFACEDESC2 get_surface_description() noexcept {
 } // anonymous namespace
 
 namespace todds::dds {
+
+void initialize_encoding(format::type format, format::type alpha_format) {
+	if (format == format::type::bc1 || alpha_format == format::type::bc1) { impl::initialize_bc1_encoding(); }
+	if (format == format::type::bc7 || alpha_format == format::type::bc7) { impl::initialize_bc7_encoding(); }
+}
 
 std::array<char, 124> dds_header(
 	todds::format::type format_type, std::size_t width, std::size_t height, std::size_t mipmaps) {
