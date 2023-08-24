@@ -8,44 +8,49 @@ A CPU-based DDS encoder optimized for fast batch conversions with high encoding 
 
 ```
 ARGS:
-  input                 Encode all PNG files inside of this folder as DDS. It can also point to a single PNG file. If this parameter points to a TXT file, it will be processed as a list of PNG files and/or directories. Entries must be on separate lines. Every listed PNG file and those inside listed directories will be encoded as DDS.
-  output                Write DDS files to this folder instead of creating them next to input PNGs. This argument is ignored if input points to a TXT file.
+  input                       Encode all PNG files inside of this folder as DDS. It can also point to a single PNG file. If this parameter points to a TXT file, it will be processed as a list of PNG files and/or directories. Entries must be on separate lines. Every listed PNG file and those inside listed directories will be encoded as DDS.
+  output                      Write DDS files to this folder instead of creating them next to input PNGs. This argument is ignored if input points to a TXT file.
 
 OPTIONS:
-  -cl, --clean          Deletes all DDS files matching input PNG files instead of encoding them.
-  -f, --format          DDS encoding format.
-                            BC7: High-quality compression supporting alpha. [Default]
-                            BC1: Highly compressed RGB data.
-                            BC1_ALPHA_BC7: Files with alpha are encoded as BC7. Others are encoded as BC1.
-  -q, --quality         Encoder quality level, must be in [0, 7]. Defaults to 6.
-  -nm, --no-mipmaps     Disable mipmap generation.
-  -fs, --fix-size       Set image width and height to the next multiple of 4.
-  -mf, --mipmap-filter  Filter used to resize images during mipmap generation.
-                            LANCZOS: Lanczos interpolation. Preserves edges and details better than other filters when dowsncaling images. [Default]
-                            NEAREST: Nearest neighbor interpolation. Very fast, but it does not produce great results.
-                            LINEAR: Bilinear interpolation. Fast, and with reasonable quality.
-                            CUBIC: Bicubic interpolation. Recommended filter for upscaling images.
-                            AREA: Resampling using pixel area relation. Good for downscaling images and mipmap generation.
-  -mb, --mipmap-blur    Blur applied during mipmap generation. Defaults to 0.55.
-  -sc, --scale          Scale image size by a value given in %.
-  -ms, --max-size       Downscale images with a width or height larger than this threshold to fit into it.
-  -sf, --scale-filter   Filter used to scale images when using the scale or max_size parameters.
-                            LANCZOS: Lanczos interpolation. Preserves edges and details better than other filters when dowsncaling images. [Default]
-                            NEAREST: Nearest neighbor interpolation. Very fast, but it does not produce great results.
-                            LINEAR: Bilinear interpolation. Fast, and with reasonable quality.
-                            CUBIC: Bicubic interpolation. Recommended filter for upscaling images.
-                            AREA: Resampling using pixel area relation. Good for downscaling images and mipmap generation.
-  -th, --threads        Number of threads used by the parallel pipeline, must be in [1, N]. Defaults to maximum.
-  -d, --depth           Maximum subdirectory depth to use when looking for source files. Defaults to maximum.
-  -o, --overwrite       Convert files even if an output file already exists.
-  -on, --overwrite-new  Convert files if an output file exists, but it is older than the input file.
-  -vf, --vflip          Flip source images vertically before encoding.
-  -t, --time            Show total execution time.
-  -r, --regex           Process only absolute paths matching this regular expression.
-  -dr, --dry-run        Calculate all files that would be affected but do not make any changes.
-  -p, --progress        Display progress messages.
-  -v, --verbose         Display all input files of the current operation.
-  -h, --help            Show usage information.
+  -cl, --clean                Deletes all DDS files matching input PNG files instead of encoding them.
+  -f, --format                DDS encoding format.
+                                  BC7: High-quality compression supporting alpha. [Default]
+                                  BC1: Highly compressed RGB data.
+  -af, --alpha-format         Use a different DDS encoding format for files with alpha. Defaults to using the value in --format unconditionally.
+                                  BC7: High-quality compression supporting alpha. [Default]
+  -q, --quality               Encoder quality level, must be in [0, 7]. Defaults to 6.
+  -nm, --no-mipmaps           Disable mipmap generation.
+  -fs, --fix-size             Set image width and height to the next multiple of 4.
+  -mf, --mipmap-filter        Filter used to resize images during mipmap generation.
+                                  LANCZOS: Lanczos interpolation. Preserves edges and details better than other filters when dowsncaling images. [Default]
+                                  NEAREST: Nearest neighbor interpolation. Very fast, but it does not produce great results.
+                                  LINEAR: Bilinear interpolation. Fast, and with reasonable quality.
+                                  CUBIC: Bicubic interpolation. Recommended filter for upscaling images.
+                                  AREA: Resampling using pixel area relation. Good for downscaling images and mipmap generation.
+  -mb, --mipmap-blur          Blur applied during mipmap generation. Defaults to 0.55.
+  -sc, --scale                Scale image size by a value given in %.
+  -ms, --max-size             Downscale images with a width or height larger than this threshold to fit into it.
+  -sf, --scale-filter         Filter used to scale images when using the scale or max_size parameters.
+                                  LANCZOS: Lanczos interpolation. Preserves edges and details better than other filters when dowsncaling images. [Default]
+                                  NEAREST: Nearest neighbor interpolation. Very fast, but it does not produce great results.
+                                  LINEAR: Bilinear interpolation. Fast, and with reasonable quality.
+                                  CUBIC: Bicubic interpolation. Recommended filter for upscaling images.
+                                  AREA: Resampling using pixel area relation. Good for downscaling images and mipmap generation.
+  -th, --threads              Number of threads used by the parallel pipeline, must be in [1, 32]. Defaults to maximum.
+  -d, --depth                 Maximum subdirectory depth to use when looking for source files. Defaults to maximum.
+  -o, --overwrite             Convert files even if an output file already exists.
+  -on, --overwrite-new        Convert files if an output file exists, but it is older than the input file.
+  -vf, --vflip                Flip source images vertically before encoding.
+  -t, --time                  Show total execution time.
+  -r, --regex                 Process only absolute paths matching this regular expression.
+  -dr, --dry-run              Calculate all files that would be affected but do not make any changes.
+  -p, --progress              Display progress messages.
+  -v, --verbose               Display all input files of the current operation.
+  -h, --help                  Show usage information.
+
+ADVANCED OPTIONS:
+  -bc1-ab, --bc1-alpha-black  The BC1 encoder will use 3 color blocks for blocks containing black or very dark pixels. Increases texture quality substantially, but programs using these textures must ignore the alpha channel.
+  -rp, --report               Prints information about the encoding process of each file.
 ```
 
 ### Quality
