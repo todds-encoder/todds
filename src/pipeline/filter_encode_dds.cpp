@@ -31,33 +31,33 @@ static dds_data create_dds_data(dds_image image, std::size_t file_index) {
 
 class encode_bc1_image final {
 public:
-	encode_bc1_image(vector<file_data>& files_data, const todds::format::quality quality, const bool alpha_black) noexcept
+	encode_bc1_image(vector<file_data>& files_data, const format::quality quality, const bool alpha_black) noexcept
 		: _files_data{files_data}
 		, _quality{quality}
 		, _alpha_black{alpha_black} {}
 
 	dds_data operator()(const pixel_block_data& pixel_data) const {
 		if (pixel_data.file_index == error_file_index) [[unlikely]] { return {{}, error_file_index}; }
-		_files_data[pixel_data.file_index].format = todds::format::type::bc1;
-		return create_dds_data(todds::dds::bc1_encode(_quality, _alpha_black, pixel_data.image), pixel_data.file_index);
+		_files_data[pixel_data.file_index].format = format::type::bc1;
+		return create_dds_data(dds::bc1_encode(_quality, _alpha_black, pixel_data.image), pixel_data.file_index);
 	}
 
 private:
 	vector<file_data>& _files_data;
-	todds::format::quality _quality;
+	format::quality _quality;
 	bool _alpha_black;
 };
 
 class encode_bc7_image final {
 public:
-	encode_bc7_image(vector<file_data>& files_data, todds::format::quality quality) noexcept
+	encode_bc7_image(vector<file_data>& files_data, format::quality quality) noexcept
 		: _files_data{files_data}
-		, _params{todds::dds::bc7_encode_params(quality)} {}
+		, _params{dds::bc7_encode_params(quality)} {}
 
 	dds_data operator()(const pixel_block_data& pixel_data) const {
 		if (pixel_data.file_index == error_file_index) [[unlikely]] { return {{}, error_file_index}; }
-		_files_data[pixel_data.file_index].format = todds::format::type::bc7;
-		return create_dds_data(todds::dds::bc7_encode(_params, pixel_data.image), pixel_data.file_index);
+		_files_data[pixel_data.file_index].format = format::type::bc7;
+		return create_dds_data(dds::bc7_encode(_params, pixel_data.image), pixel_data.file_index);
 	}
 
 private:
@@ -66,7 +66,7 @@ private:
 };
 
 // When using alpha_format, this function determines if a file should be encoded as alpha.
-static bool has_alpha(const todds::pixel_block_image& img) {
+static bool has_alpha(const pixel_block_image& img) {
 	const auto* current_alpha = reinterpret_cast<const std::uint8_t*>(img.data()) + 3U;
 	const auto* end = reinterpret_cast<const std::uint8_t*>(&img.back());
 
@@ -85,7 +85,7 @@ public:
 		: _files_data{files_data}
 		, _format{format}
 		, _alpha_format{alpha_format}
-		, _params{todds::dds::bc7_encode_params(quality)}
+		, _params{dds::bc7_encode_params(quality)}
 		, _quality{quality}
 		, _alpha_black{alpha_black} {
 		assert(_alpha_format != format::type::invalid);
@@ -98,8 +98,8 @@ public:
 
 		vector<std::uint64_t> image_data;
 		switch (format) {
-		case format::type::bc1: image_data = todds::dds::bc1_encode(_quality, _alpha_black, pixel_data.image); break;
-		case format::type::bc7: image_data = todds::dds::bc7_encode(_params, pixel_data.image); break;
+		case format::type::bc1: image_data = dds::bc1_encode(_quality, _alpha_black, pixel_data.image); break;
+		case format::type::bc7: image_data = dds::bc7_encode(_params, pixel_data.image); break;
 		case format::type::invalid: assert(false); break;
 		}
 

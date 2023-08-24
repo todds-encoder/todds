@@ -20,7 +20,7 @@ public:
 		if (image == nullptr) [[unlikely]] { return {{}, error_file_index}; }
 		TracyZoneFileIndex(image->file_index());
 
-		pixel_block_data data{todds::to_pixel_blocks(*image), image->file_index()};
+		pixel_block_data data{to_pixel_blocks(*image), image->file_index()};
 #if defined(TODDS_PIPELINE_DUMP)
 		const auto dmp_path = boost::dll::program_location().parent_path() / "pixel_blocks.dmp";
 		boost::nowide::ofstream dmp{dmp_path, std::ios::out | std::ios::binary};

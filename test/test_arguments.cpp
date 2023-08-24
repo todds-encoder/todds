@@ -107,33 +107,35 @@ TEST_CASE("todds::arguments help", "[arguments]") {
 }
 
 TEST_CASE("todds::arguments format", "[arguments]") {
+	using todds::format::type;
+
 	SECTION("The default value of format is bc7.") {
 		const auto arguments = get({binary, "."});
-		REQUIRE(arguments.format == todds::format::type::bc7);
+		REQUIRE(arguments.format == type::bc7);
 	}
 
 	SECTION("Parsing bc1.") {
 		const auto arguments = get({binary, "--format", "bc1", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.format == todds::format::type::bc1);
+		REQUIRE(arguments.format == type::bc1);
 	}
 
 	SECTION("Parsing bc1 with alternate case.") {
 		const auto arguments = get({binary, "-f", "Bc1", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.format == todds::format::type::bc1);
+		REQUIRE(arguments.format == type::bc1);
 	}
 
 	SECTION("Parsing bc7.") {
 		const auto arguments = get({binary, "-f", "bc7", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.format == todds::format::type::bc7);
+		REQUIRE(arguments.format == type::bc7);
 	}
 
 	SECTION("Parsing bc7 with alternate case.") {
 		const auto arguments = get({binary, "--format", "bC7", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.format == todds::format::type::bc7);
+		REQUIRE(arguments.format == type::bc7);
 	}
 
 	// ToDo remove support for BC1_ALPHA_BC7.
@@ -141,15 +143,17 @@ TEST_CASE("todds::arguments format", "[arguments]") {
 		const auto arguments = get({binary, "-f", "BC1_ALPHA_BC7", "."});
 		const bool has_warning = !arguments.help && arguments.stop_message.empty() && !arguments.warning_message.empty();
 		REQUIRE(has_warning);
-		REQUIRE(arguments.format == todds::format::type::bc1);
-		REQUIRE(arguments.alpha_format == todds::format::type::bc7);
+		REQUIRE(arguments.format == type::bc1);
+		REQUIRE(arguments.alpha_format == type::bc7);
 	}
 }
 
 TEST_CASE("todds::arguments alpha_format", "[arguments]") {
+	using todds::format::type;
+
 	SECTION("The default value of alpha_format is invalid.") {
 		const auto arguments = get({binary, "."});
-		REQUIRE(arguments.alpha_format == todds::format::type::invalid);
+		REQUIRE(arguments.alpha_format == type::invalid);
 	}
 
 	SECTION("Parsing formats without alpha results in an error.") {
@@ -160,24 +164,28 @@ TEST_CASE("todds::arguments alpha_format", "[arguments]") {
 	SECTION("Parsing bc7.") {
 		const auto arguments = get({binary, "-af", "bc7", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.alpha_format == todds::format::type::bc7);
+		REQUIRE(arguments.alpha_format == type::bc7);
 	}
 
 	SECTION("Parsing bc7 with alternate case.") {
 		const auto arguments = get({binary, "--alpha-format", "bC7", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.alpha_format == todds::format::type::bc7);
+		REQUIRE(arguments.alpha_format == type::bc7);
 	}
 }
 
 TEST_CASE("todds::arguments quality", "[arguments]") {
+	using todds::format::name;
+	using todds::format::quality;
+	using todds::format::type;
+
 	SECTION("The default quality is set to really_slow.") {
 		const auto arguments = get({binary, "."});
-		REQUIRE(arguments.quality == todds::format::quality::really_slow);
-		const auto arguments_bc1 = get({binary, "-f", todds::format::name(todds::format::type::bc1), "."});
-		REQUIRE(arguments_bc1.quality == todds::format::quality::really_slow);
-		const auto arguments_bc7 = get({binary, "-f", todds::format::name(todds::format::type::bc7), "."});
-		REQUIRE(arguments_bc7.quality == todds::format::quality::really_slow);
+		REQUIRE(arguments.quality == quality::really_slow);
+		const auto arguments_bc1 = get({binary, "-f", name(type::bc1), "."});
+		REQUIRE(arguments_bc1.quality == quality::really_slow);
+		const auto arguments_bc7 = get({binary, "-f", name(type::bc7), "."});
+		REQUIRE(arguments_bc7.quality == quality::really_slow);
 	}
 
 	SECTION("Error when the quality is not a number") {
@@ -191,8 +199,7 @@ TEST_CASE("todds::arguments quality", "[arguments]") {
 	}
 
 	SECTION("Quality is out of bounds") {
-		const auto arguments =
-			get({binary, "--quality", std::to_string(static_cast<int>(todds::format::quality::maximum) + 1), "."});
+		const auto arguments = get({binary, "--quality", std::to_string(static_cast<int>(quality::maximum) + 1), "."});
 		REQUIRE(has_error(arguments));
 	}
 
@@ -247,22 +254,24 @@ TEST_CASE("todds::arguments fix_size", "[arguments]") {
 }
 
 TEST_CASE("todds::arguments mipmap_filter", "[arguments]") {
+	using todds::filter::type;
+
 	SECTION("The default value of mipmap_filter is lanczos.") {
 		const auto arguments = get({binary, "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.mipmap_filter == todds::filter::type::lanczos);
+		REQUIRE(arguments.mipmap_filter == type::lanczos);
 	}
 
 	SECTION("Parsing nearest.") {
 		const auto arguments = get({binary, "--mipmap-filter", "nearest", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.mipmap_filter == todds::filter::type::nearest);
+		REQUIRE(arguments.mipmap_filter == type::nearest);
 	}
 
 	SECTION("Parsing nearest with alternate case.") {
 		const auto arguments = get({binary, "-mf", "nEArEst", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.mipmap_filter == todds::filter::type::nearest);
+		REQUIRE(arguments.mipmap_filter == type::nearest);
 	}
 }
 
@@ -375,22 +384,24 @@ TEST_CASE("todds::arguments max_size", "[arguments]") {
 }
 
 TEST_CASE("todds::arguments scale_filter", "[arguments]") {
+	using todds::filter::type;
+
 	SECTION("The default value of scale_filter is lanczos.") {
 		const auto arguments = get({binary, "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.scale_filter == todds::filter::type::lanczos);
+		REQUIRE(arguments.scale_filter == type::lanczos);
 	}
 
 	SECTION("Parsing nearest.") {
 		const auto arguments = get({binary, "--scale-filter", "nearest", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.scale_filter == todds::filter::type::nearest);
+		REQUIRE(arguments.scale_filter == type::nearest);
 	}
 
 	SECTION("Parsing nearest with alternate case.") {
 		const auto arguments = get({binary, "-sf", "nEArEst", "."});
 		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.scale_filter == todds::filter::type::nearest);
+		REQUIRE(arguments.scale_filter == type::nearest);
 	}
 }
 

@@ -42,9 +42,9 @@ public:
 
 		ofs << "DDS ";
 		const auto& file_data = _files_data[file_index];
-		const auto header = todds::dds::dds_header(file_data.format, file_data.width, file_data.height, file_data.mipmaps);
+		const auto header = dds::dds_header(file_data.format, file_data.width, file_data.height, file_data.mipmaps);
 		ofs.write(header.data(), header.size());
-		if (file_data.format == todds::format::type::bc7) {
+		if (file_data.format == format::type::bc7) {
 			ofs.write(reinterpret_cast<const char*>(&header_extension), sizeof(header_extension));
 		}
 

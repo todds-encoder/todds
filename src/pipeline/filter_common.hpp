@@ -27,7 +27,7 @@ struct file_data {
 	// Number of mipmap levels in the image, including the main one. Set during the decode PNG stage.
 	std::size_t mipmaps{};
 	// DDS format of the image. Set during the encoding DDS stage.
-	todds::format::type format{};
+	format::type format{};
 };
 
 } // namespace todds::pipeline::impl
