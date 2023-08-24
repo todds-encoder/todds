@@ -286,12 +286,12 @@ void format_from_str(std::string_view argument, todds::args::data& parsed_argume
 		if (argument_upper == bc1_alpha_bc7) {
 			parsed_arguments.format = todds::format::type::bc1;
 			parsed_arguments.alpha_format = todds::format::type::bc7;
-			parsed_arguments.text = fmt::format("Using {:s} {:s} is deprecated. Use {:s} {:s} {:s} {:s} instead.\n",
-				format_arg.name, bc1_alpha_bc7, format_arg.name, todds::format::name(todds::format::type::bc1),
-				alpha_format_arg.name, todds::format::name(todds::format::type::bc7));
+			parsed_arguments.warning_message =
+				fmt::format("Using {:s} {:s} is deprecated. Use {:s} {:s} {:s} {:s} instead.\n", format_arg.name, bc1_alpha_bc7,
+					format_arg.name, todds::format::name(todds::format::type::bc1), alpha_format_arg.name,
+					todds::format::name(todds::format::type::bc7));
 		} else {
-			parsed_arguments.error = true;
-			parsed_arguments.text = fmt::format("Invalid encoding format: {:s}", argument);
+			parsed_arguments.stop_message = fmt::format("Invalid encoding format: {:s}", argument);
 		}
 	}
 }
@@ -300,11 +300,9 @@ void alpha_format_from_str(std::string_view argument, todds::args::data& parsed_
 	const std::string argument_upper = boost::to_upper_copy(std::string{argument});
 	const auto format = parse_format(argument_upper);
 	if (format == todds::format::type::invalid) {
-		parsed_arguments.error = true;
-		parsed_arguments.text = fmt::format("Invalid encoding alpha format: {:s}", argument);
+		parsed_arguments.stop_message = fmt::format("Invalid encoding alpha format: {:s}", argument);
 	} else if (!todds::format::has_alpha(format)) {
-		parsed_arguments.error = true;
-		parsed_arguments.text = fmt::format("Chosen encoding alpha format lacks transparency support: {:s}", argument);
+		parsed_arguments.stop_message = fmt::format("Chosen encoding alpha format lacks transparency support: {:s}", argument);
 	} else {
 		parsed_arguments.alpha_format = format;
 	}
@@ -322,8 +320,7 @@ todds::filter::type filter_from_str(std::string_view argument, todds::args::data
 	} else if (argument_upper == todds::filter::name(todds::filter::type::lanczos)) {
 		value = todds::filter::type::lanczos;
 	} else {
-		parsed_arguments.error = true;
-		parsed_arguments.text = fmt::format("Unsupported filter: {:s}", argument);
+		parsed_arguments.stop_message = fmt::format("Unsupported filter: {:s}", argument);
 	}
 	return value;
 }
@@ -333,8 +330,7 @@ void argument_from_str(
 	std::string_view argument_name, std::string_view argument, Type& value, todds::args::data& parsed_arguments) {
 	const auto [_, error] = std::from_chars(argument.data(), argument.data() + argument.size(), value);
 	if (error == std::errc::invalid_argument || error == std::errc::result_out_of_range) {
-		parsed_arguments.error = true;
-		parsed_arguments.text = fmt::format("Argument error: {:s} must be a number.", argument_name);
+		parsed_arguments.stop_message = fmt::format("Argument error: {:s} must be a number.", argument_name);
 	}
 }
 
@@ -346,8 +342,7 @@ void argument_from_str<double>(
 	try {
 		value = std::stod(std::string{argument});
 	} catch (const std::logic_error& exception) {
-		parsed_arguments.error = true;
-		parsed_arguments.text = fmt::format(
+		parsed_arguments.stop_message = fmt::format(
 			"Argument error: {:s} must be a floating-point number. Exception: {:s}", argument_name, exception.what());
 	}
 }
@@ -384,7 +379,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 	std::size_t index = 1UL;
 
 	// Parse all positional arguments.
-	while (!parsed_arguments.error && index < arguments.size()) {
+	while (parsed_arguments.stop_message.empty() && index < arguments.size()) {
 		const std::string_view argument = arguments[index];
 		constexpr std::string_view optional_prefix{"-"};
 		if (!argument.starts_with(optional_prefix)) { break; }
@@ -395,7 +390,8 @@ data get(const todds::vector<std::string_view>& arguments) {
 		}
 
 		if (matches(argument, help_arg)) {
-			parsed_arguments.text = get_help(max_threads);
+			parsed_arguments.stop_message = get_help(max_threads);
+			parsed_arguments.help = true;
 			break;
 		}
 
@@ -420,8 +416,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 			argument_from_str(quality_arg.name, next_argument, value, parsed_arguments);
 			parsed_arguments.quality = static_cast<format::quality>(value);
 			if (parsed_arguments.quality > todds::format::quality::maximum) {
-				parsed_arguments.error = true;
-				parsed_arguments.text = fmt::format("Argument error: Unsupported encoding quality level {:d}.",
+				parsed_arguments.stop_message = fmt::format("Argument error: Unsupported encoding quality level {:d}.",
 					static_cast<unsigned int>(parsed_arguments.quality));
 			}
 		} else if (matches(argument, no_mipmaps_arg)) {
@@ -432,8 +427,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 			++index;
 			argument_from_str(mipmap_blur_arg.name, next_argument, parsed_arguments.mipmap_blur, parsed_arguments);
 			if (parsed_arguments.mipmap_blur <= 0.0) {
-				parsed_arguments.error = true;
-				parsed_arguments.text = fmt::format("{:s} must be larger than zero.", mipmap_blur_arg.name);
+				parsed_arguments.stop_message = fmt::format("{:s} must be larger than zero.", mipmap_blur_arg.name);
 			}
 		} else if (matches(argument, scale_arg)) {
 			++index;
@@ -456,8 +450,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 			parsed_arguments.regex = todds::regex{next_argument};
 			const auto regex_err = parsed_arguments.regex.error();
 			if (!regex_err.empty()) {
-				parsed_arguments.error = true;
-				parsed_arguments.text =
+				parsed_arguments.stop_message =
 					fmt::format("Could not compile regular expression {:s}: {:s}", next_argument, regex_err);
 			}
 #endif // defined(TODDS_REGULAR_EXPRESSIONS)
@@ -480,36 +473,33 @@ data get(const todds::vector<std::string_view>& arguments) {
 		} else if (matches(argument, report_arg)) {
 			parsed_arguments.report = true;
 		} else {
-			parsed_arguments.error = true;
-			parsed_arguments.text = fmt::format("Invalid positional argument {:s}", argument);
+			parsed_arguments.stop_message = fmt::format("Invalid positional argument {:s}", argument);
 		}
 
 		if (parsed_arguments.overwrite && parsed_arguments.overwrite_new) {
-			parsed_arguments.error = true;
-			parsed_arguments.text =
+			parsed_arguments.stop_message =
 				fmt::format("{:s} and {:s} cannot be used together", overwrite_arg.name, overwrite_new_arg.name);
 		}
 
 		++index;
 	}
 
-	if (!parsed_arguments.error) {
+	if (parsed_arguments.stop_message.empty()) {
 		if (index < arguments.size()) {
 			boost::system::error_code error_code;
 			parsed_arguments.input = fs::canonical(arguments[index].data(), error_code);
 			if (error_code) {
-				parsed_arguments.error = true;
-				parsed_arguments.text =
+				parsed_arguments.stop_message =
 					fmt::format("Invalid {:s} {:s}: {:s}.", input_name, arguments[index], error_code.message());
 			} else if (index < arguments.size() - 1UL) {
 				parsed_arguments.output = arguments[index + 1UL].data();
 			}
 		} else if (index == 1UL) {
 			// No arguments provided.
-			parsed_arguments.text = get_help(max_threads);
+			parsed_arguments.stop_message = get_help(max_threads);
+			parsed_arguments.help = true;
 		} else {
-			parsed_arguments.error = true;
-			parsed_arguments.text = fmt::format("Argument error: {:s} has not been provided.", input_name);
+			parsed_arguments.stop_message = fmt::format("Argument error: {:s} has not been provided.", input_name);
 		}
 	}
 

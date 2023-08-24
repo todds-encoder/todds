@@ -27,11 +27,12 @@ int main(int argc, char** argv) {
 	try {
 #endif // defined(_NDEBUG)
 		auto data = todds::args::get(argc, argv);
-		if (!data.text.empty()) {
-			auto& stream = data.error ? cerr : cout;
-			stream << data.text;
-		}
-		if (!data.error) {
+		if (!data.stop_message.empty()) {
+			auto& stream = data.help ? cerr : cout;
+			stream << data.stop_message;
+		} else {
+			if (!data.warning_message.empty()) { cout << data.warning_message; }
+
 			todds::run(data);
 			execution_status = EXIT_SUCCESS;
 			if (data.time) {
@@ -41,8 +42,7 @@ int main(int argc, char** argv) {
 		}
 #if defined(NDEBUG)
 	} catch (const std::exception& ex) {
-		cerr << fmt::format(
-			"{:s} has been terminated because of an exception: {:s}\n", todds::project::name(), ex.what());
+		cerr << fmt::format("{:s} has been terminated because of an exception: {:s}\n", todds::project::name(), ex.what());
 	} catch (...) {
 		cerr << fmt::format("{:s} has been terminated because of an unknown exception.\n", todds::project::name());
 	}

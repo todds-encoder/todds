@@ -20,11 +20,17 @@ constexpr auto binary = todds::project::name();
 
 constexpr std::string_view utf_characters = "ЄÑホΩѨ을ـگ⌭∰";
 
-bool has_help(const todds::args::data& arguments) { return !arguments.error && !arguments.text.empty(); }
+bool has_help(const todds::args::data& arguments) {
+	return arguments.help && !arguments.stop_message.empty() && arguments.warning_message.empty();
+}
 
-bool has_error(const todds::args::data& arguments) { return arguments.error && !arguments.text.empty(); }
+bool has_error(const todds::args::data& arguments) {
+	return !arguments.help && !arguments.stop_message.empty() && arguments.warning_message.empty();
+}
 
-bool is_valid(const todds::args::data& arguments) { return !arguments.error && arguments.text.empty(); }
+bool is_valid(const todds::args::data& arguments) {
+	return !arguments.help && arguments.stop_message.empty() && arguments.warning_message.empty();
+}
 
 TEST_CASE("todds::arguments input", "[arguments]") {
 	const auto input_path = boost::filesystem::temp_directory_path() / utf_characters.data();
@@ -133,7 +139,8 @@ TEST_CASE("todds::arguments format", "[arguments]") {
 	// ToDo remove support for BC1_ALPHA_BC7.
 	SECTION("Parsing BC1_ALPHA_BC7.") {
 		const auto arguments = get({binary, "-f", "BC1_ALPHA_BC7", "."});
-		REQUIRE(!has_error(arguments));
+		const bool has_warning = !arguments.help && arguments.stop_message.empty() && !arguments.warning_message.empty();
+		REQUIRE(has_warning);
 		REQUIRE(arguments.format == todds::format::type::bc1);
 		REQUIRE(arguments.alpha_format == todds::format::type::bc7);
 	}

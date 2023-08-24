@@ -18,8 +18,12 @@
 namespace todds::args {
 
 struct data {
-	bool error;
-	std::string text;
+	/** Message shown after argument parsing. */
+	std::string warning_message;
+	/** Message shown after argument parsing. The application will close without encoding. */
+	std::string stop_message;
+	/** If this flag is set, it means that stop_message contains the help message. */
+	bool help;
 	boost::filesystem::path input;
 	std::optional<boost::filesystem::path> output;
 	bool clean;
