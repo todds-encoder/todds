@@ -7,9 +7,11 @@ Developing todds is only made possible by people who share their work and expert
 * **[Aras Pranckevičius](https://aras-p.info)** - [Texture Compression in 2020](https://aras-p.info/blog/2020/12/08/Texture-Compression-in-2020)
 * **[Biomes! Team](https://github.com/biomes-team/)** - [Biomes! Prehistoric](https://github.com/biomes-team/BiomesPrehistoric) data set.
 * **[bbradson](https://github.com/bbradson)** - [DDSgenerator](https://github.com/bbradson/DDSgenerator): Using different DDS encoding formats for alpha and non-alpha source files.
+* **[Craig Scott](https://crascit.com/about)** - [Professional CMake](https://crascit.com/professional-cmake/)
 * **[Dungeon Crawl: Stone Soup development team](https://github.com/crawl/)** - [Crawl Stone Soup](https://github.com/crawl/tiles) data set.
 * **[Ignacio Castaño](http://www.ludicon.com/castano/blog/)** - [NVIDIA Texture Tools](https://github.com/castano/nvidia-texture-tools), [Computing Alpha Mipmaps](http://www.ludicon.com/castano/blog/articles/computing-alpha-mipmaps/)
 * **[Jonathan Blow](http://number-none.com/blow/index.html)** - [Mipmapping, part 1](http://number-none.com/product/Mipmapping,%20Part%201/index.html)
+* **[Luca](https://github.com/lukka)** - [run-vcpkg](https://github.com/lukka/run-vcpkg)
 * **[Martin Helmut Fieber](https://martin-fieber.de)** - [GUI Development with C++, SDL2, and Dear ImGui](https://martin-fieber.de/blog/gui-development-with-cpp-sdl2-and-dear-imgui)
 * **[Michael Sharanda](https://www.gent.media/about)** - [Manrope font](https://www.gent.media/manrope)
 * **[Nadia Eghbal](https://github.com/nayafia)** - [Contributing Guides: A Template](https://github.com/nayafia/contributing-template)
