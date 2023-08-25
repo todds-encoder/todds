@@ -63,9 +63,7 @@ Check the [Analysis documentation](ANALYSIS.md) for details.
 
 ### Performance
 
-todds is optimized for encoding multiple files at the same time, without compromising on encoding quality. The full benefits of todds are reached when it is used to encode large numbers of files, but it also performs fine for single files.
-
-todds uses the CPU to encode textures. Depending on your hardware, number of textures and texture size, GPU based encoders may be faster.
+todds is optimized for encoding multiple files at the same time, without compromising on encoding quality. The full benefits of todds are reached when it is used to encode large numbers of files, but it also performs well while encoding single files.
 
 Check the [Analysis documentation](ANALYSIS.md) for details.
 
