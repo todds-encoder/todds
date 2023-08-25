@@ -1,3 +1,7 @@
+# CMake preset folders
+build
+install
+
 # CLion project files and build folders.
 .idea
 cmake-build*
