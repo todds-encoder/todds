@@ -38,6 +38,3 @@ out*
 # ispc
 ispc/
 .ispc
-
-# vcpkg
-vcpkg/
