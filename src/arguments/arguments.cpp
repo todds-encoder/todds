@@ -266,13 +266,14 @@ std::string get_help(std::size_t max_threads) {
  * @return Format value.
  */
 todds::format::type parse_format(std::string_view argument) {
+	todds::format::type format{todds::format::type::invalid};
 	if (argument == todds::format::name(todds::format::type::bc1)) {
-		return todds::format::type::bc1;
+		format = todds::format::type::bc1;
 	} else if (argument == todds::format::name(todds::format::type::bc7)) {
-		return todds::format::type::bc7;
+		format = todds::format::type::bc7;
 	}
 
-	return todds::format::type::invalid;
+	return format;
 }
 
 void format_from_str(std::string_view argument, todds::args::data& parsed_arguments) {

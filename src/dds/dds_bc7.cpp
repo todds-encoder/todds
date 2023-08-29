@@ -9,6 +9,8 @@
 #include <bc7e_ispc.h>
 #include <oneapi/tbb/parallel_for.h>
 
+#include "dds_impl.hpp"
+
 namespace {
 
 constexpr std::size_t bc7_block_size = 2UL;

@@ -8,6 +8,7 @@
 
 #include <oneapi/tbb/parallel_for.h>
 
+#include "dds_impl.hpp"
 #include "rgbcx_todds.hpp"
 
 namespace {
