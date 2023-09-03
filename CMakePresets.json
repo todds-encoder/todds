@@ -19,6 +19,20 @@
 			"hidden": true
 		},
 		{
+			"name": "config-debug",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug"
+			},
+			"hidden": true
+		},
+		{
+			"name": "config-release",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release"
+			},
+			"hidden": true
+		},
+		{
 			"name": "config-windows",
 			"inherits": [
 				"config-base"
@@ -34,8 +48,9 @@
 			"hidden": true
 		},
 		{
-			"name": "config-windows-debug",
+			"name": "config-windows-debug-msvc",
 			"inherits": [
+				"config-debug",
 				"config-windows"
 			],
 			"displayName": "Windows debug configuration",
@@ -45,8 +60,9 @@
 			}
 		},
 		{
-			"name": "config-windows-release",
+			"name": "config-windows-release-msvc",
 			"inherits": [
+				"config-release",
 				"config-windows"
 			],
 			"displayName": "Windows release config",
@@ -58,14 +74,14 @@
 	],
 	"buildPresets": [
 		{
-			"name": "build-windows-debug",
-			"configurePreset": "config-windows-debug",
+			"name": "build-windows-debug-msvc",
+			"configurePreset": "config-windows-debug-msvc",
 			"displayName": "Debug",
 			"configuration": "Debug"
 		},
 		{
-			"name": "build-windows-release",
-			"configurePreset": "config-windows-release",
+			"name": "build-windows-release-msvc",
+			"configurePreset": "config-windows-release-msvc",
 			"displayName": "Release",
 			"configuration": "Release"
 		}
