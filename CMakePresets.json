@@ -7,7 +7,7 @@
 	},
 	"configurePresets": [
 		{
-			"name": "config-base",
+			"name": "cfg-base",
 			"binaryDir": "${sourceDir}/build/${presetName}",
 			"installDir": "${sourceDir}/install/${presetName}",
 			"generator": "Ninja",
@@ -19,23 +19,23 @@
 			"hidden": true
 		},
 		{
-			"name": "config-debug",
+			"name": "cfg-dbg",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Debug"
 			},
 			"hidden": true
 		},
 		{
-			"name": "config-release",
+			"name": "cfg-rel",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Release"
 			},
 			"hidden": true
 		},
 		{
-			"name": "config-windows",
+			"name": "cfg-win-msvc",
 			"inherits": [
-				"config-base"
+				"cfg-base"
 			],
 			"cacheVariables": {
 				"VCPKG_TARGET_TRIPLET": "x64-windows-static"
@@ -48,24 +48,24 @@
 			"hidden": true
 		},
 		{
-			"name": "config-windows-debug-msvc",
+			"name": "cfg-win-dbg-msvc",
 			"inherits": [
-				"config-debug",
-				"config-windows"
+				"cfg-dbg",
+				"cfg-win-msvc"
 			],
-			"displayName": "Windows debug configuration",
+			"displayName": "Windows MSVC debug configuration",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Debug",
 				"CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDebug"
 			}
 		},
 		{
-			"name": "config-windows-release-msvc",
+			"name": "cfg-win-rel-msvc",
 			"inherits": [
-				"config-release",
-				"config-windows"
+				"cfg-rel",
+				"cfg-win-msvc"
 			],
-			"displayName": "Windows release config",
+			"displayName": "Windows MSVC release config",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Release",
 				"CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded"
@@ -74,14 +74,14 @@
 	],
 	"buildPresets": [
 		{
-			"name": "build-windows-debug-msvc",
-			"configurePreset": "config-windows-debug-msvc",
+			"name": "win-dbg-msvc",
+			"configurePreset": "cfg-win-dbg-msvc",
 			"displayName": "Debug",
 			"configuration": "Debug"
 		},
 		{
-			"name": "build-windows-release-msvc",
-			"configurePreset": "config-windows-release-msvc",
+			"name": "win-rel-msvc",
+			"configurePreset": "cfg-win-rel-msvc",
 			"displayName": "Release",
 			"configuration": "Release"
 		}
