@@ -9,6 +9,7 @@
 #include "todds/mipmap_image.hpp"
 #include "todds/png.hpp"
 #include "todds/profiler.hpp"
+#include "todds/string.hpp"
 #include "todds/util.hpp"
 
 #include <fmt/format.h>
@@ -54,7 +55,7 @@ public:
 
 		// If the data is empty, assume that load_png_file already reported an error.
 		if (!file.buffer.empty()) [[likely]] {
-			const std::string& path = _paths[file.file_index].first.string();
+			const string& path = _paths[file.file_index].first.string();
 			try {
 				auto& file_data = _files_data[file.file_index];
 				// Load the first image of the mipmap image and reserve the memory for the rest of the images.

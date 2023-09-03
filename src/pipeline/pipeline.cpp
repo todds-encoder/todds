@@ -6,6 +6,7 @@
 #include "todds/pipeline.hpp"
 
 #include "todds/dds.hpp"
+#include "todds/string.hpp"
 #include "todds/vector.hpp"
 
 #include <boost/nowide/iostream.hpp>
@@ -77,7 +78,7 @@ void error_reporting(otbb::concurrent_queue<std::string>& error_log, std::atomic
 	std::size_t total, std::atomic<bool>& force_finish) {
 	using namespace std::chrono_literals;
 	std::size_t last_progress{};
-	std::string error_str;
+	todds::string error_str;
 	bool requires_newline = true;
 
 	while (progress < total && !force_finish) {
@@ -146,7 +147,7 @@ void encode_as_dds(const input& input_data) {
 	if (error_report.valid()) {
 		// Wait until the error report task is done before finishing the error log report.
 		error_report.get();
-		std::string error_str;
+		todds::string error_str;
 		while (error_log.try_pop(error_str)) { boost::nowide::cerr << error_str << '\n'; }
 		boost::nowide::cerr.flush();
 		const auto paths_size = input_data.paths.size();
@@ -160,7 +161,7 @@ void encode_as_dds(const input& input_data) {
 	if (input_data.report) {
 		boost::nowide::cout << "File;Width;Height;Mipmaps;Format\n";
 		for (std::size_t index = 0U; index < input_data.paths.size(); ++index) {
-			const std::string& dds_path = input_data.paths[index].second.string();
+			const string& dds_path = input_data.paths[index].second.string();
 			const auto& data = files_data[index];
 			boost::nowide::cout << fmt::format(
 				"{:s};{:d};{:d};{:d};{:s}\n", dds_path, data.width, data.height, data.mipmaps, format::name(data.format));

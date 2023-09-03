@@ -1,4 +1,5 @@
 /*
+/*
  * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
@@ -7,8 +8,8 @@
 
 #include "todds/format.hpp"
 #include "todds/project.hpp"
+#include "todds/string.hpp"
 
-#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/nowide/args.hpp>
 #include <fmt/format.h>
 #include <oneapi/tbb/info.h>
@@ -17,7 +18,6 @@
 #include <array>
 #include <charconv>
 #include <sstream>
-#include <string>
 #include <string_view>
 
 namespace fs = boost::filesystem;
@@ -177,7 +177,7 @@ void print_string_argument(std::ostringstream& ostream, std::string_view name, s
 }
 
 void print_filter_options(std::ostringstream& ostream, todds::filter::type default_value) {
-	const std::string default_str = fmt::format("{:s} [Default]", todds::filter::description(default_value));
+	const todds::string default_str = fmt::format("{:s} [Default]", todds::filter::description(default_value));
 	print_string_argument(ostream, todds::filter::name(default_value), default_str);
 
 	constexpr std::array<todds::filter::type, 5U> filter_types{
@@ -193,7 +193,7 @@ void print_filter_options(std::ostringstream& ostream, todds::filter::type defau
 	}
 }
 
-std::string get_help(std::size_t max_threads) {
+todds::string get_help(std::size_t max_threads) {
 	std::ostringstream ostream;
 	ostream << todds::project::name() << ' ' << todds::project::version() << "\n\n"
 					<< todds::project::description() << "\n\n";
@@ -217,7 +217,7 @@ std::string get_help(std::size_t max_threads) {
 	print_string_argument(
 		ostream, todds::format::name(todds::format::type::bc7), "High-quality compression supporting alpha. [Default]");
 
-	const std::string quality_help =
+	const todds::string quality_help =
 		fmt::format(quality_arg.help, static_cast<unsigned int>(todds::format::quality::minimum),
 			static_cast<unsigned int>(todds::format::quality::maximum), static_cast<unsigned int>(default_quality));
 	print_argument_impl(ostream, quality_arg.shorter, quality_arg.name, quality_help);
@@ -229,7 +229,7 @@ std::string get_help(std::size_t max_threads) {
 	print_optional_argument(ostream, mipmap_filter_arg);
 	print_filter_options(ostream, default_mipmap_filter);
 
-	const std::string mipmap_blur_help = fmt::format(mipmap_blur_arg.help, default_mipmap_blur);
+	const todds::string mipmap_blur_help = fmt::format(mipmap_blur_arg.help, default_mipmap_blur);
 	print_argument_impl(ostream, mipmap_blur_arg.shorter, mipmap_blur_arg.name, mipmap_blur_help);
 
 	print_optional_argument(ostream, scale_arg);
@@ -237,7 +237,7 @@ std::string get_help(std::size_t max_threads) {
 	print_optional_argument(ostream, scale_filter_arg);
 	print_filter_options(ostream, default_scale_filter);
 
-	const std::string threads_help = fmt::format(threads_arg.help, max_threads);
+	const todds::string threads_help = fmt::format(threads_arg.help, max_threads);
 	print_argument_impl(ostream, threads_arg.shorter, threads_arg.name, threads_help);
 	print_optional_argument(ostream, depth_arg);
 	print_optional_argument(ostream, overwrite_arg);
@@ -277,7 +277,7 @@ todds::format::type parse_format(std::string_view argument) {
 }
 
 void format_from_str(std::string_view argument, todds::args::data& parsed_arguments) {
-	const std::string argument_upper = boost::to_upper_copy(std::string{argument});
+	const todds::string argument_upper = todds::to_upper_copy(std::string{argument});
 	const auto format = parse_format(argument_upper);
 	if (format != todds::format::type::invalid) {
 		parsed_arguments.format = format;
@@ -298,19 +298,20 @@ void format_from_str(std::string_view argument, todds::args::data& parsed_argume
 }
 
 void alpha_format_from_str(std::string_view argument, todds::args::data& parsed_arguments) {
-	const std::string argument_upper = boost::to_upper_copy(std::string{argument});
+	const todds::string argument_upper = todds::to_upper_copy(std::string{argument});
 	const auto format = parse_format(argument_upper);
 	if (format == todds::format::type::invalid) {
 		parsed_arguments.stop_message = fmt::format("Invalid encoding alpha format: {:s}", argument);
 	} else if (!todds::format::has_alpha(format)) {
-		parsed_arguments.stop_message = fmt::format("Chosen encoding alpha format lacks transparency support: {:s}", argument);
+		parsed_arguments.stop_message =
+			fmt::format("Chosen encoding alpha format lacks transparency support: {:s}", argument);
 	} else {
 		parsed_arguments.alpha_format = format;
 	}
 }
 
 todds::filter::type filter_from_str(std::string_view argument, todds::args::data& parsed_arguments) {
-	const std::string argument_upper = boost::to_upper_copy(std::string{argument});
+	const todds::string argument_upper = todds::to_upper_copy(std::string{argument});
 	todds::filter::type value = todds::filter::type::lanczos;
 	if (argument_upper == todds::filter::name(todds::filter::type::nearest)) {
 		value = todds::filter::type::nearest;

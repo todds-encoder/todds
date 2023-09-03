@@ -10,7 +10,6 @@
 #include <oneapi/tbb/concurrent_queue.h>
 
 #include <limits>
-#include <string>
 
 namespace todds::pipeline::impl {
 

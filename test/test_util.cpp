@@ -3,6 +3,7 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+#include "todds/string.hpp"
 #include "todds/util.hpp"
 
 #include <catch2/catch_test_macros.hpp>
@@ -14,4 +15,12 @@ TEST_CASE("todds::util::next_divisible_by_4", "[util]") {
 	STATIC_REQUIRE(next_divisible_by_4(18UL) == 20UL);
 	STATIC_REQUIRE(next_divisible_by_4(31UL) == 32UL);
 	STATIC_REQUIRE(next_divisible_by_4(997UL) == 1000UL);
+}
+
+TEST_CASE("todds::string", "[string]") {
+	using todds::string;
+	using todds::to_upper_copy;
+	string lower = "some string data";
+	string upper = "SOME STRING DATA";
+	REQUIRE(to_upper_copy(lower) == upper);
 }

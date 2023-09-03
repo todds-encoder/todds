@@ -8,6 +8,7 @@
 #include "todds/filter.hpp"
 #include "todds/format.hpp"
 #include "todds/regex.hpp"
+#include "todds/string.hpp"
 #include "todds/vector.hpp"
 
 #include <boost/filesystem.hpp>
@@ -19,9 +20,9 @@ namespace todds::args {
 
 struct data {
 	/** Message shown after argument parsing. */
-	std::string warning_message;
+	string warning_message;
 	/** Message shown after argument parsing. The application will close without encoding. */
-	std::string stop_message;
+	string stop_message;
 	/** If this flag is set, it means that stop_message contains the help message. */
 	bool help;
 	boost::filesystem::path input;

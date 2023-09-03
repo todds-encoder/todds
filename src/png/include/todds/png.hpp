@@ -7,11 +7,11 @@
 
 #include "todds/memory.hpp"
 #include "todds/mipmap_image.hpp"
+#include "todds/string.hpp"
 
 #include <cstdint>
 #include <memory>
 #include <span>
-#include <string>
 
 namespace todds::png {
 
@@ -28,7 +28,7 @@ namespace todds::png {
  * make their number of pixels divisible by 4. If mipmaps is true, memory for mipmaps is allocated but only the first
  * image is loaded in memory.
  */
-std::unique_ptr<mipmap_image> decode(std::size_t file_index, const std::string& png,
+std::unique_ptr<mipmap_image> decode(std::size_t file_index, const todds::string& png,
 	std::span<const std::uint8_t> buffer, bool flip, std::size_t& width, std::size_t& height, bool mipmaps);
 
 } // namespace todds::png

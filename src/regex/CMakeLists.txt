@@ -21,6 +21,7 @@ target_compile_options(todds_regex PRIVATE ${TODDS_CPP_WARNING_FLAGS})
 
 if (TODDS_REGULAR_EXPRESSIONS)
 	target_link_libraries(todds_regex PRIVATE
+		todds_util
 		Hyperscan::Hyperscan
 		)
 endif ()

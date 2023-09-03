@@ -5,13 +5,14 @@
 
 #include "todds/regex.hpp"
 
+#include "todds/string.hpp"
+
 #include <hs.h>
 
 #include <cassert>
-#include <string>
 
 namespace {
-hs_database* compile(std::string_view pattern, std::string& error) {
+hs_database* compile(std::string_view pattern, todds::string& error) {
 	hs_database* database{};
 
 	if (!pattern.empty()) {
@@ -78,7 +79,7 @@ public:
 	}
 
 private:
-	std::string _error;
+	string _error;
 	database_ptr _database;
 	scratch_ptr _scratch;
 };

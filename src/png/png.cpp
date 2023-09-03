@@ -5,6 +5,8 @@
 
 #include "todds/png.hpp"
 
+#include "todds/string.hpp"
+
 #include "spng.h"
 #include <fmt/format.h>
 
@@ -16,7 +18,7 @@ namespace {
 // RAII wrapper around the spng_ctx object.
 class spng_context final {
 public:
-	explicit spng_context(const std::string& png, int flags)
+	explicit spng_context(const todds::string& png, int flags)
 		: _ctx{spng_ctx_new(flags)} {
 		if (_ctx == nullptr) { throw std::runtime_error{fmt::format("libspng context creation failed for {:s}", png)}; }
 	}
@@ -34,7 +36,7 @@ private:
 	spng_ctx* _ctx;
 };
 
-void set_buffer(spng_context& context, const std::string& png, std::span<const std::uint8_t> buffer) {
+void set_buffer(spng_context& context, const todds::string& png, std::span<const std::uint8_t> buffer) {
 	/* Ignore chunk CRCs and their calculations. */
 	spng_set_crc_action(context.get(), SPNG_CRC_USE, SPNG_CRC_USE);
 
@@ -47,7 +49,7 @@ void set_buffer(spng_context& context, const std::string& png, std::span<const s
 	}
 }
 
-spng_ihdr get_header(spng_context& context, const std::string& png) {
+spng_ihdr get_header(spng_context& context, const todds::string& png) {
 	spng_ihdr header{};
 	if (const int ret = spng_get_ihdr(context.get(), &header); ret != 0) {
 		throw std::runtime_error{fmt::format("Could not read header data of {:s}: {:s}", png, spng_strerror(ret))};
@@ -59,7 +61,7 @@ spng_ihdr get_header(spng_context& context, const std::string& png) {
 
 namespace todds::png {
 
-std::unique_ptr<mipmap_image> decode(std::size_t file_index, const std::string& png,
+std::unique_ptr<mipmap_image> decode(std::size_t file_index, const todds::string& png,
 	std::span<const std::uint8_t> buffer, bool flip, std::size_t& width, std::size_t& height, bool mipmaps) {
 	width = 0ULL;
 	height = 0ULL;

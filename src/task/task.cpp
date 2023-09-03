@@ -6,8 +6,8 @@
 
 #include "todds/pipeline.hpp"
 #include "todds/regex.hpp"
+#include "todds/string.hpp"
 
-#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/nowide/fstream.hpp>
 #include <boost/nowide/iostream.hpp>
@@ -24,9 +24,9 @@ constexpr std::string_view png_extension{".png"};
 constexpr std::string_view txt_extension{".txt"};
 
 bool has_extension(const fs::path& path, const std::string_view extension) {
-	const std::string path_extension = path.extension().string();
+	const todds::string path_extension = path.extension().string();
 	if (path_extension.size() != extension.size()) { return false; }
-	return boost::to_lower_copy(path_extension) == extension;
+	return todds::to_lower_copy(path_extension) == extension;
 }
 
 /**
@@ -106,7 +106,7 @@ paths_vector get_paths(const todds::args::data& arguments) {
 		add_files(input, dds_path, paths, should_generate);
 	} else if (has_extension(input, txt_extension)) {
 		boost::nowide::fstream stream{input};
-		std::string buffer;
+		todds::string buffer;
 		while (std::getline(stream, buffer)) {
 			const fs::path current_path{buffer};
 			if (fs::is_directory(current_path)) {
