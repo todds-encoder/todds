@@ -12,7 +12,7 @@
 			"installDir": "${sourceDir}/install/${presetName}",
 			"generator": "Ninja",
 			"cacheVariables": {
-				"CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+				"CMAKE_TOOLCHAIN_FILE": "${sourceDir}/submodules/vcpkg/scripts/buildsystems/vcpkg.cmake",
 				"TODDS_UNIT_TESTS": "ON",
 				"TODDS_WARNINGS_AS_ERRORS": "ON"
 			},
