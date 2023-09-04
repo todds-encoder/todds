@@ -20,6 +20,7 @@ constexpr std::uint32_t format_fourcc(todds::format::type format_type) {
 	switch (format_type) {
 	case todds::format::type::bc1: fourcc = PIXEL_FMT_FOURCC('D', 'X', 'T', '1'); break;
 	case todds::format::type::bc7: fourcc = PIXEL_FMT_FOURCC('D', 'X', '1', '0'); break;
+	case todds::format::type::png:
 	case todds::format::type::invalid: assert(false); break;
 	}
 	return fourcc;
