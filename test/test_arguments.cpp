@@ -138,6 +138,12 @@ TEST_CASE("todds::arguments format", "[arguments]") {
 		REQUIRE(arguments.format == type::bc7);
 	}
 
+	SECTION("Parsing png .") {
+		const auto arguments = get({binary, "--format", "pNg", "."});
+		REQUIRE(!has_error(arguments));
+		REQUIRE(arguments.format == type::png);
+	}
+
 	// ToDo remove support for BC1_ALPHA_BC7.
 	SECTION("Parsing BC1_ALPHA_BC7.") {
 		const auto arguments = get({binary, "-f", "BC1_ALPHA_BC7", "."});
