@@ -1209,7 +1209,7 @@ static int spng__inflate_init(spng_ctx *ctx, int window_bits)
     if(inflateValidate(&ctx->zstream, validate)) return SPNG_EZLIB_INIT;
 
 #else /* This requires zlib >= 1.2.11 */
-    #pragma message ("inflateValidate() not available, SPNG_CTX_IGNORE_ADLER32 will be ignored")
+    // #pragma message ("inflateValidate() not available, SPNG_CTX_IGNORE_ADLER32 will be ignored")
 #endif
 
     return 0;
@@ -2691,6 +2691,7 @@ static int read_non_idat_chunks(spng_ctx *ctx)
             if(!memcmp(chunk.type, type_exif, 4))
             {
                 if(ctx->file.exif) return SPNG_EDUP_EXIF;
+                if(!chunk.length) return SPNG_EEXIF;
 
                 ctx->file.exif = 1;
 
