@@ -297,7 +297,7 @@ void format_from_str(std::string_view argument, todds::args::data& parsed_argume
 					format_arg.name, todds::format::name(todds::format::type::bc1), alpha_format_arg.name,
 					todds::format::name(todds::format::type::bc7));
 		} else {
-			parsed_arguments.stop_message = fmt::format("Invalid encoding format: {:s}", argument);
+			parsed_arguments.stop_message = fmt::format("Argument error: invalid encoding format: {:s}", argument);
 		}
 	}
 }
@@ -306,10 +306,10 @@ void alpha_format_from_str(std::string_view argument, todds::args::data& parsed_
 	const todds::string argument_upper = todds::to_upper_copy(std::string{argument});
 	const auto format = parse_format(argument_upper);
 	if (format == todds::format::type::invalid) {
-		parsed_arguments.stop_message = fmt::format("Invalid encoding alpha format: {:s}", argument);
+		parsed_arguments.stop_message = fmt::format("Argument error: invalid encoding alpha format: {:s}", argument);
 	} else if (!todds::format::has_alpha(format)) {
 		parsed_arguments.stop_message =
-			fmt::format("Chosen encoding alpha format lacks transparency support: {:s}", argument);
+			fmt::format("Argument error: chosen encoding alpha format lacks transparency support: {:s}", argument);
 	} else {
 		parsed_arguments.alpha_format = format;
 	}
@@ -327,7 +327,7 @@ todds::filter::type filter_from_str(std::string_view argument, todds::args::data
 	} else if (argument_upper == todds::filter::name(todds::filter::type::lanczos)) {
 		value = todds::filter::type::lanczos;
 	} else {
-		parsed_arguments.stop_message = fmt::format("Unsupported filter: {:s}", argument);
+		parsed_arguments.stop_message = fmt::format("Argument error: unsupported filter: {:s}", argument);
 	}
 	return value;
 }
@@ -434,7 +434,8 @@ data get(const todds::vector<std::string_view>& arguments) {
 			++index;
 			argument_from_str(mipmap_blur_arg.name, next_argument, parsed_arguments.mipmap_blur, parsed_arguments);
 			if (parsed_arguments.mipmap_blur <= 0.0) {
-				parsed_arguments.stop_message = fmt::format("{:s} must be larger than zero.", mipmap_blur_arg.name);
+				parsed_arguments.stop_message =
+					fmt::format("Argument error: {:s} must be larger than zero.", mipmap_blur_arg.name);
 			}
 		} else if (matches(argument, scale_arg)) {
 			++index;
@@ -507,6 +508,29 @@ data get(const todds::vector<std::string_view>& arguments) {
 			parsed_arguments.help = true;
 		} else {
 			parsed_arguments.stop_message = fmt::format("Argument error: {:s} has not been provided.", input_name);
+		}
+	}
+
+	if (parsed_arguments.stop_message.empty() &&
+			(parsed_arguments.format == format::type::png || parsed_arguments.alpha_format == format::type::png)) {
+		parsed_arguments.mipmaps = false;
+		const std::string_view format_name = format::name(format::type::png);
+		if (parsed_arguments.quality != default_quality) {
+			parsed_arguments.warning_message =
+				fmt::format("Argument error: Parameter {:s} ignored because encoding to the {:s} format is lossless.",
+					quality_arg.name, format_name);
+		}
+
+		if (!parsed_arguments.output.has_value()) {
+			parsed_arguments.stop_message =
+				fmt::format("Argument error: {:s} parameter must be provided for format {:s} to avoid overwriting the input.",
+					output_name, format_name);
+		} else if (parsed_arguments.mipmap_blur != default_mipmap_blur) {
+			parsed_arguments.stop_message = fmt::format(
+				"Argument error: {:s} provided but format {:s} lacks mipmap support.", mipmap_blur_arg.name, format_name);
+		} else if (parsed_arguments.mipmap_filter != default_mipmap_filter) {
+			parsed_arguments.stop_message = fmt::format(
+				"Argument error: {:s} provided but format {:s} lacks mipmap support.", mipmap_filter_arg.name, format_name);
 		}
 	}
 

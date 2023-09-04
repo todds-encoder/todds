@@ -14,6 +14,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+namespace {
+
 using todds::args::get;
 
 constexpr auto binary = todds::project::name();
@@ -28,9 +30,15 @@ bool has_error(const todds::args::data& arguments) {
 	return !arguments.help && !arguments.stop_message.empty() && arguments.warning_message.empty();
 }
 
+bool has_warning(const todds::args::data& arguments) {
+	return !arguments.help && arguments.stop_message.empty() && !arguments.warning_message.empty();
+}
+
 bool is_valid(const todds::args::data& arguments) {
 	return !arguments.help && arguments.stop_message.empty() && arguments.warning_message.empty();
 }
+
+} // Anonymous namespace
 
 TEST_CASE("todds::arguments input", "[arguments]") {
 	const auto input_path = boost::filesystem::temp_directory_path() / utf_characters.data();
@@ -138,17 +146,10 @@ TEST_CASE("todds::arguments format", "[arguments]") {
 		REQUIRE(arguments.format == type::bc7);
 	}
 
-	SECTION("Parsing png .") {
-		const auto arguments = get({binary, "--format", "pNg", "."});
-		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.format == type::png);
-	}
-
 	// ToDo remove support for BC1_ALPHA_BC7.
 	SECTION("Parsing BC1_ALPHA_BC7.") {
 		const auto arguments = get({binary, "-f", "BC1_ALPHA_BC7", "."});
-		const bool has_warning = !arguments.help && arguments.stop_message.empty() && !arguments.warning_message.empty();
-		REQUIRE(has_warning);
+		REQUIRE(has_warning(arguments));
 		REQUIRE(arguments.format == type::bc1);
 		REQUIRE(arguments.alpha_format == type::bc7);
 	}
@@ -177,6 +178,43 @@ TEST_CASE("todds::arguments alpha_format", "[arguments]") {
 		const auto arguments = get({binary, "--alpha-format", "bC7", "."});
 		REQUIRE(!has_error(arguments));
 		REQUIRE(arguments.alpha_format == type::bc7);
+	}
+}
+
+TEST_CASE("todds::arguments PNG format", "[arguments]") {
+	using todds::format::type;
+
+	SECTION("Parsing PNG format.") {
+		const auto arguments = get({binary, "--format", "pNg", ".", "output"});
+		REQUIRE(!has_error(arguments));
+		REQUIRE(arguments.format == type::png);
+	}
+
+	SECTION("Parsing PNG alpha_format.") {
+		const auto arguments = get({binary, "--alpha-format", "pNg", ".", "output"});
+		REQUIRE(!has_error(arguments));
+		REQUIRE(arguments.alpha_format == type::png);
+	}
+
+	SECTION("Not providing the output argument when using PNG format results in an error.") {
+		const auto arguments = get({binary, "--format", "pNg", "."});
+		REQUIRE(has_error(arguments));
+	}
+
+	SECTION("Setting quality for PNGs results in a warning.") {
+		const auto arguments = get({binary, "--alpha-format", "PNG", "-q", "4", ".", "output"});
+		REQUIRE(!has_error(arguments));
+		REQUIRE(has_warning(arguments));
+	}
+
+	SECTION("Setting mipmap blur when using PNG format results in an error.") {
+		const auto arguments = get({binary, "--format", "pNg", "-mb", std::to_string(0.1F), ".", "output"});
+		REQUIRE(has_error(arguments));
+	}
+
+	SECTION("Setting mipmap filter when using PNG format results in an error.") {
+		const auto arguments = get({binary, "--format", "pNg", "--mipmap-filter", "nearest", ".", "output"});
+		REQUIRE(has_error(arguments));
 	}
 }
 
