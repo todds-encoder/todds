@@ -6,7 +6,10 @@
 # bugprone-exception-escape: Allow using fields which may throw exceptions in todds::args::data.
 # clang-diagnostic-c++20-compat: todds only supports c++20
 # clang-diagnostic-unknown-warning-option: Triggered by GCC-only warnings.
+# clang-diagnostic-unsafe-buffer-usage: todds requires this feature.
 # clang-diagnostic-unused-command-line-argument: Ignore unused command line arguments.
+# cppcoreguidelines-avoid-const-or-ref-data-members: Required for pipeline filters.
+# cppcoreguidelines-avoid-do-while: Allow do-while loops.
 # cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers: Required for test cases.
 # cppcoreguidelines-avoid-non-const-global-variables: Global variables for SIGINT handling.
 # cppcoreguidelines-owning-memory: Allow using non-owner pointers without requiring gsl types.
@@ -36,7 +39,10 @@ Checks: '*,
 -bugprone-easily-swappable-parameters,
 -bugprone-exception-escape,
 -clang-diagnostic-unknown-warning-option,
+-clang-diagnostic-unsafe-buffer-usage,
 -clang-diagnostic-unused-command-line-argument,
+-cppcoreguidelines-avoid-const-or-ref-data-members,
+-cppcoreguidelines-avoid-do-while,
 -cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,
 -cppcoreguidelines-avoid-non-const-global-variables,
 -cppcoreguidelines-owning-memory,

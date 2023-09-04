@@ -29,6 +29,7 @@ if (TODDS_WARNINGS_AS_ERRORS)
 			-Wno-exit-time-destructors            # Define global variables required by the SIGINT handler.
 			-Wno-global-constructors              # Define global variables required by the SIGINT handler.
 			-Wno-disabled-macro-expansion         # SIGINT handler on UNIX systems.
+			-Wno-unsafe-buffer-usage              # Allow using pointer arithmetic and other related operations.
 			)
 	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		# Warnings present in all supported versions of GCC and Clang.

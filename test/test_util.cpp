@@ -20,7 +20,7 @@ TEST_CASE("todds::util::next_divisible_by_4", "[util]") {
 TEST_CASE("todds::string", "[string]") {
 	using todds::string;
 	using todds::to_upper_copy;
-	string lower = "some string data";
-	string upper = "SOME STRING DATA";
+	const string lower = "some string data";
+	const string upper = "SOME STRING DATA";
 	REQUIRE(to_upper_copy(lower) == upper);
 }

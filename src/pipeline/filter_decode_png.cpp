@@ -19,23 +19,27 @@
 #include <boost/nowide/fstream.hpp>
 #endif // defined(TODDS_PIPELINE_DUMP)
 
-namespace todds::pipeline::impl {
+namespace {
 
-static std::unique_ptr<mipmap_image> fix_image_size(mipmap_image& original, bool mipmaps) {
+std::unique_ptr<todds::mipmap_image> fix_image_size(todds::mipmap_image& original, bool mipmaps) {
 	const auto& original_img = original.get_image(0UL);
-	const auto new_width = util::next_divisible_by_4(original_img.width());
-	const auto new_height = util::next_divisible_by_4(original_img.height());
-	std::unique_ptr<mipmap_image> resized =
-		std::make_unique<mipmap_image>(original.file_index(), new_width, new_height, mipmaps);
+	const auto new_width = todds::util::next_divisible_by_4(original_img.width());
+	const auto new_height = todds::util::next_divisible_by_4(original_img.height());
+	std::unique_ptr<todds::mipmap_image> resized =
+		std::make_unique<todds::mipmap_image>(original.file_index(), new_width, new_height, mipmaps);
 
 	auto& resized_img = resized->get_image(0UL);
 	for (std::size_t row = 0UL; row < original_img.height(); ++row) {
 		const std::uint8_t* original_start = &original_img.row_start(row);
-		const std::uint8_t* original_end = original_start + original_img.width() * image::bytes_per_pixel;
+		const std::uint8_t* original_end = original_start + original_img.width() * todds::image::bytes_per_pixel;
 		std::copy(original_start, original_end, &resized_img.row_start(row));
 	}
 	return resized;
 }
+
+} // namespace
+
+namespace todds::pipeline::impl {
 
 class decode_png final {
 public:

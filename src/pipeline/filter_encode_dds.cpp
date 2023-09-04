@@ -15,10 +15,10 @@
 #include <boost/nowide/fstream.hpp>
 #endif // defined(TODDS_PIPELINE_DUMP)
 
-namespace todds::pipeline::impl {
+namespace {
 
-static dds_data create_dds_data(dds_image image, std::size_t file_index) {
-	dds_data data{std::move(image), file_index};
+todds::pipeline::impl::dds_data create_dds_data(todds::dds_image image, std::size_t file_index) {
+	todds::pipeline::impl::dds_data data{std::move(image), file_index};
 #if defined(TODDS_PIPELINE_DUMP)
 	const auto dmp_path = boost::dll::program_location().parent_path() / "encode_dds.dmp";
 	boost::nowide::ofstream dmp{dmp_path, std::ios::out | std::ios::binary};
@@ -28,6 +28,23 @@ static dds_data create_dds_data(dds_image image, std::size_t file_index) {
 #endif // defined(TODDS_PIPELINE_DUMP)
 	return data;
 }
+
+// When using alpha_format, this function determines if a file should be encoded as alpha.
+bool has_alpha(const todds::pixel_block_image& img) {
+	const auto* current_alpha = reinterpret_cast<const std::uint8_t*>(img.data()) + 3U;
+	const auto* end = reinterpret_cast<const std::uint8_t*>(&img.back());
+
+	while (current_alpha <= end) {
+		if (*current_alpha != std::numeric_limits<std::uint8_t>::max()) { return true; }
+		current_alpha += todds::image::bytes_per_pixel;
+	}
+
+	return false;
+}
+
+} // Anonymous namespace
+
+namespace todds::pipeline::impl {
 
 class encode_bc1_image final {
 public:
@@ -64,19 +81,6 @@ private:
 	vector<file_data>& _files_data;
 	dds::bc7_params _params;
 };
-
-// When using alpha_format, this function determines if a file should be encoded as alpha.
-static bool has_alpha(const pixel_block_image& img) {
-	const auto* current_alpha = reinterpret_cast<const std::uint8_t*>(img.data()) + 3U;
-	const auto* end = reinterpret_cast<const std::uint8_t*>(&img.back());
-
-	while (current_alpha <= end) {
-		if (*current_alpha != std::numeric_limits<std::uint8_t>::max()) { return true; }
-		current_alpha += image::bytes_per_pixel;
-	}
-
-	return false;
-}
 
 class encode_alpha_format_image final {
 public:
