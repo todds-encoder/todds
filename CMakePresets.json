@@ -33,6 +33,21 @@
 			"hidden": true
 		},
 		{
+			"name": "cfg-linux-gcc",
+			"inherits": [
+				"cfg-base"
+			],
+			"cacheVariables": {
+				"VCPKG_TARGET_TRIPLET": "x64-linux"
+			},
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Linux"
+			},
+			"hidden": true
+		},
+		{
 			"name": "cfg-win-msvc",
 			"inherits": [
 				"cfg-base"
@@ -46,6 +61,22 @@
 				"rhs": "Windows"
 			},
 			"hidden": true
+		},
+		{
+			"name": "cfg-linux-dbg-gcc",
+			"inherits": [
+				"cfg-dbg",
+				"cfg-linux-gcc"
+			],
+			"displayName": "Linux GCC debug configuration"
+		},
+		{
+			"name": "cfg-linux-rel-gcc",
+			"inherits": [
+				"cfg-rel",
+				"cfg-linux-gcc"
+			],
+			"displayName": "Linux GCC release configuration"
 		},
 		{
 			"name": "cfg-win-dbg-msvc",
@@ -73,6 +104,18 @@
 		}
 	],
 	"buildPresets": [
+		{
+			"name": "linux-dbg-gcc",
+			"configurePreset": "cfg-linux-dbg-gcc",
+			"displayName": "Debug",
+			"configuration": "Debug"
+		},
+		{
+			"name": "linux-rel-gcc",
+			"configurePreset": "cfg-linux-rel-gcc",
+			"displayName": "Release",
+			"configuration": "Release"
+		},
 		{
 			"name": "win-dbg-msvc",
 			"configurePreset": "cfg-win-dbg-msvc",
