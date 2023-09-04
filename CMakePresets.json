@@ -19,6 +19,13 @@
 			"hidden": true
 		},
 		{
+			"name": "cfg-clang-tidy",
+			"cacheVariables": {
+				"TODDS_CLANG_TIDY": "ON"
+			},
+			"hidden": true
+		},
+		{
 			"name": "cfg-dbg",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Debug"
@@ -33,10 +40,7 @@
 			"hidden": true
 		},
 		{
-			"name": "cfg-linux-gcc",
-			"inherits": [
-				"cfg-base"
-			],
+			"name": "cfg-linux",
 			"cacheVariables": {
 				"VCPKG_TARGET_TRIPLET": "x64-linux"
 			},
@@ -65,18 +69,33 @@
 		{
 			"name": "cfg-linux-dbg-gcc",
 			"inherits": [
+				"cfg-base",
 				"cfg-dbg",
-				"cfg-linux-gcc"
+				"cfg-linux"
 			],
 			"displayName": "Linux GCC debug configuration"
 		},
 		{
 			"name": "cfg-linux-rel-gcc",
 			"inherits": [
+				"cfg-base",
 				"cfg-rel",
-				"cfg-linux-gcc"
+				"cfg-linux"
 			],
 			"displayName": "Linux GCC release configuration"
+		},
+		{
+			"name": "cfg-linux-rel-clang",
+			"inherits": [
+				"cfg-base",
+				"cfg-clang-tidy",
+				"cfg-rel",
+				"cfg-linux"
+			],
+			"cacheVariables": {
+				"TODDS_CLANG_ALL_WARNINGS": "ON"
+			},
+			"displayName": "Linux Clang release configuration"
 		},
 		{
 			"name": "cfg-win-dbg-msvc",
@@ -113,6 +132,12 @@
 		{
 			"name": "linux-rel-gcc",
 			"configurePreset": "cfg-linux-rel-gcc",
+			"displayName": "Release",
+			"configuration": "Release"
+		},
+		{
+			"name": "linux-rel-clang",
+			"configurePreset": "cfg-linux-rel-clang",
 			"displayName": "Release",
 			"configuration": "Release"
 		},
