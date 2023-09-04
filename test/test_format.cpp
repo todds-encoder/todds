@@ -14,11 +14,13 @@ using todds::format::type;
 TEST_CASE("todds::format::name", "[format]") {
 	STATIC_REQUIRE(!name(type::bc1).empty());
 	STATIC_REQUIRE(!name(type::bc7).empty());
+	STATIC_REQUIRE(!name(type::png).empty());
 	STATIC_REQUIRE(name(type::invalid).empty());
 }
 
 TEST_CASE("todds::format::has_alpha", "[format]") {
 	STATIC_REQUIRE(!has_alpha(type::bc1));
 	STATIC_REQUIRE(has_alpha(type::bc7));
+	STATIC_REQUIRE(has_alpha(type::png));
 	STATIC_REQUIRE(!has_alpha(type::invalid));
 }

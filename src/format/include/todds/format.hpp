@@ -10,7 +10,7 @@
 
 namespace todds::format {
 
-enum class type : std::uint8_t { bc1, bc7, invalid };
+enum class type : std::uint8_t { bc1, bc7, png, invalid };
 
 enum class quality : std::uint8_t {
 	ultra_fast = 0U,
@@ -30,11 +30,12 @@ enum class quality : std::uint8_t {
 	switch (fmt) {
 	case type::bc1: name_str = "BC1"; break;
 	case type::bc7: name_str = "BC7"; break;
+	case type::png: name_str = "PNG"; break;
 	case type::invalid: break;
 	}
 	return name_str;
 }
 
-[[nodiscard]] constexpr bool has_alpha(type fmt) noexcept { return fmt == type::bc7; }
+[[nodiscard]] constexpr bool has_alpha(type fmt) noexcept { return fmt == type::bc7 || fmt == type::png; }
 
 } // namespace todds::format

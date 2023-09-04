@@ -104,6 +104,7 @@ public:
 		switch (format) {
 		case format::type::bc1: image_data = dds::bc1_encode(_quality, _alpha_black, pixel_data.image); break;
 		case format::type::bc7: image_data = dds::bc7_encode(_params, pixel_data.image); break;
+		case format::type::png:
 		case format::type::invalid: assert(false); break;
 		}
 
@@ -135,6 +136,7 @@ oneapi::tbb::filter<pixel_block_data, dds_data> encode_dds_filter(vector<file_da
 			filter_mode::parallel, encode_bc1_image{files_data, quality, alpha_black});
 	case format::type::bc7:
 		return make_filter<pixel_block_data, dds_data>(filter_mode::parallel, encode_bc7_image{files_data, quality});
+	case format::type::png:
 	case format::type::invalid: break;
 	}
 
