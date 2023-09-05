@@ -53,7 +53,7 @@ oneapi::tbb::filter<void, void> get_filters_from_settings(const input& input_dat
 	auto prepare_image = png_decoding_filters(input_data, counter, force_finish, error_log, files_data);
 	if (input_data.scale != 100U || input_data.max_size > 0U) {
 		prepare_image &= impl::scale_image_filter(
-			files_data, input_data.mipmaps, input_data.scale, input_data.max_size, input_data.scale_filter);
+			files_data, input_data.mipmaps, input_data.scale, input_data.max_size, input_data.scale_filter, input_data.paths, error_log);
 	}
 
 	if (input_data.format == format::type::png) { return prepare_image & png_encoding_filters(input_data, error_log); }
