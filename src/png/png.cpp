@@ -11,6 +11,7 @@
 #include <fmt/format.h>
 
 #include <cassert>
+#include <limits>
 #include <stdexcept>
 
 namespace {
@@ -109,6 +110,41 @@ std::unique_ptr<mipmap_image> decode(std::size_t file_index, const todds::string
 	if (ret != SPNG_EOI && ret != SPNG_EIDAT_STREAM) {
 		throw std::runtime_error{fmt::format("Progressive decode error in {:s}: {:s}", png, spng_strerror(ret))};
 	}
+	return result;
+}
+
+vector<std::uint8_t> encode(const string& png, std::unique_ptr<mipmap_image> input) {
+	if (input == nullptr) [[unlikely]] { return {}; }
+
+	const image& input_image = input->get_image(0U);
+
+	spng_context context{png, SPNG_CTX_ENCODER};
+	spng_set_option(context.get(), SPNG_ENCODE_TO_BUFFER, 1);
+	spng_ihdr ihdr{};
+	ihdr.width = static_cast<std::uint32_t>(input_image.width());
+	ihdr.height = static_cast<std::uint32_t>(input_image.height());
+	ihdr.color_type = SPNG_COLOR_TYPE_TRUECOLOR_ALPHA;
+	ihdr.bit_depth = 8;
+
+	spng_set_ihdr(context.get(), &ihdr);
+
+	const std::span<const std::uint8_t> data = input_image.data();
+	if (const int ret = spng_encode_image(context.get(), data.data(), data.size(), SPNG_FMT_PNG, SPNG_ENCODE_FINALIZE);
+			ret != 0) {
+		throw std::runtime_error{fmt::format("Could not encode PNG file {:s}: {:s}", png, spng_strerror(ret))};
+	}
+
+	std::size_t png_size{};
+	int ret{};
+	void* png_buf = spng_get_png_buffer(context.get(), &png_size, &ret);
+	if (ret != 0 || png_buf == nullptr) {
+		throw std::runtime_error{
+			fmt::format("Could not obtain encoded PNG buffer for {:s}: {:s}", png, spng_strerror(ret))};
+	}
+
+	vector<std::uint8_t> result(png_size);
+	auto* encoded_buffer = static_cast<std::uint8_t*>(png_buf);
+	std::copy(encoded_buffer, encoded_buffer + png_size, result.data());
 	return result;
 }
 

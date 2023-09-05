@@ -192,8 +192,7 @@ TEST_CASE("todds::arguments PNG format", "[arguments]") {
 
 	SECTION("Parsing PNG alpha_format.") {
 		const auto arguments = get({binary, "--alpha-format", "pNg", ".", "output"});
-		REQUIRE(!has_error(arguments));
-		REQUIRE(arguments.alpha_format == type::png);
+		REQUIRE(has_error(arguments));
 	}
 
 	SECTION("Not providing the output argument when using PNG format results in an error.") {

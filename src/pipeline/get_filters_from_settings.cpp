@@ -7,10 +7,12 @@
 
 #include "filter_decode_png.hpp"
 #include "filter_encode_dds.hpp"
+#include "filter_encode_png.hpp"
 #include "filter_generate_mipmaps.hpp"
 #include "filter_load_png.hpp"
 #include "filter_pixel_blocks.hpp"
 #include "filter_save_dds.hpp"
+#include "filter_save_png.hpp"
 #include "filter_scale_image.hpp"
 
 namespace todds::pipeline::impl {
@@ -20,9 +22,9 @@ inline oneapi::tbb::filter<void, std::unique_ptr<mipmap_image>> png_decoding_fil
 	oneapi::tbb::concurrent_queue<std::string>& error_log, vector<impl::file_data>& files_data) {
 	// If scale and mipmaps are enabled, space for mipmaps will be allocated by the scale filter.
 	const bool should_allocate_mipmaps = input_data.mipmaps && input_data.scale == 100U;
-	return // Load PNG files into memory, one by one.
+	return // Load PNG files from disk into memory.
 		impl::load_png_filter(input_data.paths, counter, force_finish, error_log) &
-		// Decode a PNG file into pixels.
+		// Decode a PNG file to raw pixels. Fix size and allocate for mipmaps if needed.
 		impl::decode_png_filter(
 			files_data, input_data.paths, input_data.vflip, should_allocate_mipmaps, input_data.fix_size, error_log);
 }
@@ -40,6 +42,11 @@ inline oneapi::tbb::filter<std::unique_ptr<mipmap_image>, void> dds_encoding_fil
 		impl::save_dds_filter(files_data, input_data.paths);
 }
 
+inline oneapi::tbb::filter<std::unique_ptr<mipmap_image>, void> png_encoding_filters(
+	const input& input_data, oneapi::tbb::concurrent_queue<std::string>& error_log) {
+	return impl::encode_png_filter(input_data.paths, error_log) & impl::save_png_filter(input_data.paths);
+}
+
 oneapi::tbb::filter<void, void> get_filters_from_settings(const input& input_data, std::atomic<std::size_t>& counter,
 	std::atomic<bool>& force_finish, oneapi::tbb::concurrent_queue<std::string>& error_log,
 	vector<impl::file_data>& files_data) {
@@ -48,6 +55,9 @@ oneapi::tbb::filter<void, void> get_filters_from_settings(const input& input_dat
 		prepare_image &= impl::scale_image_filter(
 			files_data, input_data.mipmaps, input_data.scale, input_data.max_size, input_data.scale_filter);
 	}
+
+	if (input_data.format == format::type::png) { return prepare_image & png_encoding_filters(input_data, error_log); }
+
 	if (input_data.mipmaps) {
 		prepare_image &= impl::generate_mipmaps_filter(input_data.mipmap_filter, input_data.mipmap_blur);
 	}

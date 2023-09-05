@@ -28,7 +28,9 @@ namespace todds::png {
  * make their number of pixels divisible by 4. If mipmaps is true, memory for mipmaps is allocated but only the first
  * image is loaded in memory.
  */
-std::unique_ptr<mipmap_image> decode(std::size_t file_index, const todds::string& png,
-	std::span<const std::uint8_t> buffer, bool flip, std::size_t& width, std::size_t& height, bool mipmaps);
+std::unique_ptr<mipmap_image> decode(std::size_t file_index, const string& png, std::span<const std::uint8_t> buffer,
+	bool flip, std::size_t& width, std::size_t& height, bool mipmaps);
+
+vector<std::uint8_t> encode(const string& png, std::unique_ptr<mipmap_image> input);
 
 } // namespace todds::png
