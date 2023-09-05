@@ -16,6 +16,7 @@ OPTIONS:
   -f, --format                DDS encoding format.
                                   BC7: High-quality compression supporting alpha. [Default]
                                   BC1: Highly compressed RGB data.
+                                  PNG: PNG format, intended for downscaling or metric calculation.
   -af, --alpha-format         Use a different DDS encoding format for files with alpha. Defaults to using the value in --format unconditionally.
                                   BC7: High-quality compression supporting alpha. [Default]
   -q, --quality               Encoder quality level, must be in [0, 7]. Defaults to 6.
