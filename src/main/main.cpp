@@ -28,6 +28,7 @@ int main(int argc, char** argv) {
 #endif // defined(_NDEBUG)
 		auto data = todds::args::get(argc, argv);
 		if (!data.stop_message.empty()) {
+			if (data.help) { execution_status = EXIT_SUCCESS; }
 			auto& stream = data.help ? cout : cerr;
 			stream << data.stop_message;
 		} else {
