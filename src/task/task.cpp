@@ -17,6 +17,10 @@
 #include <algorithm>
 #include <string_view>
 
+#if BOOST_OS_WINDOWS
+#include <filesystem>
+#endif // BOOST_OS_WINDOWS
+
 namespace fs = boost::filesystem;
 using todds::pipeline::paths_vector;
 
@@ -45,6 +49,16 @@ fs::path to_output_path(todds::format::type format, const fs::path& input_file, 
 	constexpr std::string_view dds_extension{".dds"};
 	const std::string_view extension = format != todds::format::type::png ? dds_extension : png_extension;
 	return (output_path / input_file.stem()) += extension.data();
+}
+
+std::time_t last_write_time(const fs::path& path) {
+#if BOOST_OS_WINDOWS
+	// On Windows, boost::filesystem::last_write_time seems to be multiple orders of magnitude slower than in other
+	// operative systems. Rely on std instead in this case, which should be fine regarding UTF-8 and long paths.
+	return std::filesystem::last_write_time(path.string()).time_since_epoch().count();
+#else
+	return fs::last_write_time(path);
+#endif // BOOST_OS_WINDOWS
 }
 
 class should_generate_file final {
@@ -150,10 +164,7 @@ namespace todds {
 
 void run(const args::data& arguments) {
 	pipeline::input input_data;
-	if (arguments.progress)
-	{
-		boost::nowide::cout << fmt::format("Retrieving files to be encoded.\n");
-	}
+	if (arguments.progress) { boost::nowide::cout << fmt::format("Retrieving files to be encoded.\n"); }
 	const auto start_time = oneapi::tbb::tick_count::now();
 	input_data.paths = get_paths(arguments);
 	if (arguments.time) {
