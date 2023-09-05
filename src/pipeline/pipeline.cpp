@@ -7,7 +7,6 @@
 
 #include "todds/dds.hpp"
 #include "todds/string.hpp"
-#include "todds/vector.hpp"
 
 #include <boost/nowide/iostream.hpp>
 #include <boost/predef.h>
@@ -142,6 +141,8 @@ void encode_as_dds(const input& input_data) {
 	cancel_encoding_log = &error_log;
 	force_finish_flag = &force_finish;
 	handle_ctrl_c_signal();
+
+	if (input_data.progress) { boost::nowide::cout << "Launching encoding pipeline.\n"; }
 	otbb::parallel_pipeline(tokens, filters);
 
 	if (error_report.valid()) {

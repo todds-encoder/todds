@@ -11,6 +11,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/nowide/fstream.hpp>
 #include <boost/nowide/iostream.hpp>
+#include <fmt/format.h>
+#include <oneapi/tbb/tick_count.h>
 
 #include <algorithm>
 #include <string_view>
@@ -148,7 +150,16 @@ namespace todds {
 
 void run(const args::data& arguments) {
 	pipeline::input input_data;
+	if (arguments.progress)
+	{
+		boost::nowide::cout << fmt::format("Retrieving files to be encoded.\n");
+	}
+	const auto start_time = oneapi::tbb::tick_count::now();
 	input_data.paths = get_paths(arguments);
+	if (arguments.time) {
+		const auto end_time = oneapi::tbb::tick_count::now();
+		boost::nowide::cout << "File retrieval time: " << (end_time - start_time).seconds() << " seconds \n";
+	}
 	if (input_data.paths.empty()) { return; }
 
 #if defined(TODDS_PIPELINE_DUMP)
