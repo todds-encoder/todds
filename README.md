@@ -108,8 +108,6 @@ The following third party library dependencies are contained as source code in t
 
 todds encourages community involvement and contributions. Check the [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) files for details. You can check all contributors in the [contributors list](https://github.com/joseasoler/todds/graphs/contributors).
 
-You should enable the `TODDS_UNIT_TESTS`, `TODDS_WARNINGS_AS_ERRORS` and `TODDS_CLANG_TIDY` CMake options to ensure that your contribution will pass static analysis.
-
 ## License
 
 todds is licensed under the Mozilla Public License, v. 2.0. See the [LICENSE](LICENSE) file for details. Check the [MPL 2.0 FAQ](https://www.mozilla.org/en-US/MPL/2.0/FAQ/) to learn more.
