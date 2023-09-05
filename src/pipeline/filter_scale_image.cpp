@@ -49,7 +49,7 @@ public:
 		}
 
 		if (width == 0 || height == 0) {
-			_errors.push(fmt::format("Could not scale {:s} from {:d}, {:d} to {:d}, {:d}",
+			_errors.push(fmt::format("Could not scale {:s} from ({:d}, {:d}) to ({:d}, {:d}).",
 				_paths[img->file_index()].first.string(), input_image.width(), input_image.height(), width, height));
 			return nullptr;
 		}
