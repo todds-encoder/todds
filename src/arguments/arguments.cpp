@@ -217,8 +217,6 @@ todds::string get_help(std::size_t max_threads) {
 	print_optional_argument(ostream, alpha_format_arg);
 	print_string_argument(
 		ostream, todds::format::name(todds::format::type::bc7), "High-quality compression supporting alpha. [Default]");
-	print_string_argument(ostream, todds::format::name(todds::format::type::png),
-		"PNG format, intended for downscaling or metric calculation.");
 
 	const todds::string quality_help =
 		fmt::format(quality_arg.help, static_cast<unsigned int>(todds::format::quality::minimum),
@@ -305,7 +303,7 @@ void format_from_str(std::string_view argument, todds::args::data& parsed_argume
 void alpha_format_from_str(std::string_view argument, todds::args::data& parsed_arguments) {
 	const todds::string argument_upper = todds::to_upper_copy(std::string{argument});
 	const auto format = parse_format(argument_upper);
-	if (format == todds::format::type::invalid) {
+	if (format == todds::format::type::invalid || format == todds::format::type::png) {
 		parsed_arguments.stop_message = fmt::format("Argument error: invalid encoding alpha format: {:s}", argument);
 	} else if (!todds::format::has_alpha(format)) {
 		parsed_arguments.stop_message =
@@ -511,8 +509,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 		}
 	}
 
-	if (parsed_arguments.stop_message.empty() &&
-			(parsed_arguments.format == format::type::png || parsed_arguments.alpha_format == format::type::png)) {
+	if (parsed_arguments.stop_message.empty() && parsed_arguments.format == format::type::png) {
 		parsed_arguments.mipmaps = false;
 		const std::string_view format_name = format::name(format::type::png);
 		if (parsed_arguments.quality != default_quality) {

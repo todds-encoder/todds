@@ -12,6 +12,8 @@ add_library(todds_pipeline STATIC
 		filter_decode_png.cpp
 		filter_encode_dds.hpp
 		filter_encode_dds.cpp
+		filter_encode_png.cpp
+		filter_encode_png.hpp
 		filter_generate_mipmaps.hpp
 		filter_generate_mipmaps.cpp
 		filter_load_png.hpp
@@ -20,6 +22,8 @@ add_library(todds_pipeline STATIC
 		filter_pixel_blocks.cpp
 		filter_save_dds.hpp
 		filter_save_dds.cpp
+		filter_save_png.hpp
+		filter_save_png.cpp
 		pipeline.cpp
 		filter_scale_image.cpp filter_scale_image.hpp)
 

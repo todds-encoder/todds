@@ -30,29 +30,31 @@ bool has_extension(const fs::path& path, const std::string_view extension) {
 }
 
 /**
- * Checks if a source path is a valid input.
+ * Checks if a source path is a valid input file.
  * @param path Source path to be checked.
  * @param regex A regex constructed with an empty pattern will always return true.
  * @return True if the path should be processed.
  */
-bool is_valid_source(const fs::path& path, const todds::regex& regex) {
+bool is_valid_input_file(const fs::path& path, const todds::regex& regex) {
 	return has_extension(path, png_extension) && regex.match(path.string());
 }
 
-fs::path to_dds_path(const fs::path& png_path, const fs::path& output) {
+fs::path to_output_path(todds::format::type format, const fs::path& input_file, const fs::path& output_path) {
 	constexpr std::string_view dds_extension{".dds"};
-	return (output / png_path.stem()) += dds_extension.data();
+	const std::string_view extension = format != todds::format::type::png ? dds_extension : png_extension;
+	return (output_path / input_file.stem()) += extension.data();
 }
 
-class should_generate_dds final {
+class should_generate_file final {
 public:
-	should_generate_dds(bool overwrite, bool overwrite_new)
+	should_generate_file(bool overwrite, bool overwrite_new)
 		: _overwrite{overwrite}
 		, _overwrite_new{overwrite_new} {}
 
-	bool operator()(const fs::path& png_path, const fs::path& dds_path) const {
-		return _overwrite || !fs::exists(dds_path) ||
-					 (_overwrite_new && (fs::last_write_time(png_path) > fs::last_write_time(dds_path)));
+	bool operator()(const fs::path& input_path, const fs::path& output_path) const {
+		return input_path != output_path &&
+					 (_overwrite || !fs::exists(output_path) ||
+						 (_overwrite_new && (fs::last_write_time(input_path) > fs::last_write_time(output_path))));
 	}
 
 private:
@@ -60,27 +62,31 @@ private:
 	bool _overwrite_new;
 };
 
-void add_files(
-	const fs::path& png_path, const fs::path& dds_path, paths_vector& paths, const should_generate_dds& should_generate) {
-	if (should_generate(png_path, dds_path)) { paths.emplace_back(png_path, dds_path); }
+void add_files(const fs::path& input_path, const fs::path& output_path, paths_vector& paths,
+	const should_generate_file& should_generate) {
+	if (should_generate(input_path, output_path)) { paths.emplace_back(input_path, output_path); }
 }
 
-void process_directory(paths_vector& paths, const fs::path& input, const fs::path& output, bool different_output,
-	const todds::regex& regex, const should_generate_dds& should_generate, std::size_t depth) {
-	fs::path current_output = output;
-	const fs::directory_entry dir{input};
+void process_directory(paths_vector& paths, const fs::path& input_path, const fs::path& output_path,
+	bool different_output, const should_generate_file& should_generate, const todds::args::data& arguments) {
+	const todds::regex& regex = arguments.regex;
+	const todds::format::type format = arguments.format;
+	const std::size_t depth = arguments.depth;
+
+	fs::path current_output = output_path;
+	const fs::directory_entry dir{input_path};
 	for (fs::recursive_directory_iterator itr{dir}; itr != fs::recursive_directory_iterator{}; ++itr) {
-		const fs::path& current_input = itr->path();
-		if (is_valid_source(current_input, regex)) {
+		const fs::path& input_file = itr->path();
+		if (is_valid_input_file(input_file, regex)) {
 			if (different_output) {
-				const auto relative = fs::relative(current_input.parent_path(), input);
-				if (!relative.filename_is_dot()) { current_output = output / relative; }
+				const auto relative = fs::relative(input_file.parent_path(), input_path);
+				if (!relative.filename_is_dot()) { current_output = output_path / relative; }
 			}
-			const fs::path dds_path =
-				to_dds_path(current_input, different_output ? current_output : current_input.parent_path());
-			add_files(current_input, dds_path, paths, should_generate);
+			const fs::path output_file =
+				to_output_path(format, input_file, different_output ? current_output : input_file.parent_path());
+			add_files(input_file, output_file, paths, should_generate);
 			if (different_output && !fs::exists(current_output)) {
-				// Create the output folder if necessary.
+				// Create the output_path folder if necessary.
 				fs::create_directories(current_output);
 			}
 		}
@@ -89,30 +95,28 @@ void process_directory(paths_vector& paths, const fs::path& input, const fs::pat
 }
 
 paths_vector get_paths(const todds::args::data& arguments) {
-	const fs::path& input = arguments.input;
+	const fs::path& input_path = arguments.input;
 	const bool different_output = static_cast<bool>(arguments.output);
-	const fs::path output = different_output ? arguments.output.value() : input.parent_path();
+	const fs::path output_path = different_output ? arguments.output.value() : input_path.parent_path();
 
-	const should_generate_dds should_generate(arguments.overwrite, arguments.overwrite_new);
-	const auto depth = arguments.depth;
-
-	const auto& regex = arguments.regex;
+	const should_generate_file should_generate(arguments.overwrite, arguments.overwrite_new);
+	const todds::format::type format = arguments.format;
 
 	paths_vector paths{};
-	if (fs::is_directory(input)) {
-		process_directory(paths, input, output, different_output, regex, should_generate, depth);
-	} else if (is_valid_source(input, arguments.regex)) {
-		const fs::path dds_path = to_dds_path(input, output);
-		add_files(input, dds_path, paths, should_generate);
-	} else if (has_extension(input, txt_extension)) {
-		boost::nowide::fstream stream{input};
+	if (fs::is_directory(input_path)) {
+		process_directory(paths, input_path, output_path, different_output, should_generate, arguments);
+	} else if (is_valid_input_file(input_path, arguments.regex)) {
+		const fs::path dds_path = to_output_path(format, input_path, output_path);
+		add_files(input_path, dds_path, paths, should_generate);
+	} else if (has_extension(input_path, txt_extension)) {
+		boost::nowide::fstream stream{input_path};
 		todds::string buffer;
 		while (std::getline(stream, buffer)) {
 			const fs::path current_path{buffer};
 			if (fs::is_directory(current_path)) {
-				process_directory(paths, current_path, current_path, false, regex, should_generate, depth);
-			} else if (is_valid_source(current_path, arguments.regex)) {
-				const fs::path dds_path = to_dds_path(current_path, current_path.parent_path());
+				process_directory(paths, current_path, current_path, false, should_generate, arguments);
+			} else if (is_valid_input_file(current_path, arguments.regex)) {
+				const fs::path dds_path = to_output_path(format, current_path, current_path.parent_path());
 				add_files(current_path, dds_path, paths, should_generate);
 			} else {
 				boost::nowide::cerr << current_path.string() << " is not a PNG file or a directory.\n";
