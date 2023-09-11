@@ -70,11 +70,15 @@ Check the [Analysis documentation](ANALYSIS.md) for details.
 
 ## Building
 
-Compiling todds requires a recent C++ compiler version, the [Intel® Implicit SPMD Program Compiler](https://github.com/ispc/ispc) and [CMake](https://cmake.org/).
+todds uses CMake presets and a [vcpkg](https://github.com/microsoft/vcpkg) submodule to retrieve its dependencies and compile. Compiling also requires the [Intel® Implicit SPMD Program Compiler](https://github.com/ispc/ispc). For more details, check the [wiki](https://github.com/joseasoler/todds/wiki).
+
+### Compiling without vcpkg
+
+To compile todds without vcpkg, all of its dependencies must be available as development libraries. Check the dependencies section for details.
 
 ### Dependencies
 
-To compile todds, the following dependencies must be available as development libraries. All dependencies are available through [vcpkg](https://github.com/microsoft/vcpkg).
+All of the following dependencies are available through vcpkg.
 
 * [Boost.Filesystem](https://www.boost.org/doc/libs/master/libs/filesystem/doc/index.htm)
 * [Boost.NoWide](https://www.boost.org/doc/libs/master/libs/nowide/doc/html/index.html)
