@@ -7,7 +7,7 @@
 
 namespace todds::dds::impl {
 
-void initialize_bc1_encoding();
+void initialize_bcx_encoding();
 void initialize_bc7_encoding();
 
 } // namespace todds::dds::impl

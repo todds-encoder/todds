@@ -19,6 +19,7 @@ constexpr std::uint32_t format_fourcc(todds::format::type format_type) {
 	std::uint32_t fourcc{};
 	switch (format_type) {
 	case todds::format::type::bc1: fourcc = PIXEL_FMT_FOURCC('D', 'X', 'T', '1'); break;
+	case todds::format::type::bc3: fourcc = PIXEL_FMT_FOURCC('D', 'X', 'T', '5'); break;
 	case todds::format::type::bc7: fourcc = PIXEL_FMT_FOURCC('D', 'X', '1', '0'); break;
 	case todds::format::type::png:
 	case todds::format::type::invalid: assert(false); break;
@@ -48,7 +49,9 @@ constexpr DDSURFACEDESC2 get_surface_description() noexcept {
 namespace todds::dds {
 
 void initialize_encoding(format::type format, format::type alpha_format) {
-	if (format == format::type::bc1 || alpha_format == format::type::bc1) { impl::initialize_bc1_encoding(); }
+	if (format == format::type::bc1 || format == format::type::bc3 || alpha_format == format::type::bc3) {
+		impl::initialize_bcx_encoding();
+	}
 	if (format == format::type::bc7 || alpha_format == format::type::bc7) { impl::initialize_bc7_encoding(); }
 }
 

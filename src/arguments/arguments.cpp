@@ -212,11 +212,13 @@ todds::string get_help(std::size_t max_threads) {
 	print_string_argument(
 		ostream, todds::format::name(todds::format::type::bc7), "High-quality compression supporting alpha. [Default]");
 	print_string_argument(ostream, todds::format::name(todds::format::type::bc1), "Highly compressed RGB data.");
+	print_string_argument(ostream, todds::format::name(todds::format::type::bc3), "Highly compressed data supporting alpha.");
 	print_string_argument(ostream, todds::format::name(todds::format::type::png),
 		"PNG format, intended for downscaling or metric calculation.");
 	print_optional_argument(ostream, alpha_format_arg);
 	print_string_argument(
 		ostream, todds::format::name(todds::format::type::bc7), "High-quality compression supporting alpha. [Default]");
+	print_string_argument(ostream, todds::format::name(todds::format::type::bc3), "Highly compressed data supporting alpha.");
 
 	const todds::string quality_help =
 		fmt::format(quality_arg.help, static_cast<unsigned int>(todds::format::quality::minimum),
@@ -270,6 +272,8 @@ todds::format::type parse_format(std::string_view argument) {
 	todds::format::type format{todds::format::type::invalid};
 	if (argument == todds::format::name(todds::format::type::bc1)) {
 		format = todds::format::type::bc1;
+	} else if (argument == todds::format::name(todds::format::type::bc3)) {
+		format = todds::format::type::bc3;
 	} else if (argument == todds::format::name(todds::format::type::bc7)) {
 		format = todds::format::type::bc7;
 	} else if (argument == todds::format::name(todds::format::type::png)) {

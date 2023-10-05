@@ -44,6 +44,14 @@ void initialize_encoding(format::type format, format::type alpha_format);
 [[nodiscard]] dds_image bc1_encode(todds::format::quality quality, bool alpha_black, const pixel_block_image& image);
 
 /**
+ * Encode an image to BC3.
+ * @param quality DDS encoding quality level.
+ * @param image Source pixel block image.
+ * @return BC3 encoded image.
+ */
+[[nodiscard]] dds_image bc3_encode(todds::format::quality quality, const pixel_block_image& image);
+
+/**
  * Generate the parameters to use for BC7 DDS encoding.
  * @param quality DDS encoding quality level.
  * @return Parameters for the given quality level.

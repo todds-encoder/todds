@@ -5,7 +5,7 @@
 add_library(todds_dds STATIC
 	include/todds/dds.hpp
 	dds.cpp
-	dds_bc1.cpp
+	dds_bcx.cpp
 	dds_bc7.cpp
 	dds_impl.hpp
 	rgbcx_todds.hpp

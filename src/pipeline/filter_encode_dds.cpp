@@ -65,6 +65,23 @@ private:
 	bool _alpha_black;
 };
 
+class encode_bc3_image final {
+public:
+	encode_bc3_image(vector<file_data>& files_data, const format::quality quality) noexcept
+		: _files_data{files_data}
+		, _quality{quality} {}
+
+	dds_data operator()(const pixel_block_data& pixel_data) const {
+		if (pixel_data.file_index == error_file_index) [[unlikely]] { return {{}, error_file_index}; }
+		_files_data[pixel_data.file_index].format = format::type::bc3;
+		return create_dds_data(dds::bc3_encode(_quality, pixel_data.image), pixel_data.file_index);
+	}
+
+private:
+	vector<file_data>& _files_data;
+	format::quality _quality;
+};
+
 class encode_bc7_image final {
 public:
 	encode_bc7_image(vector<file_data>& files_data, format::quality quality) noexcept
@@ -103,6 +120,7 @@ public:
 		vector<std::uint64_t> image_data;
 		switch (format) {
 		case format::type::bc1: image_data = dds::bc1_encode(_quality, _alpha_black, pixel_data.image); break;
+		case format::type::bc3: image_data = dds::bc3_encode(_quality, pixel_data.image); break;
 		case format::type::bc7: image_data = dds::bc7_encode(_params, pixel_data.image); break;
 		case format::type::png:
 		case format::type::invalid: assert(false); break;
@@ -134,6 +152,9 @@ oneapi::tbb::filter<pixel_block_data, dds_data> encode_dds_filter(vector<file_da
 	case format::type::bc1:
 		return make_filter<pixel_block_data, dds_data>(
 			filter_mode::parallel, encode_bc1_image{files_data, quality, alpha_black});
+	case format::type::bc3:
+		return make_filter<pixel_block_data, dds_data>(
+			filter_mode::parallel, encode_bc3_image{files_data, quality});
 	case format::type::bc7:
 		return make_filter<pixel_block_data, dds_data>(filter_mode::parallel, encode_bc7_image{files_data, quality});
 	case format::type::png:

@@ -134,6 +134,18 @@ TEST_CASE("todds::arguments format", "[arguments]") {
 		REQUIRE(arguments.format == type::bc1);
 	}
 
+	SECTION("Parsing bc3.") {
+		const auto arguments = get({binary, "-f", "bc3", "."});
+		REQUIRE(!has_error(arguments));
+		REQUIRE(arguments.format == type::bc3);
+	}
+
+	SECTION("Parsing bc3 with alternate case.") {
+		const auto arguments = get({binary, "--format", "bC3", "."});
+		REQUIRE(!has_error(arguments));
+		REQUIRE(arguments.format == type::bc3);
+	}
+
 	SECTION("Parsing bc7.") {
 		const auto arguments = get({binary, "-f", "bc7", "."});
 		REQUIRE(!has_error(arguments));
@@ -166,6 +178,18 @@ TEST_CASE("todds::arguments alpha_format", "[arguments]") {
 	SECTION("Parsing formats without alpha results in an error.") {
 		const auto arguments = get({binary, "--alpha-format", "bc1", "."});
 		REQUIRE(has_error(arguments));
+	}
+
+	SECTION("Parsing bc3.") {
+		const auto arguments = get({binary, "-af", "bc3", "."});
+		REQUIRE(!has_error(arguments));
+		REQUIRE(arguments.alpha_format == type::bc3);
+	}
+
+	SECTION("Parsing bc3 with alternate case.") {
+		const auto arguments = get({binary, "--alpha-format", "bC3", "."});
+		REQUIRE(!has_error(arguments));
+		REQUIRE(arguments.alpha_format == type::bc3);
 	}
 
 	SECTION("Parsing bc7.") {
@@ -201,7 +225,7 @@ TEST_CASE("todds::arguments PNG format", "[arguments]") {
 	}
 
 	SECTION("Setting quality for PNGs results in a warning.") {
-		const auto arguments = get({binary, "--alpha-format", "PNG", "-q", "4", ".", "output"});
+		const auto arguments = get({binary, "--format", "PNG", "-q", "4", ".", "output"});
 		REQUIRE(!has_error(arguments));
 		REQUIRE(has_warning(arguments));
 	}
