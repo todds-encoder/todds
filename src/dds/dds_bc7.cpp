@@ -6,7 +6,6 @@
 #include "todds/dds.hpp"
 #include "todds/profiler.hpp"
 
-#include <bc7e_ispc.h>
 #include <oneapi/tbb/parallel_for.h>
 
 #include "dds_impl.hpp"
@@ -22,12 +21,20 @@ constexpr std::size_t pixel_block_size = todds::pixel_block_side * todds::pixel_
 } // namespace
 
 namespace todds::dds::impl {
-void initialize_bc7_encoding() { ispc::bc7e_compress_block_init(); }
+void initialize_bc7_encoding() {
+#ifdef TODDS_ISPC
+	ispc::bc7e_compress_block_init();
+#else
+	bc7enc_compress_block_init();
+#endif // TODDS_ISPC
+}
+
 } // namespace todds::dds::impl
 
 namespace todds::dds {
 
 bc7_params bc7_encode_params(todds::format::quality quality) noexcept {
+#ifdef TODDS_ISPC
 	// Perceptual is currently not supported.
 	constexpr bool perceptual = false;
 	bc7_params params{};
@@ -50,11 +57,18 @@ bc7_params bc7_encode_params(todds::format::quality quality) noexcept {
 	}
 	case format::quality::slowest: ispc::bc7e_compress_block_params_init_slowest(&params, perceptual); break;
 	}
+#else
+	bc7_params params{};
+	bc7enc_compress_block_params_init(&params);
+	params.m_max_partitions = BC7ENC_MAX_PARTITIONS;
+	params.m_uber_level =
+		std::min(static_cast<std::uint32_t>(BC7ENC_MAX_UBER_LEVEL), static_cast<std::uint32_t>(quality));
+#endif // TODDS_ISPC
 
 	return params;
 }
 
-vector<std::uint64_t> bc7_encode(const ispc::bc7e_compress_block_params& params, const vector<std::uint32_t>& image) {
+vector<std::uint64_t> bc7_encode(const bc7_params& params, const vector<std::uint32_t>& image) {
 	constexpr std::size_t grain_size = 64ULL;
 	static oneapi::tbb::affinity_partitioner partitioner;
 	const std::size_t num_blocks = image.size() / pixel_block_size;
@@ -69,7 +83,13 @@ vector<std::uint64_t> bc7_encode(const ispc::bc7e_compress_block_params& params,
 			const auto blocks_to_process = static_cast<std::uint32_t>(range.end() - block_index);
 			std::uint64_t* dds_block = &result[block_index * bc7_block_size];
 			const auto* pixel_block = &image[block_index * pixel_block_size];
+#ifdef TODDS_ISPC
 			ispc::bc7e_compress_blocks(static_cast<std::uint32_t>(blocks_to_process), dds_block, pixel_block, &params);
+#else
+			for (std::uint32_t index = 0U; index < blocks_to_process; ++index) {
+				bc7enc_compress_block(dds_block + bc7_block_size * index, pixel_block + pixel_block_size * index, &params);
+			}
+#endif // TODDS_ISPC
 		},
 		partitioner);
 

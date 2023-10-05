@@ -9,13 +9,13 @@ add_library(todds_dds STATIC
 	dds_bc7.cpp
 	dds_impl.hpp
 	rgbcx_todds.hpp
-	)
+)
 
 target_include_directories(todds_dds PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
 	PRIVATE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-	)
+)
 
 target_compile_options(todds_dds PRIVATE ${TODDS_CPP_WARNING_FLAGS})
 
@@ -27,5 +27,14 @@ target_link_libraries(todds_dds PRIVATE
 	TBB::tbb
 	PUBLIC
 	todds_image
-	bc7e_ispc
+)
+
+if (TODDS_ISPC)
+	target_link_libraries(todds_dds PUBLIC
+		bc7e_ispc
 	)
+else ()
+	target_link_libraries(todds_dds PUBLIC
+		bc7e_cpp
+	)
+endif ()

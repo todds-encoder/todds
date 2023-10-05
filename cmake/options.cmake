@@ -4,6 +4,10 @@
 
 include_guard(GLOBAL)
 
+if (TODDS_ISPC)
+	add_compile_definitions(TODDS_ISPC)
+endif ()
+
 if (TODDS_PIPELINE_DUMP)
 	add_compile_definitions(TODDS_PIPELINE_DUMP)
 endif ()

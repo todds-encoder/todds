@@ -1,3 +1,7 @@
 add_subdirectory(dds_defs)
+if (TODDS_ISPC)
+	add_subdirectory(bc7e_ispc)
+else ()
+	add_subdirectory(bc7e_cpp)
+endif ()
 add_subdirectory(rgbcx)
-add_subdirectory(bc7enc_ispc)

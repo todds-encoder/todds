@@ -11,6 +11,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/nowide/fstream.hpp>
 #include <boost/nowide/iostream.hpp>
+#include <boost/predef.h>
 #include <fmt/format.h>
 #include <oneapi/tbb/tick_count.h>
 
@@ -51,7 +52,7 @@ fs::path to_output_path(todds::format::type format, const fs::path& input_file, 
 	return (output_path / input_file.stem()) += extension.data();
 }
 
-std::time_t last_write_time(const fs::path& path) {
+std::time_t get_last_write_time(const fs::path& path) {
 #if BOOST_OS_WINDOWS
 	// On Windows, boost::filesystem::last_write_time seems to be multiple orders of magnitude slower than in other
 	// operative systems. Rely on std instead in this case, which should be fine regarding UTF-8 and long paths.
@@ -70,7 +71,7 @@ public:
 	bool operator()(const fs::path& input_path, const fs::path& output_path) const {
 		return input_path != output_path &&
 					 (_overwrite || !fs::exists(output_path) ||
-						 (_overwrite_new && (fs::last_write_time(input_path) > fs::last_write_time(output_path))));
+						 (_overwrite_new && (get_last_write_time(input_path) > get_last_write_time(output_path))));
 	}
 
 private:

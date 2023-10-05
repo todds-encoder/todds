@@ -8,14 +8,23 @@
 #include "todds/format.hpp"
 #include "todds/image_types.hpp"
 
+#ifdef TODDS_ISPC
 #include <bc7e_ispc.h>
+#else
+#include <bc7enc.h>
+#endif // TODDS_ISPC
 
 #include <array>
 #include <memory>
 
 namespace todds::dds {
 
+#ifdef TODDS_ISPC
 using bc7_params = ispc::bc7e_compress_block_params;
+#else
+using bc7_params = bc7enc_compress_block_params;
+#endif // TODDS_ISPC
+
 
 /**
  * Initialize the DDS encoders.
@@ -47,7 +56,7 @@ void initialize_encoding(format::type format, format::type alpha_format);
  * @param image Source pixel block image.
  * @return BC7 encoded image.
  */
-[[nodiscard]] dds_image bc7_encode(const ispc::bc7e_compress_block_params& params, const pixel_block_image& image);
+[[nodiscard]] dds_image bc7_encode(const bc7_params& params, const pixel_block_image& image);
 
 /**
  * Construct a DDS header.
