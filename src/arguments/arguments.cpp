@@ -90,6 +90,9 @@ constexpr auto time_arg = optional_argument("--time", "Show total execution time
 constexpr auto regex_arg =
 	optional_argument("--regex", "Process only absolute paths matching this regular expression.");
 
+constexpr auto substring_arg =
+	optional_arg{"--substring", "-ss", "Process only absolute paths containing this substring.."};
+
 constexpr auto dry_run_arg =
 	optional_arg{"--dry-run", "-dr", "Calculate all files that would be affected but do not make any changes."};
 
@@ -142,6 +145,7 @@ consteval std::size_t argument_name_total_space() {
 	max_space = std::max(max_space, progress_arg.name.size() + progress_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, verbose_arg.name.size() + verbose_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, regex_arg.name.size() + regex_arg.shorter.size() + 2UL);
+	max_space = std::max(max_space, substring_arg.name.size() + substring_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, help_arg.name.size() + help_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, alpha_black_arg.name.size() + alpha_black_arg.shorter.size() + 2UL);
 	max_space = std::max(max_space, report_arg.name.size() + report_arg.shorter.size() + 2UL);
@@ -250,6 +254,7 @@ todds::string get_help(std::size_t max_threads) {
 #if defined(TODDS_REGULAR_EXPRESSIONS)
 	print_optional_argument(ostream, regex_arg);
 #endif // defined(TODDS_REGULAR_EXPRESSIONS)
+	print_optional_argument(ostream, substring_arg);
 	print_optional_argument(ostream, dry_run_arg);
 	print_optional_argument(ostream, progress_arg);
 	print_optional_argument(ostream, verbose_arg);
@@ -464,6 +469,9 @@ data get(const todds::vector<std::string_view>& arguments) {
 					fmt::format("Could not compile regular expression {:s}: {:s}", next_argument, regex_err);
 			}
 #endif // defined(TODDS_REGULAR_EXPRESSIONS)
+		} else if (matches(argument, substring_arg)) {
+			++index;
+			parsed_arguments.substring = next_argument;
 		} else if (matches(argument, overwrite_arg)) {
 			parsed_arguments.overwrite = true;
 		} else if (matches(argument, overwrite_new_arg)) {

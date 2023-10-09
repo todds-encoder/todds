@@ -42,8 +42,15 @@ bool has_extension(const fs::path& path, const std::string_view extension) {
  * @param regex A regex constructed with an empty pattern will always return true.
  * @return True if the path should be processed.
  */
-bool is_valid_input_file(const fs::path& path, const todds::regex& regex) {
-	return has_extension(path, png_extension) && regex.match(path.string());
+bool is_valid_input_file(const fs::path& path, const todds::regex& regex, const todds::string& substring) {
+	if (!has_extension(path, png_extension))
+	{
+		return false;
+	}
+
+	const auto path_str = path.string();
+
+	return regex.match(path_str) && path_str.find(substring) != std::string::npos;
 }
 
 fs::path to_output_path(todds::format::type format, const fs::path& input_file, const fs::path& output_path) {
@@ -94,7 +101,7 @@ void process_directory(paths_vector& paths, const fs::path& input_path, const fs
 	const fs::directory_entry dir{input_path};
 	for (fs::recursive_directory_iterator itr{dir}; itr != fs::recursive_directory_iterator{}; ++itr) {
 		const fs::path& input_file = itr->path();
-		if (is_valid_input_file(input_file, regex)) {
+		if (is_valid_input_file(input_file, regex, arguments.substring)) {
 			if (different_output) {
 				const auto relative = fs::relative(input_file.parent_path(), input_path);
 				if (!relative.filename_is_dot()) { current_output = output_path / relative; }
@@ -122,7 +129,7 @@ paths_vector get_paths(const todds::args::data& arguments) {
 	paths_vector paths{};
 	if (fs::is_directory(input_path)) {
 		process_directory(paths, input_path, output_path, different_output, should_generate, arguments);
-	} else if (is_valid_input_file(input_path, arguments.regex)) {
+	} else if (is_valid_input_file(input_path, arguments.regex, arguments.substring)) {
 		const fs::path dds_path = to_output_path(format, input_path, output_path);
 		add_files(input_path, dds_path, paths, should_generate);
 	} else if (has_extension(input_path, txt_extension)) {
@@ -132,7 +139,7 @@ paths_vector get_paths(const todds::args::data& arguments) {
 			const fs::path current_path{buffer};
 			if (fs::is_directory(current_path)) {
 				process_directory(paths, current_path, current_path, false, should_generate, arguments);
-			} else if (is_valid_input_file(current_path, arguments.regex)) {
+			} else if (is_valid_input_file(current_path, arguments.regex, arguments.substring)) {
 				const fs::path dds_path = to_output_path(format, current_path, current_path.parent_path());
 				add_files(current_path, dds_path, paths, should_generate);
 			} else {

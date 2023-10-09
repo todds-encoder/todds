@@ -712,6 +712,23 @@ TEST_CASE("todds::arguments regex", "[arguments]") {
 #endif // defined(TODDS_REGULAR_EXPRESSIONS)
 }
 
+TEST_CASE("todds::arguments substring", "[substring]") {
+	SECTION("The default value of substring is an empty string") {
+		const auto arguments = get({binary, "."});
+		REQUIRE(arguments.substring.size() == 0U);
+	}
+
+	SECTION("Providing the substring parameter adds it to the arguments instance") {
+		const std::string_view test_argument = "test_substring_argument";
+		const auto arguments = get({binary, "--substring", test_argument, "."});
+		REQUIRE(is_valid(arguments));
+		REQUIRE(arguments.substring == test_argument);
+		const auto shorter = get({binary, "-ss", test_argument, "."});
+		REQUIRE(is_valid(shorter));
+		REQUIRE(arguments.substring == test_argument);
+	}
+}
+
 TEST_CASE("todds::arguments alpha_black", "[arguments]") {
 	SECTION("The default value of alpha_black is false") {
 		const auto arguments = get({binary, "."});

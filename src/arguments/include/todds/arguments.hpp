@@ -47,6 +47,7 @@ struct data {
 	bool verbose;
 	bool report;
 	todds::regex regex;
+	string substring;
 	bool dry_run;
 	bool progress;
 	bool alpha_black;
