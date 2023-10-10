@@ -91,7 +91,7 @@ constexpr auto regex_arg =
 	optional_argument("--regex", "Process only absolute paths matching this regular expression.");
 
 constexpr auto substring_arg =
-	optional_arg{"--substring", "-ss", "Process only absolute paths containing this substring.."};
+	optional_arg{"--substring", "-ss", "Process only absolute paths containing this substring."};
 
 constexpr auto dry_run_arg =
 	optional_arg{"--dry-run", "-dr", "Calculate all files that would be affected but do not make any changes."};
