@@ -29,14 +29,8 @@ tag_name = json_response["tag_name"]
 print(f"Latest release: {tag_name}\n")
 
 if system == "Darwin":
-    if processor == "arm":
-        print(f"Darwin/MacOS system detected with a {arch} {processor} CPU...")
-        target_archive = f"ispc-{tag_name}-macOS.{processor.lower()}.tar.gz"
-    elif processor == "i386":
-        print(f"Darwin/MacOS system detected with a {arch} {processor} CPU...")
-        target_archive = f"ispc-{tag_name}-macOS.tar.gz"
-    else:
-        print(f"Unsupported processor {system} {arch} {processor}")
+    print(f"Darwin/MacOS system detected...")
+    target_archive = f"ispc-{tag_name}-macOS.Universal.tar.gz"
 elif system == "Linux":
     print(f"Linux system detected with a {arch} {processor} CPU...")
     target_archive = f"ispc-{tag_name}-{system.lower()}.tar.gz"
