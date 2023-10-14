@@ -30,7 +30,7 @@ print(f"Latest release: {tag_name}\n")
 
 if system == "Darwin":
     print(f"Darwin/MacOS system detected...")
-    target_archive = f"ispc-{tag_name}-macOS.Universal.tar.gz"
+    target_archive = f"ispc-{tag_name}-macOS.universal.tar.gz"
 elif system == "Linux":
     print(f"Linux system detected with a {arch} {processor} CPU...")
     target_archive = f"ispc-{tag_name}-{system.lower()}.tar.gz"
