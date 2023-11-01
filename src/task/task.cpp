@@ -62,8 +62,9 @@ fs::path to_output_path(todds::format::type format, const fs::path& input_file, 
 std::time_t get_last_write_time(const fs::path& path) {
 #if BOOST_OS_WINDOWS
 	// On Windows, boost::filesystem::last_write_time seems to be multiple orders of magnitude slower than in other
-	// operative systems. Rely on std instead in this case, which should be fine regarding UTF-8 and long paths.
-	return std::filesystem::last_write_time(path.string()).time_since_epoch().count();
+	// operative systems. Rely on the standard library on this case, performing the required UTF-16 conversion.
+	const auto wide_path = boost::nowide::widen(path.string());
+	return std::filesystem::last_write_time(wide_path).time_since_epoch().count();
 #else
 	return fs::last_write_time(path);
 #endif // BOOST_OS_WINDOWS
