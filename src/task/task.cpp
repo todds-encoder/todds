@@ -174,7 +174,7 @@ namespace todds {
 void run(const args::data& arguments) {
 	pipeline::input input_data;
 	if (arguments.progress) {
-		boost::nowide::cout << fmt::format("Retrieving files to be encoded.\n");
+		boost::nowide::cout << fmt::format("Retrieving files to be processed.\n");
 		boost::nowide::cout.flush();
 	}
 	const auto start_time = oneapi::tbb::tick_count::now();
