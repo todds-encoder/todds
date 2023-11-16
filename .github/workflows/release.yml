@@ -267,14 +267,14 @@ jobs:
           mkdir -p dist
           cd ./build/bin/
           zip -r ${{ env.FILENAME }} todds
-          mv ${{ env.FILENAME }} ../dist/
+          mv ${{ env.FILENAME }} ../../dist/
       - name: Create ZIP (Windows)
         if: matrix.platform == 'Windows'
         run: |
           New-Item -ItemType Directory -Path dist -Force
           cd ./install/cfg-win-rel-msvc/bin/
           Compress-Archive -Force -Path .\todds -DestinationPath ${{ env.FILENAME }}
-          Move-Item -Path ${{ env.FILENAME }} -Destination ..\dist\${{ env.FILENAME }}
+          Move-Item -Path ${{ env.FILENAME }} -Destination ..\..\..\dist\
         shell: powershell
       # Upload ZIP as artifact
       - name: Upload ZIP as artifact
