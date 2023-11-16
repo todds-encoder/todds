@@ -34,7 +34,7 @@ if system == "Darwin":
     target_archive = f"ispc-{tag_name}-macOS.universal.tar.gz"
 elif system == "Linux":
     print(f"Linux system detected with a {arch} {processor} CPU...")
-    target_archive = f"ispc-{tag_name}-{system.lower()}.tar.gz"
+    target_archive = f"ispc-{tag_name}-{system.lower()}-oneapi.tar.gz"
 elif system == "Windows":
     print(f"Windows system detected with a {arch} {processor} CPU...")
     target_archive = f"ispc-{tag_name}-{system.lower()}.zip"
@@ -76,6 +76,7 @@ else:
             "Did the file/url change?\nDoes your environment have access to the internet?"
         )
 # Reinstall latest ispc relative to project root. Rename the release to be common name.
+target_archive_extracted = target_archive_extracted.replace("-oneapi", "")
 if path.exists("ispc"):
     rmtree("ispc")
 rename(target_archive_extracted, "ispc")
