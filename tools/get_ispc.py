@@ -8,6 +8,7 @@ from io import BytesIO
 from os import getcwd, path, rename
 from requests import get
 from platform import architecture, processor, system
+from shutil import rmtree
 from sys import exit
 import tarfile
 from zipfile import ZipFile
@@ -66,7 +67,7 @@ else:
     try:
         print(f"Downloading and extracting ISPC release from: {browser_download_url}")
         with get(browser_download_url, stream=True) as rx, tarfile.open(
-                fileobj=rx.raw, mode="r:gz"
+            fileobj=rx.raw, mode="r:gz"
         ) as tarobj:
             tarobj.extractall(ispc_path)
     except:
@@ -74,5 +75,7 @@ else:
         print(
             "Did the file/url change?\nDoes your environment have access to the internet?"
         )
-# Rename the release to be common name
+# Reinstall latest ispc relative to project root. Rename the release to be common name.
+if path.exists("ispc"):
+    rmtree("ispc")
 rename(target_archive_extracted, "ispc")

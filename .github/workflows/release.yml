@@ -1,0 +1,342 @@
+name: Release (build for all platforms)
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-10.14.6-i386
+            platform: "Darwin"
+            arch: "i386"
+          - os: macos-14-arm64
+            platform: "Darwin"
+            arch: "arm"
+          - os: debian-11
+            platform: "Linux"
+            arch: "x86_64"
+          - os: windows-10-21h2
+            platform: "Windows"
+            arch: "x86_64"
+    steps:
+      # # Install dependencies on macOS
+      # - name: Install dependencies on macOS
+      #   if: matrix.platform == 'Darwin'
+      #   run: |
+      #     # Update Homebrew to make sure we can get the latest packages
+      #     brew update
+
+      #     # Install the necessary packages
+      #     brew install cmake ninja autoconf automake libtool pkg-config
+      #   shell: bash
+      # # Debian/Ubuntu dependencies
+      # - name: Install Debian/Ubuntu system dependencies
+      #   if: matrix.platform == 'Linux'
+      #   run: |
+      #     # Determine the OS Release
+      #     . /etc/os-release
+
+      #     if [[ "$ID" == "ubuntu" ]]; then
+      #       # Use PPA for Ubuntu
+      #       sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+      #       sudo apt update
+      #     elif [[ "$ID" == "debian" ]]; then
+      #       # For Debian, add testing or unstable repo for g++-13
+      #       echo "deb http://deb.debian.org/debian/ testing main" | sudo tee /etc/apt/sources.list.d/testing.list
+      #       # Set up APT pinning for testing
+      #       printf "Package: *\nPin: release a=testing\nPin-Priority: 100\n" | sudo tee /etc/apt/preferences.d/99pin-unstable
+      #       # Update the package lists
+      #       sudo apt update
+      #       sudo apt install snapd
+      #     fi
+
+      #     # Common dependencies for both Ubuntu and Debian
+      #     sudo apt install -y \
+      #       software-properties-common \
+      #       build-essential \
+      #       pkg-config \
+      #       autoconf \
+      #       autoconf-archive \
+      #       libdbus-1-dev \
+      #       libxi-dev \
+      #       libxtst-dev \
+      #       curl \
+      #       zip \
+      #       unzip \
+      #       tar \
+      #       bison \
+      #       libxrender-dev \
+      #       libxrandr-dev \
+      #       ninja-build
+      #     sudo snap install cmake --classic
+
+      #     # Install pkgs conditionally for Ubuntu/Debian
+      #     if [[ "$ID" == "ubuntu" ]]; then
+      #       sudo apt install -y g++-13
+      #     elif [[ "$ID" == "debian" ]]; then
+      #       sudo apt -t testing install -y g++-13
+      #     fi
+      # Check-out repository with history (Unix)
+      - name: Checkout code at triggered tag (Unix)
+        if: matrix.platform != 'Windows'
+        run: |
+          if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+            git checkout main
+            git pull --rebase
+            git fetch --force --tags
+            TAG=$(echo "$GITHUB_REF" | sed 's#refs/tags/##')
+            git checkout $TAG
+            git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+          else
+            rm -rf *
+            git clone https://github.com/joseasoler/todds.git .
+            TAG=$(echo "$GITHUB_REF" | sed 's#refs/tags/##')
+            git checkout $TAG
+            git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+          fi
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Check-out repository with history (Windows)
+      - name: Checkout code at triggered tag (Windows)
+        if: matrix.platform == 'Windows'
+        run: |
+          $ErrorActionPreference = "Continue"
+          if ((git rev-parse --is-inside-work-tree) -eq "true") {
+            git checkout main
+            git pull --rebase
+            git fetch --force --tags
+            $TAG = $env:GITHUB_REF -replace "refs/tags/"
+            git checkout $TAG
+            git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+          }
+          else {
+            Remove-Item * -Recurse -Force
+            git clone https://github.com/joseasoler/todds.git .
+            $TAG = $env:GITHUB_REF -replace "refs/tags/"
+            git checkout $TAG
+            git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+          }
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Ensure vcpkg submodule is initialized and up-to-date
+      - name: Update submodules
+        run: |
+          git submodule update --init --recursive
+      # Execute get_ispc.py on Unix
+      - name: Execute get_ispc.py (Unix)
+        if: matrix.platform != 'Windows'
+        run: |
+          python3.9 -m pip install requests
+          python3.9 ./tools/get_ispc.py
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Execute get_ispc.py on Windows
+      - name: Execute get_ispc.py (Windows)
+        if: matrix.platform == 'Windows'
+        run: |
+          python -m pip install requests
+          python .\tools\get_ispc.py
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Execute get_ninja.py on Windows
+      - name: Execute get_ninja.py (Windows)
+        if: matrix.platform == 'Windows'
+        run: |
+          python -m pip install requests
+          python .\tools\get_ninja.py
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Bootstrap vcpkg (Darwin arm64)
+      - name: Bootstrap ispc/vcpkg and proceed with build (Darwin)
+        if: matrix.platform == 'Darwin' && matrix.arch == 'arm'
+        run: |
+          ./submodules/vcpkg/bootstrap-vcpkg.sh
+          echo "VCPKG_ROOT=$(pwd)/submodules/vcpkg" >> $GITHUB_ENV
+          echo "PATH=$(pwd)/submodules/vcpkg:$PATH" >> $GITHUB_ENV
+          echo "PATH=$PATH:$(realpath ./ispc/bin/)" >> $GITHUB_ENV
+          if [ -d build ]; then
+            echo "Removing existing build directory..."
+            rm -rf build
+          fi
+          echo "Creating build directory..."
+          mkdir build
+          cd build
+          cmake -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=./ \
+            -DCMAKE_TOOLCHAIN_FILE=../submodules/vcpkg/scripts/buildsystems/vcpkg.cmake \
+            -DTODDS_ISPC=off \
+            -DTODDS_REGULAR_EXPRESSIONS=off \
+            -DVCPKG_TARGET_TRIPLET=arm64-osx ..
+          cmake --build . --target install
+      # Bootstrap vcpkg (Darwin i386)
+      - name: Bootstrap ispc/vcpkg and proceed with build (Darwin)
+        if: matrix.platform == 'Darwin' && matrix.arch == 'i386'
+        run: |
+          ./submodules/vcpkg/bootstrap-vcpkg.sh
+          echo "VCPKG_ROOT=$(pwd)/submodules/vcpkg" >> $GITHUB_ENV
+          echo "PATH=$(pwd)/submodules/vcpkg:$PATH" >> $GITHUB_ENV
+          echo "PATH=$PATH:$(realpath ./ispc/bin/)" >> $GITHUB_ENV
+          if [ -d build ]; then
+            echo "Removing existing build directory..."
+            rm -rf build
+          fi
+          echo "Creating build directory..."
+          mkdir build
+          cd build
+          cmake -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=./ \
+            -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake \
+            -DVCPKG_TARGET_TRIPLET=x64-osx-release ..
+          cmake --build . --target install
+      # Bootstrap vcpkg (Linux)
+      - name: Bootstrap ispc/vcpkg and proceed with build (Linux)
+        if: matrix.platform == 'Linux'
+        run: |
+          ./submodules/vcpkg/bootstrap-vcpkg.sh
+          echo "VCPKG_ROOT=$(pwd)/submodules/vcpkg" >> $GITHUB_ENV
+          echo "PATH=$(pwd)/submodules/vcpkg:$PATH" >> $GITHUB_ENV
+          echo "PATH=$PATH:$(realpath ./ispc/bin/)" >> $GITHUB_ENV
+          echo "PATH=$PATH:/snap/bin" >> $GITHUB_ENV
+          if [ -d build ]; then
+            echo "Removing existing build directory..."
+            rm -rf build
+          fi
+          echo "Creating build directory..."
+          mkdir build
+          cd build
+          cmake -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=./ \
+            -DCMAKE_TOOLCHAIN_FILE=../submodules/vcpkg/scripts/buildsystems/vcpkg.cmake \
+            -DVCPKG_TARGET_TRIPLET=x64-linux \
+            -DCMAKE_C_COMPILER=gcc-13 \
+            -DCMAKE_CXX_COMPILER=g++-13 ..
+          cmake --build . --target install
+      # Bootstrap vcpkg (Windows)
+      - name: Bootstrap ispc/ninja/vcpkg and proceed with build (Windows)
+        if: matrix.platform == 'Windows'
+        run: |
+          .\submodules\vcpkg\bootstrap-vcpkg.bat
+          echo "VCPKG_ROOT=$(pwd)\submodules\vcpkg" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+          $cmakePath = "C:\Program Files\CMake\bin"
+          echo "PATH=$env:PATH;$cmakePath" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+          $ispcPath = Resolve-Path .\ispc\bin\
+          echo "PATH=$env:PATH;$ispcPath" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+          $ninjaPath = Resolve-Path .\ninja
+          echo "PATH=$env:PATH;$ninjaPath" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+          $vcpkgPath = Resolve-Path .\submodules\vcpkg
+          echo "PATH=$env:PATH;$vcpkgPath" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+          $vcvarsall = 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat'
+          # Execute the command
+          & cmd.exe /c "`"$vcvarsall`" amd64 && cmake --preset cfg-win-rel-msvc && cmake --build --target install --preset win-rel-msvc"
+      # Format tag name, filename (Unix)
+      - name: Format filename (Unix)
+        if: matrix.platform != 'Windows'
+        run: |
+          # Extract the tag name, set in env for output
+          RAW_TAG_NAME=$(echo "${{ github.ref }}" | sed 's#refs/tags/##')
+          echo "RAW_TAG_NAME=$RAW_TAG_NAME" >> $GITHUB_ENV
+          # Format the filename, set in env for output
+          FILENAME="todds_${{ matrix.platform }}_${{ matrix.arch }}_${RAW_TAG_NAME}.zip"
+          echo "FILENAME=$FILENAME" >> $GITHUB_ENV
+        shell: bash
+      # Format tag name, filename (Windows)
+      - name: Format filename (Windows)
+        if: matrix.platform == 'Windows'
+        run: |
+          # Extract the tag name, set in env for output
+          $RAW_TAG_NAME = "${{ github.ref }}" -replace 'refs/tags/', ''
+          echo "RAW_TAG_NAME=$RAW_TAG_NAME" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+          # Format the filename, set in env for output
+          $FILENAME = "todds_${{ matrix.platform }}_${RAW_TAG_NAME}.zip"
+          echo "FILENAME=$FILENAME" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+        shell: powershell
+      # Create ZIP archive of release
+      - name: Create ZIP (Unix)
+        if: matrix.platform != 'Windows'
+        run: |
+          mkdir -p dist
+          cd ./build/bin/
+          zip -r ${{ env.FILENAME }} todds
+          mv ${{ env.FILENAME }} ../dist/
+      - name: Create ZIP (Windows)
+        if: matrix.platform == 'Windows'
+        run: |
+          New-Item -ItemType Directory -Path dist -Force
+          cd ./install/cfg-win-rel-msvc/bin/
+          Compress-Archive -Force -Path .\todds -DestinationPath ${{ env.FILENAME }}
+          Move-Item -Path ${{ env.FILENAME }} -Destination ..\dist\${{ env.FILENAME }}
+        shell: powershell
+      # Upload ZIP as artifact
+      - name: Upload ZIP as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.FILENAME }}
+          path: ./dist/${{ env.FILENAME }}
+    outputs:
+      raw_tag_name: ${{ env.RAW_TAG_NAME }}
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      # Check-out repository
+      - name: Checkout tag
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ needs.build.outputs.raw_tag_name }}
+      # Authenticate gh
+      - name: Authenticate gh
+        run: gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+      # Generate changelog
+      - name: Generate changelog
+        uses: Bullrich/generate-release-changelog@master
+        id: changelog
+        env:
+          REPO: ${{ github.repository }}
+      # Create Alpha release
+      - name: Handle the Release
+        run: |
+            # Obtain the GitHub Action run URL
+            ACTION_RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            # Check if the tag has already been released
+            OUTPUT=$(gh release view "${{ needs.build.outputs.raw_tag_name }}" 2>&1) || true
+            if [[ $OUTPUT != *"release not found"* ]]; then
+              echo "Release already exists. Replacing it."
+              gh release delete "${{ needs.build.outputs.raw_tag_name }}" --yes
+            fi
+            gh release create \
+            "${{ needs.build.outputs.raw_tag_name }}" \
+            --title "$(echo ${{ needs.build.outputs.raw_tag_name }})" \
+            --notes "${{ steps.changelog.outputs.changelog }}
+            
+            [Click here to see the action that created this release.]($ACTION_RUN_URL)"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Download artifacts
+      - name: Download all workflow artifacts
+        uses: actions/download-artifact@v2
+      # Upload artifacts to release
+      - name: Upload artifacts to release
+        run: |
+          for artifact_dir in todds*; do
+            artifact="$artifact_dir/$artifact_dir"
+            if [[ -f "$artifact" ]]; then
+              echo "Uploading artifact $artifact..."
+              gh release upload "${{ needs.build.outputs.raw_tag_name }}" "$artifact"
+            else
+              echo "Warning: Expected artifact file not found: $artifact"
+            fi
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
