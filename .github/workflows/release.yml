@@ -226,18 +226,10 @@ jobs:
         if: matrix.platform == 'Windows'
         run: |
           .\submodules\vcpkg\bootstrap-vcpkg.bat
-          echo "VCPKG_ROOT=$(pwd)\submodules\vcpkg" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
-          $cmakePath = "C:\Program Files\CMake\bin"
-          echo "PATH=$env:PATH;$cmakePath" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
-          $ispcPath = Resolve-Path .\ispc\bin\
-          echo "PATH=$env:PATH;$ispcPath" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
-          $ninjaPath = Resolve-Path .\ninja
-          echo "PATH=$env:PATH;$ninjaPath" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
-          $vcpkgPath = Resolve-Path .\submodules\vcpkg
-          echo "PATH=$env:PATH;$vcpkgPath" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+          $vcpkgRoot = Resolve-Path .\submodules\vcpkg
+          $ispcBin = Resolve-Path .\ispc\bin\
           $vcvarsall = 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat'
-          # Execute the command
-          & cmd.exe /c "`"$vcvarsall`" amd64 && cmake --preset cfg-win-rel-msvc && cmake --build --target install --preset win-rel-msvc"
+          & cmd.exe /c "set VCPKG_ROOT=$vcpkgRoot && set PATH=$vcpkgRoot;$ispcBin;$env:PATH && `"$vcvarsall`" amd64 && cmake --preset cfg-win-rel-msvc && cmake --build --target install --preset win-rel-msvc"
       # Format tag name, filename (Unix)
       - name: Format filename (Unix)
         if: matrix.platform != 'Windows'
@@ -273,7 +265,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Path dist -Force
           cd ./install/cfg-win-rel-msvc/bin/
-          Compress-Archive -Force -Path .\todds -DestinationPath ${{ env.FILENAME }}
+          Compress-Archive -Force -Path .\todds.exe -DestinationPath ${{ env.FILENAME }}
           Move-Item -Path ${{ env.FILENAME }} -Destination ..\..\..\dist\
         shell: powershell
       # Upload ZIP as artifact
