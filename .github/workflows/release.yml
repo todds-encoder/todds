@@ -266,7 +266,7 @@ jobs:
           New-Item -ItemType Directory -Path dist -Force
           cd ./install/cfg-win-rel-msvc/bin/
           Compress-Archive -Force -Path .\todds.exe -DestinationPath ${{ env.FILENAME }}
-          Move-Item -Path ${{ env.FILENAME }} -Destination ..\..\..\dist\
+          Move-Item -Force -Path ${{ env.FILENAME }} -Destination ..\..\..\dist\
         shell: powershell
       # Upload ZIP as artifact
       - name: Upload ZIP as artifact
