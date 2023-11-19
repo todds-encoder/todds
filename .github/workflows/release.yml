@@ -85,7 +85,7 @@ jobs:
         run: |
           if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
             git checkout main
-            git pull --rebase
+            git pull --rebase --recurse-submodules
             git fetch --force --tags
             TAG=$(echo "$GITHUB_REF" | sed 's#refs/tags/##')
             git checkout $TAG
@@ -107,7 +107,7 @@ jobs:
           $ErrorActionPreference = "Continue"
           if ((git rev-parse --is-inside-work-tree) -eq "true") {
             git checkout main
-            git pull --rebase
+            git pull --rebase --recurse-submodules
             git fetch --force --tags
             $TAG = $env:GITHUB_REF -replace "refs/tags/"
             git checkout $TAG
