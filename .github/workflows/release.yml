@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-10.14.6-i386
+          - os: macos-13.6.1-i386
             platform: "Darwin"
             arch: "i386"
           - os: macos-14-arm64
