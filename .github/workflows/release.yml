@@ -159,9 +159,8 @@ jobs:
         if: matrix.platform == 'Darwin' && matrix.arch == 'arm'
         run: |
           ./submodules/vcpkg/bootstrap-vcpkg.sh
-          echo "VCPKG_ROOT=$(pwd)/submodules/vcpkg" >> $GITHUB_ENV
-          echo "PATH=$(pwd)/submodules/vcpkg:$PATH" >> $GITHUB_ENV
-          echo "PATH=$PATH:$(realpath ./ispc/bin/)" >> $GITHUB_ENV
+          VCPKG_ROOT=$(pwd)/submodules/vcpkg
+          PATH=$VCPKG_ROOT:$(realpath ./ispc/bin/):$PATH
           if [ -d build ]; then
             echo "Removing existing build directory..."
             rm -rf build
@@ -181,9 +180,8 @@ jobs:
         if: matrix.platform == 'Darwin' && matrix.arch == 'i386'
         run: |
           ./submodules/vcpkg/bootstrap-vcpkg.sh
-          echo "VCPKG_ROOT=$(pwd)/submodules/vcpkg" >> $GITHUB_ENV
-          echo "PATH=$(pwd)/submodules/vcpkg:$PATH" >> $GITHUB_ENV
-          echo "PATH=$PATH:$(realpath ./ispc/bin/)" >> $GITHUB_ENV
+          VCPKG_ROOT=$(pwd)/submodules/vcpkg
+          PATH=$VCPKG_ROOT:$(realpath ./ispc/bin/):$PATH
           if [ -d build ]; then
             echo "Removing existing build directory..."
             rm -rf build
@@ -202,10 +200,8 @@ jobs:
         if: matrix.platform == 'Linux'
         run: |
           ./submodules/vcpkg/bootstrap-vcpkg.sh
-          echo "VCPKG_ROOT=$(pwd)/submodules/vcpkg" >> $GITHUB_ENV
-          echo "PATH=$(pwd)/submodules/vcpkg:$PATH" >> $GITHUB_ENV
-          echo "PATH=$PATH:$(realpath ./ispc/bin/)" >> $GITHUB_ENV
-          echo "PATH=$PATH:/snap/bin" >> $GITHUB_ENV
+          VCPKG_ROOT=$(pwd)/submodules/vcpkg
+          PATH=$VCPKG_ROOT:$(realpath ./ispc/bin/):/snap/bin:$PATH
           if [ -d build ]; then
             echo "Removing existing build directory..."
             rm -rf build
