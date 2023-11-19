@@ -181,7 +181,7 @@ jobs:
         run: |
           ./submodules/vcpkg/bootstrap-vcpkg.sh
           VCPKG_ROOT=$(pwd)/submodules/vcpkg
-          PATH=$VCPKG_ROOT:$(realpath ./ispc/bin/):$PATH
+          PATH=$VCPKG_ROOT:$(realpath ./ispc/bin/):/opt/local/bin:$PATH
           if [ -d build ]; then
             echo "Removing existing build directory..."
             rm -rf build
