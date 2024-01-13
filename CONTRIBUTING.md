@@ -4,12 +4,12 @@ Thank you for being interested on contributing to todds! This project follows th
 
 ## Questions and bug reports
 
-You can use the [issue tracker](https://github.com/joseasoler/todds/issues) to ask questions and report bugs but do not forget to search (including closed issues) to see if your entry has been posted before.
+You can use the [issue tracker](https://github.com/todds-encoder/todds/issues) to ask questions and report bugs but do not forget to search (including closed issues) to see if your entry has been posted before.
 
 ## Contributions
 
 The project and its contributions are currently managed using the [GitLab Flow](https://docs.gitlab.com/ee/topics/gitlab_flow.html). 
 
-Before preparing and submitting a PR for a feature, create an issue on the [tracker](https://github.com/joseasoler/todds/issues) to allow for discussing and refining the idea before it is implemented.
+Before preparing and submitting a PR for a feature, create an issue on the [tracker](https://github.com/todds-encoder/todds/issues) to allow for discussing and refining the idea before it is implemented.
 
 Source code contributions must follow the [style guide](STYLE_GUIDE.md). The easiest way to comply with it is to set up [clang-format](https://clang.llvm.org/docs/ClangFormat.html) and [clang-tidy](https://clang.llvm.org/extra/clang-tidy/). You should enable the `TODDS_UNIT_TESTS`, `TODDS_WARNINGS_AS_ERRORS` and `TODDS_CLANG_TIDY` CMake options when you build your code to ensure that your contribution will pass static analysis . You should also execute clang-format on all files you have modified before submitting your contribution.

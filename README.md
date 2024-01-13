@@ -2,7 +2,7 @@
 
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
-A CPU-based DDS encoder optimized for fast batch conversions with high encoding quality.
+A CPU-based DDS texture encoder optimized for fast batch conversions with high encoding quality.
 
 ## Features
 
@@ -70,7 +70,7 @@ Check the [Analysis documentation](ANALYSIS.md) for details.
 
 ## Building
 
-todds uses CMake presets and a [vcpkg](https://github.com/microsoft/vcpkg) submodule to retrieve its dependencies and compile. Compiling also requires the [Intel® Implicit SPMD Program Compiler](https://github.com/ispc/ispc). For more details, check the [wiki](https://github.com/joseasoler/todds/wiki).
+todds uses CMake presets and a [vcpkg](https://github.com/microsoft/vcpkg) submodule to retrieve its dependencies and compile. Compiling also requires the [Intel® Implicit SPMD Program Compiler](https://github.com/ispc/ispc). For more details, check the [wiki](https://github.com/todds-encoder/todds/wiki).
 
 ### Compiling without vcpkg
 
@@ -111,7 +111,7 @@ The following third party library dependencies are contained as source code in t
 
 ## Contributing
 
-todds encourages community involvement and contributions. Check the [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) files for details. You can check all contributors in the [contributors list](https://github.com/joseasoler/todds/graphs/contributors).
+todds encourages community involvement and contributions. Check the [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) files for details. You can check all contributors in the [contributors list](https://github.com/todds-encoder/todds/graphs/contributors).
 
 ## License
 

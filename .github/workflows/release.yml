@@ -92,7 +92,7 @@ jobs:
             git fetch --depth=1 origin +refs/tags/*:refs/tags/*
           else
             rm -rf *
-            git clone https://github.com/joseasoler/todds.git .
+            git clone https://github.com/todds-encoder/todds.git .
             TAG=$(echo "$GITHUB_REF" | sed 's#refs/tags/##')
             git checkout $TAG
             git fetch --depth=1 origin +refs/tags/*:refs/tags/*
@@ -115,7 +115,7 @@ jobs:
           }
           else {
             Remove-Item * -Recurse -Force
-            git clone https://github.com/joseasoler/todds.git .
+            git clone https://github.com/todds-encoder/todds.git .
             $TAG = $env:GITHUB_REF -replace "refs/tags/"
             git checkout $TAG
             git fetch --depth=1 origin +refs/tags/*:refs/tags/*

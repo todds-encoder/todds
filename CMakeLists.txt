@@ -32,8 +32,8 @@ endif ()
 
 project(todds
 	VERSION 0.4.1
-	DESCRIPTION "A CPU-based DDS encoder optimized for fast batch conversions with high encoding quality."
-	HOMEPAGE_URL "https://github.com/joseasoler/todds"
+	DESCRIPTION "A CPU-based DDS texture encoder optimized for fast batch conversions with high encoding quality."
+	HOMEPAGE_URL "https://github.com/todds-encoder/todds"
 	)
 
 # Set the C++ standard used by this project.

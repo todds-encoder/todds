@@ -12,7 +12,7 @@ These tests are always performed on Windows because the [Texconv](https://github
 
 All encoders are set to use the BC7 format and to create mipmaps.
 
-* todds: Compiled following these steps: https://github.com/joseasoler/todds/wiki/Static-builds-on-Windows. Uses Lanczos interpolation to calculate mipmaps.
+* todds: Compiled following these steps: https://github.com/todds-encoder/todds/wiki/Static-builds-on-Windows. Uses Lanczos interpolation to calculate mipmaps.
 * [Texconv](https://github.com/Microsoft/DirectXTex/wiki/Texconv): Uses WIC to create mipmaps.
 
 ### Tools
