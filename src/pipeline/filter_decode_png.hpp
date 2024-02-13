@@ -20,5 +20,5 @@
 
 namespace todds::pipeline::impl {
 oneapi::tbb::filter<png_file, std::unique_ptr<mipmap_image>> decode_png_filter(vector<file_data>& files_data,
-	const paths_vector& paths, bool vflip, bool mipmaps, bool fix_size, error_queue& errors);
+	const paths_vector& paths, bool vflip, bool mipmaps, bool fix_size, report_queue& updates);
 } // namespace todds::pipeline::impl

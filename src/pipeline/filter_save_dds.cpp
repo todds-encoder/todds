@@ -21,9 +21,10 @@ constexpr DDS_HEADER_DXT10 header_extension{DXGI_FORMAT_BC7_UNORM, D3D10_RESOURC
 
 class save_dds_file final {
 public:
-	explicit save_dds_file(const vector<file_data>& files_data, const paths_vector& paths) noexcept
+	explicit save_dds_file(const vector<file_data>& files_data, const paths_vector& paths, report_queue& updates) noexcept
 		: _files_data{files_data}
-		, _paths{paths} {}
+		, _paths{paths}
+		, _updates{updates} {}
 
 	void operator()(const dds_data& dds_img) const {
 		TracyZoneScopedN("save");
@@ -51,15 +52,19 @@ public:
 		const std::size_t block_size_bytes = dds_img.image.size() * sizeof(std::uint64_t);
 		ofs.write(reinterpret_cast<const char*>(dds_img.image.data()), static_cast<std::ptrdiff_t>(block_size_bytes));
 		ofs.close();
+		_updates.emplace(report_type::ENCODING_PROGRESS);
 	}
 
 private:
 	const vector<file_data>& _files_data;
 	const paths_vector& _paths;
+	report_queue& _updates;
 };
 
-oneapi::tbb::filter<dds_data, void> save_dds_filter(const vector<file_data>& files_data, const paths_vector& paths) {
-	return oneapi::tbb::make_filter<dds_data, void>(oneapi::tbb::filter_mode::parallel, save_dds_file(files_data, paths));
+oneapi::tbb::filter<dds_data, void> save_dds_filter(
+	const vector<file_data>& files_data, const paths_vector& paths, report_queue& updates) {
+	return oneapi::tbb::make_filter<dds_data, void>(
+		oneapi::tbb::filter_mode::parallel, save_dds_file(files_data, paths, updates));
 }
 
 } // namespace todds::pipeline::impl

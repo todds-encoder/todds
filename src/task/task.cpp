@@ -10,7 +10,6 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/nowide/fstream.hpp>
-#include <boost/nowide/iostream.hpp>
 #include <boost/predef.h>
 #include <fmt/format.h>
 #include <oneapi/tbb/tick_count.h>
@@ -43,10 +42,7 @@ bool has_extension(const fs::path& path, const std::string_view extension) {
  * @return True if the path should be processed.
  */
 bool is_valid_input_file(const fs::path& path, const todds::regex& regex, const todds::string& substring) {
-	if (!has_extension(path, png_extension))
-	{
-		return false;
-	}
+	if (!has_extension(path, png_extension)) { return false; }
 
 	const auto path_str = path.string();
 
@@ -119,7 +115,7 @@ void process_directory(paths_vector& paths, const fs::path& input_path, const fs
 	}
 }
 
-paths_vector get_paths(const todds::args::data& arguments) {
+paths_vector get_paths(const todds::args::data& arguments, todds::report_queue& updates) {
 	const fs::path& input_path = arguments.input;
 	const bool different_output = static_cast<bool>(arguments.output);
 	const fs::path output_path = different_output ? arguments.output.value() : input_path.parent_path();
@@ -144,7 +140,8 @@ paths_vector get_paths(const todds::args::data& arguments) {
 				const fs::path dds_path = to_output_path(format, current_path, current_path.parent_path());
 				add_files(current_path, dds_path, paths, should_generate);
 			} else {
-				boost::nowide::cerr << current_path.string() << " is not a PNG file or a directory.\n";
+				updates.emplace(todds::report_type::PIPELINE_ERROR,
+					fmt::format(":s is not a PNG file or a directory.", current_path.string()));
 			}
 		}
 	}
@@ -156,10 +153,9 @@ paths_vector get_paths(const todds::args::data& arguments) {
 	return paths;
 }
 
-void verbose_output(const paths_vector& files, bool clean) {
+void verbose_output(const paths_vector& files, bool clean, todds::report_queue& updates) {
 	for (const auto& [png_file, dds_file] : files) {
-		const std::string& path = clean ? dds_file.string() : png_file.string();
-		boost::nowide::cerr << path << '\n';
+		updates.emplace(todds::report_type::FILE_VERBOSE, clean ? dds_file.string() : png_file.string());
 	}
 }
 
@@ -167,23 +163,18 @@ void clean_dds_files(const paths_vector& files) {
 	for (const auto& [_, dds_file] : files) { fs::remove(dds_file); }
 }
 
-} // anonymous namespace
+void pipeline_execution(
+	const todds::args::data& arguments, std::atomic<bool>& force_finish, todds::report_queue& updates) {
+	todds::pipeline::input input_data;
+	updates.emplace(todds::report_type::RETRIEVING_FILES);
 
-namespace todds {
-
-void run(const args::data& arguments) {
-	pipeline::input input_data;
-	if (arguments.progress) {
-		boost::nowide::cout << fmt::format("Retrieving files to be processed.\n");
-		boost::nowide::cout.flush();
-	}
 	const auto start_time = oneapi::tbb::tick_count::now();
-	input_data.paths = get_paths(arguments);
-	if (arguments.time) {
-		const auto end_time = oneapi::tbb::tick_count::now();
-		boost::nowide::cout << "File retrieval time: " << (end_time - start_time).seconds() << " seconds \n";
-		boost::nowide::cout.flush();
-	}
+	input_data.paths = get_paths(arguments, updates);
+
+	const auto end_time = oneapi::tbb::tick_count::now();
+	const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+	updates.emplace(todds::report_type::FILE_RETRIEVAL_TIME, milliseconds);
+
 	if (input_data.paths.empty()) { return; }
 
 #if defined(TODDS_PIPELINE_DUMP)
@@ -191,8 +182,9 @@ void run(const args::data& arguments) {
 	if (input_data.paths.size() > 1U) { input_data.paths = paths_vector{input_data.paths[0]}; }
 #endif // defined(TODDS_PIPELINE_DUMP)
 	// Process arguments that affect the input.
-	if (arguments.verbose) { verbose_output(input_data.paths, arguments.clean); }
+	if (arguments.verbose) { verbose_output(input_data.paths, arguments.clean, updates); }
 	if (arguments.dry_run) { return; }
+	updates.emplace(todds::report_type::PROCESS_STARTED, input_data.paths.size());
 	if (arguments.clean) {
 		clean_dds_files(input_data.paths);
 		return;
@@ -215,7 +207,15 @@ void run(const args::data& arguments) {
 	input_data.report = arguments.report;
 
 	// Launch the parallel pipeline.
-	pipeline::encode_as_dds(input_data);
+	todds::pipeline::encode_as_dds(input_data, force_finish, updates);
+}
+
+} // anonymous namespace
+
+namespace todds {
+
+std::future<void> run(const args::data& arguments, std::atomic<bool>& force_finish, report_queue& updates) {
+	return std::async(std::launch::async, [&arguments, &force_finish, &updates]() { pipeline_execution(arguments, force_finish, updates); });
 }
 
 } // namespace todds

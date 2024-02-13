@@ -13,6 +13,6 @@
 namespace todds::pipeline::impl {
 
 oneapi::tbb::filter<dds_data, void> save_dds_filter(
-	const vector<file_data>& files_data, const paths_vector& paths);
+	const vector<file_data>& files_data, const paths_vector& paths, report_queue& updates);
 
 } // namespace todds::pipeline::impl

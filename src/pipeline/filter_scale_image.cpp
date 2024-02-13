@@ -17,14 +17,14 @@ namespace todds::pipeline::impl {
 class scale_image final {
 public:
 	explicit scale_image(vector<file_data>& files_data, bool mipmaps, std::uint16_t scale, std::uint32_t max_size,
-		filter::type filter, const paths_vector& paths, error_queue& errors) noexcept
+		filter::type filter, const paths_vector& paths, report_queue& updates) noexcept
 		: _files_data{files_data}
 		, _mipmaps{mipmaps}
 		, _scale{scale}
 		, _max_size{max_size}
 		, _filter{filter}
 		, _paths{paths}
-		, _errors{errors} {}
+		, _updates{updates} {}
 
 	std::unique_ptr<mipmap_image> operator()(std::unique_ptr<mipmap_image> img) const {
 		TracyZoneScopedN("scale");
@@ -49,8 +49,9 @@ public:
 		}
 
 		if (width == 0 || height == 0) {
-			_errors.push(fmt::format("Could not scale {:s} from ({:d}, {:d}) to ({:d}, {:d}).",
-				_paths[img->file_index()].first.string(), input_image.width(), input_image.height(), width, height));
+			_updates.emplace(report_type::PIPELINE_ERROR,
+				fmt::format("Could not scale {:s} from ({:d}, {:d}) to ({:d}, {:d}).", _paths[img->file_index()].first.string(),
+					input_image.width(), input_image.height(), width, height));
 			return nullptr;
 		}
 
@@ -59,9 +60,10 @@ public:
 		try {
 			cv::resize(input, output, output.size(), 0, 0, static_cast<int>(_filter));
 		} catch (const std::exception& exception) {
-			_errors.push(fmt::format("Error while scaling {:s} from {:d}, {:d} to {:d}, {:d} -> {:s}",
-				_paths[img->file_index()].first.string(), input_image.width(), input_image.height(), width, height,
-				exception.what()));
+			_updates.emplace(
+				report_type::PIPELINE_ERROR, fmt::format("Error while scaling {:s} from {:d}, {:d} to {:d}, {:d} -> {:s}",
+																			 _paths[img->file_index()].first.string(), input_image.width(),
+																			 input_image.height(), width, height, exception.what()));
 		}
 
 		_files_data[result->file_index()].width = width;
@@ -78,14 +80,14 @@ private:
 	std::uint32_t _max_size;
 	filter::type _filter;
 	const paths_vector& _paths;
-	error_queue& _errors;
+	report_queue& _updates;
 };
 
 oneapi::tbb::filter<std::unique_ptr<mipmap_image>, std::unique_ptr<mipmap_image>> scale_image_filter(
 	vector<file_data>& files_data, bool mipmaps, std::uint16_t scale, std::uint32_t max_size, filter::type filter,
-	const paths_vector& paths, error_queue& errors) {
+	const paths_vector& paths, report_queue& updates) {
 	return oneapi::tbb::make_filter<std::unique_ptr<mipmap_image>, std::unique_ptr<mipmap_image>>(
-		oneapi::tbb::filter_mode::parallel, scale_image(files_data, mipmaps, scale, max_size, filter, paths, errors));
+		oneapi::tbb::filter_mode::parallel, scale_image(files_data, mipmaps, scale, max_size, filter, paths, updates));
 }
 
 } // namespace todds::pipeline::impl

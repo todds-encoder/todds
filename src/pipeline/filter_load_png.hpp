@@ -23,6 +23,6 @@ struct png_file {
 };
 
 oneapi::tbb::filter<void, png_file> load_png_filter(
-	const paths_vector& paths, std::atomic<std::size_t>& counter, std::atomic<bool>& force_finish, error_queue& errors);
+	const paths_vector& paths, std::atomic<std::size_t>& counter, std::atomic<bool>& force_finish, report_queue& updates);
 
 } // namespace todds::pipeline::impl

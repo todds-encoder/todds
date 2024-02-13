@@ -6,14 +6,13 @@
 #pragma once
 
 #include "todds/format.hpp"
+#include "todds/report.hpp"
 
 #include <oneapi/tbb/concurrent_queue.h>
 
 #include <limits>
 
 namespace todds::pipeline::impl {
-
-using error_queue = oneapi::tbb::concurrent_queue<std::string>;
 
 // Files using this file index have triggered errors and should not be processed.
 constexpr std::size_t error_file_index = std::numeric_limits<std::size_t>::max();
