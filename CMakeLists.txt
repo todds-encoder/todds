@@ -30,7 +30,7 @@ if (TODDS_UNIT_TESTS)
 	list(APPEND VCPKG_MANIFEST_FEATURES "tests")
 endif ()
 
-project(todds
+project(ToDDS
 	VERSION 0.4.1
 	DESCRIPTION "A CPU-based DDS texture encoder optimized for fast batch conversions with high encoding quality."
 	HOMEPAGE_URL "https://github.com/todds-encoder/todds"
