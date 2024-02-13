@@ -4,14 +4,13 @@
  */
 
 #pragma once
-#include <string_view>
 
 namespace todds::project {
 
-[[nodiscard]] constexpr std::string_view name() noexcept { return {"@CMAKE_PROJECT_NAME@"}; }
+[[nodiscard]] constexpr const char* name() noexcept { return {"@CMAKE_PROJECT_NAME@"}; }
 
-[[nodiscard]] constexpr std::string_view description() noexcept { return {"@CMAKE_PROJECT_DESCRIPTION@"}; }
+[[nodiscard]] constexpr const char* description() noexcept { return {"@CMAKE_PROJECT_DESCRIPTION@"}; }
 
-[[nodiscard]] constexpr std::string_view version() noexcept { return {"@CMAKE_PROJECT_VERSION@"}; }
+[[nodiscard]] constexpr const char* version() noexcept { return {"@CMAKE_PROJECT_VERSION@"}; }
 
 } // namespace todds::project
