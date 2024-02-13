@@ -20,11 +20,11 @@ namespace todds::pipeline::impl {
 class load_png_file final {
 public:
 	explicit load_png_file(const paths_vector& paths, std::atomic<std::size_t>& counter, std::atomic<bool>& force_finish,
-		error_queue& errors) noexcept
+		report_queue& updates) noexcept
 		: _paths{paths}
 		, _counter{counter}
 		, _force_finish{force_finish}
-		, _errors{errors} {}
+		, _updates{updates} {}
 
 	png_file operator()(oneapi::tbb::flow_control& flow) const {
 		const std::size_t index = _counter++;
@@ -44,13 +44,15 @@ public:
 		boost::nowide::ifstream ifs{input, std::ios::in | std::ios::binary};
 
 		if (!ifs.is_open()) [[unlikely]] {
-			_errors.push(fmt::format("Load PNG file error in {:s} ", _paths[index].first.string()));
+			_updates.emplace(
+				report_type::PIPELINE_ERROR, fmt::format("Load PNG file error in {:s}", _paths[index].first.string()));
 		}
 
 		png_file result{{std::istreambuf_iterator<char>{ifs}, {}}, index};
 
 		if (result.buffer.empty()) [[unlikely]] {
-			_errors.push(fmt::format("Could not load any data for PNG file {:s} ", _paths[index].first.string()));
+			_updates.emplace(report_type::PIPELINE_ERROR,
+				fmt::format("Could not load any data for PNG file {:s}", _paths[index].first.string()));
 		}
 #if defined(TODDS_PIPELINE_DUMP)
 		else {
@@ -68,12 +70,12 @@ private:
 	const paths_vector& _paths;
 	std::atomic<std::size_t>& _counter;
 	std::atomic<bool>& _force_finish;
-	error_queue& _errors;
+	report_queue& _updates;
 };
 
-oneapi::tbb::filter<void, png_file> load_png_filter(
-	const paths_vector& paths, std::atomic<std::size_t>& counter, std::atomic<bool>& force_finish, error_queue& errors) {
+oneapi::tbb::filter<void, png_file> load_png_filter(const paths_vector& paths, std::atomic<std::size_t>& counter,
+	std::atomic<bool>& force_finish, report_queue& updates) {
 	return oneapi::tbb::make_filter<void, png_file>(
-		oneapi::tbb::filter_mode::parallel, load_png_file(paths, counter, force_finish, errors));
+		oneapi::tbb::filter_mode::parallel, load_png_file(paths, counter, force_finish, updates));
 }
 } // namespace todds::pipeline::impl

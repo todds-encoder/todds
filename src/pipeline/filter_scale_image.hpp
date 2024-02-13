@@ -13,5 +13,5 @@
 namespace todds::pipeline::impl {
 oneapi::tbb::filter<std::unique_ptr<mipmap_image>, std::unique_ptr<mipmap_image>> scale_image_filter(
 	vector<file_data>& files_data, bool mipmaps, std::uint16_t scale, std::uint32_t max_size, filter::type filter,
-	const paths_vector& paths, error_queue& errors);
+	const paths_vector& paths, report_queue& updates);
 } // namespace todds::pipeline::impl

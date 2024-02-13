@@ -21,6 +21,6 @@ struct png_data {
 };
 
 oneapi::tbb::filter<std::unique_ptr<mipmap_image>, png_data> encode_png_filter(
-	const paths_vector& paths, error_queue& errors);
+	const paths_vector& paths, report_queue& updates);
 
 } // namespace todds::pipeline::impl

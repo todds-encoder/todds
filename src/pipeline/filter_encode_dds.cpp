@@ -153,8 +153,7 @@ oneapi::tbb::filter<pixel_block_data, dds_data> encode_dds_filter(vector<file_da
 		return make_filter<pixel_block_data, dds_data>(
 			filter_mode::parallel, encode_bc1_image{files_data, quality, alpha_black});
 	case format::type::bc3:
-		return make_filter<pixel_block_data, dds_data>(
-			filter_mode::parallel, encode_bc3_image{files_data, quality});
+		return make_filter<pixel_block_data, dds_data>(filter_mode::parallel, encode_bc3_image{files_data, quality});
 	case format::type::bc7:
 		return make_filter<pixel_block_data, dds_data>(filter_mode::parallel, encode_bc7_image{files_data, quality});
 	case format::type::png:

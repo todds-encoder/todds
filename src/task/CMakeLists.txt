@@ -5,18 +5,19 @@
 add_library(todds_task STATIC
 	include/todds/task.hpp
 	task.cpp
-	)
+)
 
 target_include_directories(todds_task PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>/include
-	)
+)
 
 target_compile_options(todds_task PRIVATE ${TODDS_CPP_WARNING_FLAGS})
 
 target_link_libraries(todds_task
 	PUBLIC
 	todds_arguments
+	todds_report
 	PRIVATE
 	todds_format
 	todds_pipeline
-	)
+)

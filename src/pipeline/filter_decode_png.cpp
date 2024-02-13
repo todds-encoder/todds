@@ -44,11 +44,11 @@ namespace todds::pipeline::impl {
 class decode_png final {
 public:
 	explicit decode_png(vector<file_data>& files_data, const paths_vector& paths, bool vflip, bool mipmaps, bool fix_size,
-		error_queue& errors) noexcept
+		report_queue& updates) noexcept
 		: _files_data{files_data}
 		, _paths{paths}
 		, _vflip{vflip}
-		, _errors{errors}
+		, _updates{updates}
 		, _mipmaps{mipmaps}
 		, _fix_size{fix_size} {}
 
@@ -80,7 +80,7 @@ public:
 				dmp.write(reinterpret_cast<const char*>(image_start), static_cast<std::ptrdiff_t>(result->data_size()));
 #endif // defined(TODDS_PIPELINE_DUMP)
 			} catch (const std::runtime_error& exc) {
-				_errors.push(fmt::format("PNG Decoding error {:s} -> {:s}", path, exc.what()));
+				_updates.emplace(report_type::PIPELINE_ERROR, fmt::format("PNG Decoding error {:s} -> {:s}", path, exc.what()));
 			}
 		}
 
@@ -91,15 +91,15 @@ private:
 	vector<file_data>& _files_data;
 	const paths_vector& _paths;
 	bool _vflip;
-	error_queue& _errors;
+	report_queue& _updates;
 	bool _mipmaps;
 	bool _fix_size;
 };
 
 oneapi::tbb::filter<png_file, std::unique_ptr<mipmap_image>> decode_png_filter(vector<file_data>& files_data,
-	const paths_vector& paths, bool vflip, bool mipmaps, bool fix_size, error_queue& errors) {
+	const paths_vector& paths, bool vflip, bool mipmaps, bool fix_size, report_queue& updates) {
 	return oneapi::tbb::make_filter<png_file, std::unique_ptr<mipmap_image>>(
-		oneapi::tbb::filter_mode::parallel, decode_png(files_data, paths, vflip, mipmaps, fix_size, errors));
+		oneapi::tbb::filter_mode::parallel, decode_png(files_data, paths, vflip, mipmaps, fix_size, updates));
 }
 
 } // namespace todds::pipeline::impl

@@ -13,6 +13,7 @@ add_subdirectory(dds)
 add_subdirectory(png)
 add_subdirectory(pipeline)
 add_subdirectory(regex)
+add_subdirectory(report)
 add_subdirectory(task)
 # Application module
 add_subdirectory(main)
