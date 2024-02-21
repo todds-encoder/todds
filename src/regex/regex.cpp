@@ -88,7 +88,7 @@ regex::regex(std::string_view pattern)
 	: _pimpl{std::make_unique<regex_pimpl>(pattern)} {}
 
 regex::regex()
-	: regex("") {}
+	: _pimpl{nullptr} {}
 
 regex::regex(regex&& other) noexcept = default;
 
@@ -96,7 +96,9 @@ regex& regex::operator=(regex&& other) noexcept = default;
 
 regex::~regex() = default;
 
-std::string_view regex::error() const noexcept { return _pimpl->error(); }
+std::string_view regex::error() const noexcept { return valid() ? _pimpl->error() : ""; }
+
+bool regex::valid() const noexcept { return _pimpl != nullptr; }
 
 bool regex::match(std::string_view input) const { return _pimpl->match(input); }
 

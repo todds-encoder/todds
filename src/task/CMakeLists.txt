@@ -3,7 +3,9 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 add_library(todds_task STATIC
+	include/todds/file_retrieval.hpp
 	include/todds/task.hpp
+	file_retrieval.cpp
 	task.cpp
 )
 
@@ -16,8 +18,8 @@ target_compile_options(todds_task PRIVATE ${TODDS_CPP_WARNING_FLAGS})
 target_link_libraries(todds_task
 	PUBLIC
 	todds_arguments
+	todds_pipeline
 	todds_report
 	PRIVATE
 	todds_format
-	todds_pipeline
 )

@@ -4,154 +4,16 @@
  */
 #include "todds/task.hpp"
 
+#include "todds/file_retrieval.hpp"
+#include "todds/input.hpp"
 #include "todds/pipeline.hpp"
-#include "todds/regex.hpp"
-#include "todds/string.hpp"
 
-#include <boost/filesystem.hpp>
-#include <boost/nowide/fstream.hpp>
-#include <boost/predef.h>
-#include <fmt/format.h>
 #include <oneapi/tbb/tick_count.h>
-
-#include <algorithm>
-#include <string_view>
-
-#if BOOST_OS_WINDOWS
-#include <filesystem>
-#endif // BOOST_OS_WINDOWS
 
 namespace fs = boost::filesystem;
 using todds::pipeline::paths_vector;
 
 namespace {
-
-constexpr std::string_view png_extension{".png"};
-constexpr std::string_view txt_extension{".txt"};
-
-bool has_extension(const fs::path& path, const std::string_view extension) {
-	const todds::string path_extension = path.extension().string();
-	if (path_extension.size() != extension.size()) { return false; }
-	return todds::to_lower_copy(path_extension) == extension;
-}
-
-/**
- * Checks if a source path is a valid input file.
- * @param path Source path to be checked.
- * @param regex A regex constructed with an empty pattern will always return true.
- * @return True if the path should be processed.
- */
-bool is_valid_input_file(const fs::path& path, const todds::regex& regex, const todds::string& substring) {
-	if (!has_extension(path, png_extension)) { return false; }
-
-	const auto path_str = path.string();
-
-	return regex.match(path_str) && path_str.find(substring) != std::string::npos;
-}
-
-fs::path to_output_path(todds::format::type format, const fs::path& input_file, const fs::path& output_path) {
-	constexpr std::string_view dds_extension{".dds"};
-	const std::string_view extension = format != todds::format::type::png ? dds_extension : png_extension;
-	return (output_path / input_file.stem()) += extension.data();
-}
-
-std::time_t get_last_write_time(const fs::path& path) {
-#if BOOST_OS_WINDOWS
-	// On Windows, boost::filesystem::last_write_time seems to be multiple orders of magnitude slower than in other
-	// operative systems. Rely on the standard library on this case, performing the required UTF-16 conversion.
-	const auto wide_path = boost::nowide::widen(path.string());
-	return std::filesystem::last_write_time(wide_path).time_since_epoch().count();
-#else
-	return fs::last_write_time(path);
-#endif // BOOST_OS_WINDOWS
-}
-
-class should_generate_file final {
-public:
-	should_generate_file(bool overwrite, bool overwrite_new)
-		: _overwrite{overwrite}
-		, _overwrite_new{overwrite_new} {}
-
-	bool operator()(const fs::path& input_path, const fs::path& output_path) const {
-		return input_path != output_path &&
-					 (_overwrite || !fs::exists(output_path) ||
-						 (_overwrite_new && (get_last_write_time(input_path) > get_last_write_time(output_path))));
-	}
-
-private:
-	bool _overwrite;
-	bool _overwrite_new;
-};
-
-void add_files(const fs::path& input_path, const fs::path& output_path, paths_vector& paths,
-	const should_generate_file& should_generate) {
-	if (should_generate(input_path, output_path)) { paths.emplace_back(input_path, output_path); }
-}
-
-void process_directory(paths_vector& paths, const fs::path& input_path, const fs::path& output_path,
-	bool different_output, const should_generate_file& should_generate, const todds::args::data& arguments) {
-	const todds::regex& regex = arguments.regex;
-	const todds::format::type format = arguments.format;
-	const std::size_t depth = arguments.depth;
-
-	fs::path current_output = output_path;
-	const fs::directory_entry dir{input_path};
-	for (fs::recursive_directory_iterator itr{dir}; itr != fs::recursive_directory_iterator{}; ++itr) {
-		const fs::path& input_file = itr->path();
-		if (is_valid_input_file(input_file, regex, arguments.substring)) {
-			if (different_output) {
-				const auto relative = fs::relative(input_file.parent_path(), input_path);
-				if (!relative.filename_is_dot()) { current_output = output_path / relative; }
-			}
-			const fs::path output_file =
-				to_output_path(format, input_file, different_output ? current_output : input_file.parent_path());
-			add_files(input_file, output_file, paths, should_generate);
-			if (different_output && !fs::exists(current_output)) {
-				// Create the output_path folder if necessary.
-				fs::create_directories(current_output);
-			}
-		}
-		if (static_cast<unsigned int>(itr.depth()) >= depth) { itr.disable_recursion_pending(); }
-	}
-}
-
-paths_vector get_paths(const todds::args::data& arguments, todds::report_queue& updates) {
-	const fs::path& input_path = arguments.input;
-	const bool different_output = static_cast<bool>(arguments.output);
-	const fs::path output_path = different_output ? arguments.output.value() : input_path.parent_path();
-
-	const should_generate_file should_generate(arguments.overwrite, arguments.overwrite_new);
-	const todds::format::type format = arguments.format;
-
-	paths_vector paths{};
-	if (fs::is_directory(input_path)) {
-		process_directory(paths, input_path, output_path, different_output, should_generate, arguments);
-	} else if (is_valid_input_file(input_path, arguments.regex, arguments.substring)) {
-		const fs::path dds_path = to_output_path(format, input_path, output_path);
-		add_files(input_path, dds_path, paths, should_generate);
-	} else if (has_extension(input_path, txt_extension)) {
-		boost::nowide::fstream stream{input_path};
-		todds::string buffer;
-		while (std::getline(stream, buffer)) {
-			const fs::path current_path{buffer};
-			if (fs::is_directory(current_path)) {
-				process_directory(paths, current_path, current_path, false, should_generate, arguments);
-			} else if (is_valid_input_file(current_path, arguments.regex, arguments.substring)) {
-				const fs::path dds_path = to_output_path(format, current_path, current_path.parent_path());
-				add_files(current_path, dds_path, paths, should_generate);
-			} else {
-				updates.emplace(todds::report_type::PIPELINE_ERROR,
-					fmt::format(":s is not a PNG file or a directory.", current_path.string()));
-			}
-		}
-	}
-
-	// Process the list in order ignoring duplicates.
-	std::sort(paths.begin(), paths.end());
-	paths.erase(std::unique(paths.begin(), paths.end()), paths.end());
-
-	return paths;
-}
 
 void verbose_output(const paths_vector& files, bool clean, todds::report_queue& updates) {
 	for (const auto& [png_file, dds_file] : files) {
@@ -166,7 +28,7 @@ void clean_dds_files(const paths_vector& files) {
 void pipeline_execution(
 	const todds::args::data& arguments, std::atomic<bool>& force_finish, todds::report_queue& updates) {
 	todds::pipeline::input input_data;
-	updates.emplace(todds::report_type::RETRIEVING_FILES);
+	updates.emplace(todds::report_type::RETRIEVING_FILES_STARTED);
 
 	const auto start_time = oneapi::tbb::tick_count::now();
 	input_data.paths = get_paths(arguments, updates);
@@ -174,8 +36,6 @@ void pipeline_execution(
 	const auto end_time = oneapi::tbb::tick_count::now();
 	const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 	updates.emplace(todds::report_type::FILE_RETRIEVAL_TIME, milliseconds);
-
-	if (input_data.paths.empty()) { return; }
 
 #if defined(TODDS_PIPELINE_DUMP)
 	// Limit to a single file to avoid overwriting memory dumps, and any potential concurrency issues.
@@ -185,6 +45,8 @@ void pipeline_execution(
 	if (arguments.verbose) { verbose_output(input_data.paths, arguments.clean, updates); }
 	if (arguments.dry_run) { return; }
 	updates.emplace(todds::report_type::PROCESS_STARTED, input_data.paths.size());
+	if (input_data.paths.empty()) { return; }
+
 	if (arguments.clean) {
 		clean_dds_files(input_data.paths);
 		return;
@@ -215,7 +77,8 @@ void pipeline_execution(
 namespace todds {
 
 std::future<void> run(const args::data& arguments, std::atomic<bool>& force_finish, report_queue& updates) {
-	return std::async(std::launch::async, [&arguments, &force_finish, &updates]() { pipeline_execution(arguments, force_finish, updates); });
+	return std::async(std::launch::async,
+		[&arguments, &force_finish, &updates]() { pipeline_execution(arguments, force_finish, updates); });
 }
 
 } // namespace todds

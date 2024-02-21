@@ -47,19 +47,22 @@ TEST_CASE("todds::arguments input", "[arguments]") {
 	SECTION("Parse a UTF-8 path") {
 		const auto arguments = get({binary, input_path.string()});
 		REQUIRE(is_valid(arguments));
-		REQUIRE(arguments.input == input_path.string());
+		REQUIRE(arguments.input.size() == 1U);
+		REQUIRE(arguments.input[0U] == input_path.string());
 	}
 
 	SECTION("Input is read properly after optional arguments.") {
 		const auto arguments = get({binary, "--verbose", input_path.string()});
 		REQUIRE(is_valid(arguments));
-		REQUIRE(arguments.input == input_path.string());
+		REQUIRE(arguments.input.size() == 1U);
+		REQUIRE(arguments.input[0U] == input_path.string());
 	}
 
 	SECTION("Input is read properly after --.") {
 		const auto arguments = get({binary, "--overwrite", "--", input_path.string()});
 		REQUIRE(is_valid(arguments));
-		REQUIRE(arguments.input == input_path.string());
+		REQUIRE(arguments.input.size() == 1U);
+		REQUIRE(arguments.input[0U] == input_path.string());
 	}
 }
 

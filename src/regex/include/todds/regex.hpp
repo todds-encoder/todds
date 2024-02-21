@@ -35,9 +35,15 @@ public:
 	[[nodiscard]] std::string_view error() const noexcept;
 
 	/**
+	 * Checks if the regex instance is properly set-up.
+	 * @return True if the regex has been initialized with a pattern.
+	 */
+	[[nodiscard]] bool valid() const noexcept;
+
+	/**
 	 * Checks if an input matches the regular expression compiled into a database.
-	 * This operation is not thread safe.
-	 * @param input Input to be checked for matches.
+	 * This operation is not thread safe. Should never be called on invalid regex instances.
+	 * @param input Input to be checked for matches, encoded in UTF-8.
 	 * @return True if a match was found or if the internal database is not valid.
 	 */
 	[[nodiscard]] bool match(std::string_view input) const;
