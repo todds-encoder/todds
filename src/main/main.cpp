@@ -10,6 +10,7 @@
 
 #include <boost/nowide/filesystem.hpp>
 #include <boost/nowide/iostream.hpp>
+#include <boost/predef.h>
 #include <fmt/format.h>
 #include <oneapi/tbb/tick_count.h>
 

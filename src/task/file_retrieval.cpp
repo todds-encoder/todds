@@ -6,6 +6,7 @@
 
 #include <boost/nowide/convert.hpp>
 #include <boost/nowide/fstream.hpp>
+#include <boost/predef.h>
 #include <fmt/format.h>
 
 #include <cwctype>
@@ -87,7 +88,8 @@ public:
 		, _overwrite_new{overwrite_new && !_overwrite}
 		, _substring{PATH_STRING_WIDEN(substring)}
 		, _regex{regex}
-		, _depth{depth} {}
+		, _depth{depth}
+		, _files{} {}
 
 	paths_vector get_result() {
 		process_user_input();
@@ -98,8 +100,8 @@ public:
 
 private:
 	[[nodiscard]] bool path_matches_criteria(const fs::path& path) const {
-		return !_substring.empty() && path.native().find(_substring) != std::string::npos ||
-					 _regex.valid() && _regex.match(PATH_STRING_NARROW(path.native()));
+		return (!_substring.empty() && path.native().find(_substring) != std::string::npos) ||
+					 (_regex.valid() && _regex.match(PATH_STRING_NARROW(path.native())));
 	}
 
 	[[nodiscard]] bool should_generate(const fs::path& input_path, const fs::path& output_path) const {
@@ -129,8 +131,8 @@ private:
 			// When current_match is true, there is no need to update when going deeper.
 			// When reducing depth, the value must always be updated.
 			if (itr->is_directory()) {
-				const std::size_t current_depth = itr.depth();
-				if ((current_depth > match_update_depth && !current_match || current_depth < match_update_depth)) {
+				const auto current_depth = static_cast<size_t>(itr.depth());
+				if (((current_depth > match_update_depth && !current_match) || current_depth < match_update_depth)) {
 					current_match = path_matches_criteria(path);
 					match_update_depth = current_depth;
 				}
