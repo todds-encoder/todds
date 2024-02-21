@@ -140,21 +140,25 @@ private:
 
 			_updates.emplace(todds::report_type::RETRIEVING_FILES_PROGRESS);
 
-			const fs::path& current_path = itr->path();
-			if (has_extension(current_path, png_extension)) {
-				// Determine output path.
-				fs::path current_output{};
-				if (_output.has_value()) {
-					current_output = _output.value();
-					const auto relative = fs::relative(current_path.parent_path(), path);
-					if (!relative.filename_is_dot()) { current_output /= relative; }
-					// Create the output folder if necessary.
-					if (_create_folders && !fs::exists(current_output)) { fs::create_directories(current_output); }
-				} else {
-					current_output = current_path.parent_path();
-				}
+			try {
+				const fs::path& current_path = itr->path();
+				if (has_extension(current_path, png_extension)) {
+					// Determine output path.
+					fs::path current_output{};
+					if (_output.has_value()) {
+						current_output = _output.value();
+						const auto relative = fs::relative(current_path.parent_path(), path);
+						if (!relative.filename_is_dot()) { current_output /= relative; }
+						// Create the output folder if necessary.
+						if (_create_folders && !fs::exists(current_output)) { fs::create_directories(current_output); }
+					} else {
+						current_output = current_path.parent_path();
+					}
 
-				process_file(current_path, current_output, current_match);
+					process_file(current_path, current_output, current_match);
+				}
+			} catch (const fs::filesystem_error& error) {
+				_updates.emplace(todds::report_type::PIPELINE_ERROR, error.what());
 			}
 
 			if (static_cast<unsigned int>(itr.depth()) >= _depth) { itr.disable_recursion_pending(); }
