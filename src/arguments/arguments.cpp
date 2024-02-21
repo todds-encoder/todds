@@ -94,7 +94,7 @@ constexpr auto substring_arg =
 	optional_arg{"--substring", "-ss", "Process only absolute paths containing this substring."};
 
 constexpr auto dry_run_arg =
-	optional_arg{"--dry-run", "-dr", "Calculate all files that would be affected but do not make any changes."};
+	optional_arg{"--dry-run", "-dr", "Retrieve all files that would be affected but do not make any changes."};
 
 constexpr auto progress_arg = optional_argument("--progress", "Display progress messages.");
 
@@ -216,13 +216,15 @@ todds::string get_help(std::size_t max_threads) {
 	print_string_argument(
 		ostream, todds::format::name(todds::format::type::bc7), "High-quality compression supporting alpha. [Default]");
 	print_string_argument(ostream, todds::format::name(todds::format::type::bc1), "Highly compressed RGB data.");
-	print_string_argument(ostream, todds::format::name(todds::format::type::bc3), "Highly compressed data supporting alpha.");
+	print_string_argument(
+		ostream, todds::format::name(todds::format::type::bc3), "Highly compressed data supporting alpha.");
 	print_string_argument(ostream, todds::format::name(todds::format::type::png),
 		"PNG format, intended for downscaling or metric calculation.");
 	print_optional_argument(ostream, alpha_format_arg);
 	print_string_argument(
 		ostream, todds::format::name(todds::format::type::bc7), "High-quality compression supporting alpha. [Default]");
-	print_string_argument(ostream, todds::format::name(todds::format::type::bc3), "Highly compressed data supporting alpha.");
+	print_string_argument(
+		ostream, todds::format::name(todds::format::type::bc3), "Highly compressed data supporting alpha.");
 
 	const todds::string quality_help =
 		fmt::format(quality_arg.help, static_cast<unsigned int>(todds::format::quality::minimum),
@@ -505,7 +507,7 @@ data get(const todds::vector<std::string_view>& arguments) {
 	if (parsed_arguments.stop_message.empty()) {
 		if (index < arguments.size()) {
 			boost::system::error_code error_code;
-			parsed_arguments.input = fs::canonical(arguments[index].data(), error_code);
+			parsed_arguments.input.emplace_back(fs::canonical(arguments[index].data(), error_code));
 			if (error_code) {
 				parsed_arguments.stop_message =
 					fmt::format("Invalid {:s} {:s}: {:s}.", input_name, arguments[index], error_code.message());

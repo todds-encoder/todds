@@ -13,7 +13,9 @@ namespace todds {
 
 enum class report_type {
 	/// todds has started retrieving all files to be encoded.
-	RETRIEVING_FILES,
+	RETRIEVING_FILES_STARTED,
+	/// Retrieving files progress report.
+	RETRIEVING_FILES_PROGRESS,
 	/// todds has finished retrieving all files. Contains the total time of this process.
 	FILE_RETRIEVAL_TIME,
 	/// File to process. Only enabled if the user specified verbose.

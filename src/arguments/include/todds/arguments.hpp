@@ -25,7 +25,9 @@ struct data {
 	string stop_message;
 	/** If this flag is set, it means that stop_message contains the help message. */
 	bool help;
-	boost::filesystem::path input;
+	/** One or more paths to be processed. */
+	todds::vector<boost::filesystem::path> input;
+	/** Path for the generated textures. If empty, DDS files will be created next to their source files. */
 	std::optional<boost::filesystem::path> output;
 	bool clean;
 	todds::format::type format;

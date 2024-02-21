@@ -8,7 +8,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("todds::project coherence checks", "[project]") {
-	STATIC_REQUIRE(!todds::project::name().empty());
-	STATIC_REQUIRE(!todds::project::description().empty());
-	STATIC_REQUIRE(!todds::project::version().empty());
+	REQUIRE(std::strlen(todds::project::name()) > 0U);
+	REQUIRE(std::strlen(todds::project::description()) > 0U);
+	REQUIRE(std::strlen(todds::project::version()) > 0U);
 }
