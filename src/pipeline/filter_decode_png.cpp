@@ -80,7 +80,7 @@ public:
 				dmp.write(reinterpret_cast<const char*>(image_start), static_cast<std::ptrdiff_t>(result->data_size()));
 #endif // defined(TODDS_PIPELINE_DUMP)
 			} catch (const std::runtime_error& exc) {
-				_updates.emplace(report_type::PIPELINE_ERROR, fmt::format("PNG Decoding error {:s} -> {:s}", path, exc.what()));
+				_updates.emplace(report_type::pipeline_error, fmt::format("PNG Decoding error {:s} -> {:s}", path, exc.what()));
 			}
 		}
 

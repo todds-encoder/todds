@@ -36,7 +36,7 @@ public:
 			result.image = png::encode(path, std::move(input));
 			return result;
 		} catch (const std::runtime_error& exc) {
-			_updates.emplace(report_type::PIPELINE_ERROR, fmt::format("PNG Encoding error {:s} -> {:s}", path, exc.what()));
+			_updates.emplace(report_type::pipeline_error, fmt::format("PNG Encoding error {:s} -> {:s}", path, exc.what()));
 		}
 
 		return {};

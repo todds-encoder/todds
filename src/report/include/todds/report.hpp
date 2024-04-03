@@ -13,19 +13,19 @@ namespace todds {
 
 enum class report_type {
 	/// todds has started retrieving all files to be encoded.
-	RETRIEVING_FILES_STARTED,
+	retrieving_files_started,
 	/// Retrieving files progress report.
-	RETRIEVING_FILES_PROGRESS,
+	retrieving_files_progress,
 	/// todds has finished retrieving all files. Contains the total time of this process.
-	FILE_RETRIEVAL_TIME,
+	file_retrieval_time,
 	/// File to process. Only enabled if the user specified verbose.
-	FILE_VERBOSE,
+	file_verbose,
 	/// The requested textures are being processed. This event is sent for both cleaning and encoding.
-	PROCESS_STARTED,
+	process_started,
 	/// Encoding progress report. Contains the number of textures encoded.
-	ENCODING_PROGRESS,
+	encoding_progress,
 	/// A non-critical error to be reported back to the user. Contains a text description of the error.
-	PIPELINE_ERROR,
+	pipeline_error,
 };
 
 class report final {

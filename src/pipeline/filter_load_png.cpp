@@ -45,13 +45,13 @@ public:
 
 		if (!ifs.is_open()) [[unlikely]] {
 			_updates.emplace(
-				report_type::PIPELINE_ERROR, fmt::format("Load PNG file error in {:s}", _paths[index].first.string()));
+				report_type::pipeline_error, fmt::format("Load PNG file error in {:s}", _paths[index].first.string()));
 		}
 
 		png_file result{{std::istreambuf_iterator<char>{ifs}, {}}, index};
 
 		if (result.buffer.empty()) [[unlikely]] {
-			_updates.emplace(report_type::PIPELINE_ERROR,
+			_updates.emplace(report_type::pipeline_error,
 				fmt::format("Could not load any data for PNG file {:s}", _paths[index].first.string()));
 		}
 #if defined(TODDS_PIPELINE_DUMP)

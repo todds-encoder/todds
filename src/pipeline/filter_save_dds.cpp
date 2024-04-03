@@ -52,7 +52,7 @@ public:
 		const std::size_t block_size_bytes = dds_img.image.size() * sizeof(std::uint64_t);
 		ofs.write(reinterpret_cast<const char*>(dds_img.image.data()), static_cast<std::ptrdiff_t>(block_size_bytes));
 		ofs.close();
-		_updates.emplace(report_type::ENCODING_PROGRESS);
+		_updates.emplace(report_type::encoding_progress);
 	}
 
 private:

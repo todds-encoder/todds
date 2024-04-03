@@ -51,7 +51,7 @@ static_assert(static_cast<path_diff_t>(txt_extension.size()) == extension_size);
 // lhs may have mixed case. rhs is assumed to be lower-case.
 template<typename char_type> bool insensitive_equals(const path_char lhs, const path_char rhs) {
 	if constexpr (std::is_same_v<char_type, wchar_t>) {
-		return std::towlower(lhs) == rhs;
+		return std::towlower(lhs) == rhs; // NOLINT
 	} else {
 		return std::tolower(lhs) == rhs;
 	}
@@ -78,7 +78,7 @@ class file_retrieval_state final {
 public:
 	file_retrieval_state(todds::report_queue& updates, const todds::vector<boost::filesystem::path>& input,
 		std::optional<boost::filesystem::path> output, todds::format::type format, bool create_folders, bool overwrite,
-		bool overwrite_new, const todds::string& substring, const todds::regex& regex, const std::size_t depth)
+		bool overwrite_new, const todds::string& substring, const todds::regex& regex, const std::size_t depth) // NOLINT
 		: _updates{updates}
 		, _input{input}
 		, _output{std::move(output)}
@@ -116,7 +116,7 @@ private:
 				process_user_input_directory(path);
 			} else if (!has_extension(path, png_extension) || !process_file(path, path.parent_path())) {
 				_updates.emplace(
-					todds::report_type::PIPELINE_ERROR, fmt::format("{:s} is not a PNG file or a directory.", path.string()));
+					todds::report_type::pipeline_error, fmt::format("{:s} is not a PNG file or a directory.", path.string()));
 			}
 		}
 	}
@@ -138,7 +138,7 @@ private:
 				}
 			}
 
-			_updates.emplace(todds::report_type::RETRIEVING_FILES_PROGRESS);
+			_updates.emplace(todds::report_type::retrieving_files_progress);
 
 			try {
 				const fs::path& current_path = itr->path();
@@ -158,7 +158,7 @@ private:
 					process_file(current_path, current_output, current_match);
 				}
 			} catch (const fs::filesystem_error& error) {
-				_updates.emplace(todds::report_type::PIPELINE_ERROR, error.what());
+				_updates.emplace(todds::report_type::pipeline_error, error.what());
 			}
 
 			if (static_cast<unsigned int>(itr.depth()) >= _depth) { itr.disable_recursion_pending(); }
@@ -197,11 +197,11 @@ file_retrieval_state from_args(const todds::args::data& args, todds::report_queu
 
 	if (!args.input.empty() && has_extension(args.input[0], txt_extension)) {
 		if (args.input.size() > 1U) {
-			updates.emplace(todds::report_type::PIPELINE_ERROR, "TXT file processing only supports a single input.");
+			updates.emplace(todds::report_type::pipeline_error, "TXT file processing only supports a single input.");
 		}
 		if (has_output) {
 			updates.emplace(
-				todds::report_type::PIPELINE_ERROR, "Output argument is not supported when processing a TXT file.");
+				todds::report_type::pipeline_error, "Output argument is not supported when processing a TXT file.");
 		}
 		todds::vector<boost::filesystem::path> input{};
 		boost::nowide::fstream stream{args.input[0]};
@@ -214,7 +214,7 @@ file_retrieval_state from_args(const todds::args::data& args, todds::report_queu
 	std::optional<boost::filesystem::path> output = args.output;
 	if (args.input.size() > 1U && has_output) {
 		updates.emplace(
-			todds::report_type::PIPELINE_ERROR, "Output argument is not supported when processing more than one input.");
+			todds::report_type::pipeline_error, "Output argument is not supported when processing more than one input.");
 		output.reset();
 	}
 
@@ -224,8 +224,8 @@ file_retrieval_state from_args(const todds::args::data& args, todds::report_queu
 
 namespace todds {
 
-paths_vector get_paths(const todds::args::data& args, todds::report_queue& updates) {
-	file_retrieval_state state = from_args(args, updates);
+paths_vector get_paths(const todds::args::data& arguments, todds::report_queue& updates) {
+	file_retrieval_state state = from_args(arguments, updates);
 	return state.get_result();
 }
 

@@ -68,20 +68,20 @@ void process_pipeline_reports(
 
 		while (updates.try_pop(update)) {
 			switch (update.type()) {
-			case todds::report_type::RETRIEVING_FILES_STARTED: cout << "Retrieving files to be processed.\n"; break;
-			case todds::report_type::RETRIEVING_FILES_PROGRESS: break;
-			case todds::report_type::FILE_RETRIEVAL_TIME:
+			case todds::report_type::retrieving_files_started: cout << "Retrieving files to be processed.\n"; break;
+			case todds::report_type::retrieving_files_progress: break;
+			case todds::report_type::file_retrieval_time:
 				cout << fmt::format("File retrieval time: {:.3f} seconds.\n", (static_cast<double>(update.value()) / 1000.0));
 				break;
-			case todds::report_type::FILE_VERBOSE:
+			case todds::report_type::file_verbose:
 				if (data.verbose) { cout << fmt::format("{:s}\n", update.data()); }
 				break;
-			case todds::report_type::PROCESS_STARTED:
+			case todds::report_type::process_started:
 				total_texture_count = update.value();
 				cout << fmt::format("Processing {:d} textures.\n", total_texture_count);
 				break;
-			case todds::report_type::ENCODING_PROGRESS: ++current_texture_count; break;
-			case todds::report_type::PIPELINE_ERROR: cerr << update.data() << '\n'; break;
+			case todds::report_type::encoding_progress: ++current_texture_count; break;
+			case todds::report_type::pipeline_error: cerr << update.data() << '\n'; break;
 			}
 		}
 

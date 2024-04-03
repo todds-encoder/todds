@@ -12,6 +12,7 @@
 # cppcoreguidelines-avoid-do-while: Allow do-while loops.
 # cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers: Required for test cases.
 # cppcoreguidelines-avoid-non-const-global-variables: Global variables for SIGINT handling.
+# cppcoreguidelines-macro-usage: Macros are required for wide string cross-platform compatibility.
 # cppcoreguidelines-owning-memory: Allow using non-owner pointers without requiring gsl types.
 # cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay: Allow using the standard assert macro.
 # cppcoreguidelines-pro-bounds-constant-array-index: Do not force bounds checking.
@@ -19,6 +20,7 @@
 # cppcoreguidelines-pro-type-union-access: Some third party libraries feature unions.
 # cppcoreguidelines-pro-type-reinterpret-cast: Writing objects to ofstream requires a reinterpret_cast.
 # cppcoreguidelines-pro-type-vararg,hicpp-vararg: Dear ImGui Text calls.
+# cppcoreguidelines-use-default-member-init, modernize-use-default-member-init: Allow this for consistency.
 # fuchsia-default-arguments-calls: Allow calling functions with default arguments.
 # fuchsia-default-arguments-declarations: Allow declaring functions with default arguments.
 # fuchsia-overloaded-operator: Allow overloading operators.
@@ -28,6 +30,7 @@
 # llvm-header-guard: Allow use of #pragma once
 # llvm-qualified-auto,readability-qualified-auto: Tries to treat array iterators as pointers on Linux.
 # llvmlibc-*: Disable all llvm libc specific checks.
+# misc-include-cleaner: False positives with hyperscan.
 # modernize-use-trailing-return-type: Allow declarations without trailing return types.
 # readability-function-cognitive-complexity: Triggered by catch2 tests.
 # readability-redundant-member-init: Conflicts with -Weffc++
@@ -45,6 +48,7 @@ Checks: '*,
 -cppcoreguidelines-avoid-do-while,
 -cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,
 -cppcoreguidelines-avoid-non-const-global-variables,
+-cppcoreguidelines-macro-usage,
 -cppcoreguidelines-owning-memory,
 -cppcoreguidelines-pro-bounds-array-to-pointer-decay,-hicpp-no-array-decay,
 -cppcoreguidelines-pro-bounds-constant-array-index,
@@ -52,6 +56,7 @@ Checks: '*,
 -cppcoreguidelines-pro-type-union-access,
 -cppcoreguidelines-pro-type-reinterpret-cast,
 -cppcoreguidelines-pro-type-vararg,-hicpp-vararg,
+-cppcoreguidelines-use-default-member-init,-modernize-use-default-member-init,
 -fuchsia-default-arguments-calls,
 -fuchsia-default-arguments-declarations,
 -fuchsia-overloaded-operator,
@@ -61,6 +66,7 @@ Checks: '*,
 -llvm-header-guard,
 -llvm-qualified-auto,-readability-qualified-auto,
 -llvmlibc-*,
+-misc-include-cleaner,
 -modernize-use-trailing-return-type,
 -readability-function-cognitive-complexity,
 -readability-redundant-member-init,

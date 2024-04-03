@@ -13,6 +13,6 @@
 namespace todds::pipeline::impl {
 
 oneapi::tbb::filter<void, void> get_filters_from_settings(const input& input_data, std::atomic<std::size_t>& counter,
-	std::atomic<bool>& force_finish, report_queue& error_log, vector<impl::file_data>& files_data);
+	std::atomic<bool>& force_finish, report_queue& updates, vector<impl::file_data>& files_data);
 
 } // namespace todds::pipeline::impl

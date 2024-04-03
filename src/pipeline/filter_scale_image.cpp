@@ -49,7 +49,7 @@ public:
 		}
 
 		if (width == 0 || height == 0) {
-			_updates.emplace(report_type::PIPELINE_ERROR,
+			_updates.emplace(report_type::pipeline_error,
 				fmt::format("Could not scale {:s} from ({:d}, {:d}) to ({:d}, {:d}).", _paths[img->file_index()].first.string(),
 					input_image.width(), input_image.height(), width, height));
 			return nullptr;
@@ -61,7 +61,7 @@ public:
 			cv::resize(input, output, output.size(), 0, 0, static_cast<int>(_filter));
 		} catch (const std::exception& exception) {
 			_updates.emplace(
-				report_type::PIPELINE_ERROR, fmt::format("Error while scaling {:s} from {:d}, {:d} to {:d}, {:d} -> {:s}",
+				report_type::pipeline_error, fmt::format("Error while scaling {:s} from {:d}, {:d} to {:d}, {:d} -> {:s}",
 																			 _paths[img->file_index()].first.string(), input_image.width(),
 																			 input_image.height(), width, height, exception.what()));
 		}

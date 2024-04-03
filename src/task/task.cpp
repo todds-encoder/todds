@@ -17,7 +17,7 @@ namespace {
 
 void verbose_output(const paths_vector& files, bool clean, todds::report_queue& updates) {
 	for (const auto& [png_file, dds_file] : files) {
-		updates.emplace(todds::report_type::FILE_VERBOSE, clean ? dds_file.string() : png_file.string());
+		updates.emplace(todds::report_type::file_verbose, clean ? dds_file.string() : png_file.string());
 	}
 }
 
@@ -28,14 +28,14 @@ void clean_dds_files(const paths_vector& files) {
 void pipeline_execution(
 	const todds::args::data& arguments, std::atomic<bool>& force_finish, todds::report_queue& updates) {
 	todds::pipeline::input input_data;
-	updates.emplace(todds::report_type::RETRIEVING_FILES_STARTED);
+	updates.emplace(todds::report_type::retrieving_files_started);
 
 	const auto start_time = oneapi::tbb::tick_count::now();
 	input_data.paths = get_paths(arguments, updates);
 
 	const auto end_time = oneapi::tbb::tick_count::now();
 	const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-	updates.emplace(todds::report_type::FILE_RETRIEVAL_TIME, milliseconds);
+	updates.emplace(todds::report_type::file_retrieval_time, milliseconds);
 
 #if defined(TODDS_PIPELINE_DUMP)
 	// Limit to a single file to avoid overwriting memory dumps, and any potential concurrency issues.
@@ -44,7 +44,7 @@ void pipeline_execution(
 	// Process arguments that affect the input.
 	if (arguments.verbose) { verbose_output(input_data.paths, arguments.clean, updates); }
 	if (arguments.dry_run) { return; }
-	updates.emplace(todds::report_type::PROCESS_STARTED, input_data.paths.size());
+	updates.emplace(todds::report_type::process_started, input_data.paths.size());
 	if (input_data.paths.empty()) { return; }
 
 	if (arguments.clean) {
