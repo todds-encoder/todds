@@ -101,7 +101,8 @@ public:
 private:
 	[[nodiscard]] bool path_matches_criteria(const fs::path& path) const {
 		return (!_substring.empty() && path.native().find(_substring) != std::string::npos) ||
-					 (_regex.valid() && _regex.match(PATH_STRING_NARROW(path.native())));
+					 (_regex.valid() && _regex.match(PATH_STRING_NARROW(path.native()))) ||
+					 (!_regex.valid() && _substring.empty());
 	}
 
 	[[nodiscard]] bool should_generate(const fs::path& input_path, const fs::path& output_path) const {
