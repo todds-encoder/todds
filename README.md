@@ -1,3 +1,7 @@
+# Archived project
+
+todds is no longer being developed and as a result the project has been set to read-only. I am working on [imutate](https://codeberg.org/joseasoler/imutate), a batch image format conversion tool which will eventually expand upon todds' feature set while supporting multiple image formats. It can be found at https://codeberg.org/joseasoler/imutate.
+
 # todds
 
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
